@@ -1,5 +1,8 @@
+# The platform needs to be set to a minimum of 11.0
+platform :ios, '11.0'
+
 # Uncomment this line to define a global platform for your project
-platform :ios, '14.0'
+# platform :ios, '11.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -32,8 +35,8 @@ target 'Runner' do
   use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  $FirebaseSDKVersion='10.23.0'
-
+  
+  # Add the ImageNotification target as a dependency of the main app
   target 'ImageNotification' do
     inherit! :search_paths
   end
@@ -42,48 +45,16 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    
+    # Add the following line to avoid PERMISSION_DENIED issues
     target.build_configurations.each do |config|
-      # e.g. when you don't need camera permission, just add 'PERMISSION_CAMERA=0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+      
+      # You might need these lines for newer Flutter versions
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
         '$(inherited)',
-
-        ## dart: PermissionGroup.calendar
-        #  'PERMISSION_EVENTS=1',
-
-        ## dart: PermissionGroup.reminders
-        # 'PERMISSION_REMINDERS=1',
-
-        ## dart: PermissionGroup.contacts
-        # 'PERMISSION_CONTACTS=1',
-
-        ## dart: PermissionGroup.camera
-         'PERMISSION_CAMERA=1',
-
-        ## dart: PermissionGroup.microphone
-        # 'PERMISSION_MICROPHONE=1',
-
-        ## dart: PermissionGroup.speech
-        # 'PERMISSION_SPEECH_RECOGNIZER=1',
-
-        ## dart: PermissionGroup.photos
-         'PERMISSION_PHOTOS=1',
-
-        ## dart: [PermissionGroup.location, PermissionGroup.locationAlways, PermissionGroup.locationWhenInUse]
-         'PERMISSION_LOCATION=1',
-
-        ## dart: PermissionGroup.notification
-         'PERMISSION_NOTIFICATIONS=1',
-
-        ## dart: PermissionGroup.mediaLibrary
-         'PERMISSION_MEDIA_LIBRARY=1',
-
-        ## dart: PermissionGroup.sensors
-        # 'PERMISSION_SENSORS=1'
-
+        'PERMISSION_NOTIFICATIONS=1',
       ]
-      config.build_settings['ENABLE_BITCODE'] = 'NO'
-	end
-
-
+    end
   end
 end
