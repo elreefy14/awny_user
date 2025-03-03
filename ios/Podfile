@@ -33,9 +33,11 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   $FirebaseSDKVersion='10.23.0'
+
+  target 'ImageNotification' do
+    inherit! :search_paths
+  end
 end
-
-
 
 target 'ImageNotification' do
    use_frameworks!
