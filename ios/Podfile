@@ -1,8 +1,8 @@
-# The platform needs to be set to a minimum of 11.0
-platform :ios, '11.0'
+# The platform needs to be set to a minimum of 14.0
+platform :ios, '14.0'
 
 # Uncomment this line to define a global platform for your project
-# platform :ios, '11.0'
+# platform :ios, '14.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -48,7 +48,7 @@ post_install do |installer|
     
     # Add the following line to avoid PERMISSION_DENIED issues
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
       
       # You might need these lines for newer Flutter versions
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
