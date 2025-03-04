@@ -55,6 +55,11 @@ post_install do |installer|
         '$(inherited)',
         'PERMISSION_NOTIFICATIONS=1',
       ]
+      
+      # Ensure both Runner and ImageNotification targets use iOS 14.0
+      if ['Runner', 'ImageNotification'].include? target.name
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+      end
     end
   end
 end
