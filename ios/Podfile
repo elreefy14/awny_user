@@ -35,11 +35,14 @@ target 'Runner' do
   use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+end
+
+target 'ImageNotification' do
+  use_frameworks!
+  use_modular_headers!
   
-  # Add the ImageNotification target as a dependency of the main app
-  target 'ImageNotification' do
-    inherit! :search_paths
-  end
+  pod 'Firebase/Messaging'
+  pod 'Firebase/Core'
 end
 
 post_install do |installer|
