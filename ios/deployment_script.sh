@@ -69,17 +69,23 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
+def shared_pods
+  pod 'Firebase/Core'
+  pod 'Firebase/Messaging'
+end
+
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
   
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  
-  target 'ImageNotification' do
-    inherit! :complete
-    pod 'Firebase/Messaging'
-    pod 'Firebase/Core'
-  end
+  shared_pods
+end
+
+target 'ImageNotification' do
+  use_frameworks!
+  use_modular_headers!
+  shared_pods
 end
 
 post_install do |installer|
