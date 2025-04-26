@@ -23,6 +23,8 @@ import 'package:nb_utils/nb_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geolocator/geolocator.dart';
+import '../screens/dashboard/dashboard_screen.dart';
 
 import 'app_configuration.dart';
 import 'constant.dart';
@@ -374,21 +376,42 @@ void locationWiseService(BuildContext context, VoidCallback onTap) async {
 
       if (res ?? false) {
         appStore.setLoading(true);
-
-        await setValue(PERMISSION_STATUS, value);
-        await getUserLocation().then((value) async {
-          await appStore.setCurrentLocation(!appStore.isCurrentLocation);
-        }).catchError((e) {
-          appStore.setLoading(false);
-          toast(e.toString(), print: true);
-        });
-
-        onTap.call();
       }
     }
   }).catchError((e) {
     toast(e.toString(), print: true);
   });
+}
+
+/// Shows service unavailability dialog only once per app session
+Future<void> checkLocationAndShowDialogOnce(
+    BuildContext context, Position position) async {
+  try {
+    // Check if service is available at this location
+    final response = await checkAddressAvailableForService({
+      'longitude': position.longitude,
+      'latitude': position.latitude,
+    });
+
+    if (response.exists == false && context.mounted) {
+      // Check if the dialog has been shown before
+      bool dialogShown =
+          getBoolAsync(SERVICE_UNAVAILABLE_DIALOG_SHOWN, defaultValue: false);
+
+      if (!dialogShown) {
+        // Show dialog and mark as shown
+        await setValue(SERVICE_UNAVAILABLE_DIALOG_SHOWN, true);
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => const UnsupportedAreaDialog(),
+        );
+      }
+    }
+  } catch (e) {
+    log('Error checking location availability: $e');
+  }
 }
 
 Future<List<File>> pickFiles({

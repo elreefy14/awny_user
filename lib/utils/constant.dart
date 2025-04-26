@@ -304,3 +304,6 @@ const JOB_REQUEST_STATUS_ASSIGNED = "assigned";
 
 const INACTIVE = 'Inactive';
 const ACTIVE = 'Active';
+
+// Flag to check if service unavailability dialog has been shown
+const SERVICE_UNAVAILABLE_DIALOG_SHOWN = 'SERVICE_UNAVAILABLE_DIALOG_SHOWN';

@@ -31,7 +31,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.monyleekawnyuser.awnyuserapp"
+    namespace "com.monyleekawnyuser.awnyuserapp2update"
     compileSdkVersion 34
     ndkVersion "25.1.8937393"
 
@@ -49,7 +49,7 @@ android {
     }
 
     defaultConfig {
-        applicationId 'com.monyleekawnyuser.awnyuserapp'
+        applicationId 'com.monyleekawnyuser.awnyuserapp2update'
         minSdkVersion 25
         targetSdkVersion 34
         multiDexEnabled true

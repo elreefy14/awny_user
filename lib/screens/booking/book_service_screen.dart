@@ -72,8 +72,11 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
       if (widget.data.serviceDetail != null) {
         if (widget.data.serviceDetail!.dateTimeVal != null) {
           if (widget.data.serviceDetail!.isSlotAvailable.validate()) {
-            dateTimeCont.text = formatBookingDate(widget.data.serviceDetail!.dateTimeVal.validate(), format: DATE_FORMAT_1);
-            selectedDate = DateTime.parse(widget.data.serviceDetail!.dateTimeVal.validate());
+            dateTimeCont.text = formatBookingDate(
+                widget.data.serviceDetail!.dateTimeVal.validate(),
+                format: DATE_FORMAT_1);
+            selectedDate = DateTime.parse(
+                widget.data.serviceDetail!.dateTimeVal.validate());
             pickedTime = TimeOfDay.fromDateTime(selectedDate!);
           }
           addressCont.text = widget.data.serviceDetail!.address.validate();
@@ -87,7 +90,10 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
       await setValue(PERMISSION_STATUS, value);
 
       if (value) {
-        String? res = await MapScreen(latitude: getDoubleAsync(LATITUDE), latLong: getDoubleAsync(LONGITUDE)).launch(context);
+        String? res = await MapScreen(
+                latitude: getDoubleAsync(LATITUDE),
+                latLong: getDoubleAsync(LONGITUDE))
+            .launch(context);
 
         addressCont.text = res.validate();
         setState(() {});
@@ -140,15 +146,23 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
 
       toast(language.youCannotApplyThisCoupon);
     } else {
-      advancePaymentAmount = (bookingAmountModel.finalGrandTotalAmount * (widget.data.serviceDetail!.advancePaymentPercentage.validate() / 100).toStringAsFixed(appConfigurationStore.priceDecimalPoint).toDouble());
+      advancePaymentAmount = (bookingAmountModel.finalGrandTotalAmount *
+          (widget.data.serviceDetail!.advancePaymentPercentage.validate() / 100)
+              .toStringAsFixed(appConfigurationStore.priceDecimalPoint)
+              .toDouble());
     }
     setState(() {});
   }
 
   void applyCoupon({bool isApplied = false}) async {
     hideKeyboard(context);
-    if (widget.data.serviceDetail != null && widget.data.serviceDetail!.id != null) {
-      var value = await CouponsScreen(serviceId: widget.data.serviceDetail!.id!.toInt(), servicePrice: bookingAmountModel.finalTotalServicePrice, appliedCouponData: appliedCouponData).launch(context);
+    if (widget.data.serviceDetail != null &&
+        widget.data.serviceDetail!.id != null) {
+      var value = await CouponsScreen(
+              serviceId: widget.data.serviceDetail!.id!.toInt(),
+              servicePrice: bookingAmountModel.finalTotalServicePrice,
+              appliedCouponData: appliedCouponData)
+          .launch(context);
       if (value != null) {
         if (value is bool && !value) {
           appliedCouponData = null;
@@ -187,23 +201,29 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           confirmText: language.lblOk,
           builder: (_, child) {
             return Theme(
-              data: appStore.isDarkMode ? ThemeData.dark() : AppTheme.lightTheme(),
+              data: appStore.isDarkMode
+                  ? ThemeData.dark()
+                  : AppTheme.lightTheme(),
               child: child!,
             );
           },
         ).then((time) {
           if (time != null) {
-            finalDate = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+            finalDate = DateTime(
+                date.year, date.month, date.day, time.hour, time.minute);
 
             DateTime now = DateTime.now().subtract(1.minutes);
-            if (date.isToday && finalDate!.millisecondsSinceEpoch < now.millisecondsSinceEpoch) {
+            if (date.isToday &&
+                finalDate!.millisecondsSinceEpoch <
+                    now.millisecondsSinceEpoch) {
               return toast(language.selectedOtherBookingTime);
             }
 
             selectedDate = date;
             pickedTime = time;
             widget.data.serviceDetail!.dateTimeVal = finalDate.toString();
-            dateTimeCont.text = "${formatBookingDate(selectedDate.toString(), format: DATE_FORMAT_3)} ${pickedTime!.format(context).toString()}";
+            dateTimeCont.text =
+                "${formatBookingDate(selectedDate.toString(), format: DATE_FORMAT_3)} ${pickedTime!.format(context).toString()}";
           }
           setState(() {});
         }).catchError((e) {
@@ -221,7 +241,9 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
         context: context,
         isScrollControlled: true,
         isDismissible: true,
-        shape: RoundedRectangleBorder(borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
+        shape: RoundedRectangleBorder(
+            borderRadius:
+                radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
         builder: (_) {
           return DraggableScrollableSheet(
             initialChildSize: 0.65,
@@ -259,7 +281,9 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.selectedPackage == null) Text(language.service, style: boldTextStyle(size: LABEL_TEXT_SIZE)),
+              if (widget.selectedPackage == null)
+                Text(language.service,
+                    style: boldTextStyle(size: LABEL_TEXT_SIZE)),
               if (widget.selectedPackage == null) 8.height,
               if (widget.selectedPackage == null) serviceWidget(context),
 
@@ -267,7 +291,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
 
               addressAndDescriptionWidget(context),
 
-              Text("${language.hintDescription}", style: boldTextStyle(size: LABEL_TEXT_SIZE)),
+              Text("${language.hintDescription}",
+                  style: boldTextStyle(size: LABEL_TEXT_SIZE)),
               8.height,
               AppTextField(
                 textFieldType: TextFieldType.MULTILINE,
@@ -276,7 +301,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 minLines: 3,
                 isValidationRequired: false,
                 enableChatGPT: appConfigurationStore.chatGPTStatus,
-                promptFieldInputDecorationChatGPT: inputDecoration(context).copyWith(
+                promptFieldInputDecorationChatGPT:
+                    inputDecoration(context).copyWith(
                   hintText: language.writeHere,
                   fillColor: context.scaffoldBackgroundColor,
                   filled: true,
@@ -319,10 +345,13 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Observer(builder: (context) {
-                    return WalletBalanceComponent().visible(appConfigurationStore.isEnableUserWallet && widget.data.serviceDetail!.isFixedService);
+                    return WalletBalanceComponent().visible(
+                        appConfigurationStore.isEnableUserWallet &&
+                            widget.data.serviceDetail!.isFixedService);
                   }),
                   16.height,
-                  Text(language.disclaimer, style: boldTextStyle(size: LABEL_TEXT_SIZE)),
+                  Text(language.disclaimer,
+                      style: boldTextStyle(size: LABEL_TEXT_SIZE)),
                   Text(language.disclaimerContent, style: secondaryTextStyle()),
                 ],
               ).paddingSymmetric(vertical: 16),
@@ -333,15 +362,25 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 children: [
                   AppButton(
                     color: context.primaryColor,
-                    text: widget.data.serviceDetail!.isAdvancePayment ? language.advancePayment : language.confirm,
+                    text: widget.data.serviceDetail!.isAdvancePayment
+                        ? language.advancePayment
+                        : language.confirm,
                     textColor: Colors.white,
                     onTap: () {
-                      if (widget.data.serviceDetail!.isOnSiteService && addressCont.text.isEmpty && dateTimeCont.text.isEmpty) {
+                      if (widget.data.serviceDetail!.isOnSiteService &&
+                          addressCont.text.isEmpty &&
+                          dateTimeCont.text.isEmpty) {
                         toast(language.pleaseEnterAddressAnd);
-                      } else if (widget.data.serviceDetail!.isOnSiteService && addressCont.text.isEmpty) {
+                      } else if (widget.data.serviceDetail!.isOnSiteService &&
+                          addressCont.text.isEmpty) {
                         toast(language.pleaseEnterYourAddress);
-                      } else if ((widget.data.serviceDetail!.isSlot != 1 && dateTimeCont.text.isEmpty) ||
-                          (widget.data.serviceDetail!.isSlot == 1 && (widget.data.serviceDetail!.bookingSlot == null || widget.data.serviceDetail!.bookingSlot.validate().isEmpty))) {
+                      } else if ((widget.data.serviceDetail!.isSlot != 1 &&
+                              dateTimeCont.text.isEmpty) ||
+                          (widget.data.serviceDetail!.isSlot == 1 &&
+                              (widget.data.serviceDetail!.bookingSlot == null ||
+                                  widget.data.serviceDetail!.bookingSlot
+                                      .validate()
+                                      .isEmpty))) {
                         toast(language.pleaseSelectBookingDate);
                       } else {
                         widget.data.serviceDetail!.address = addressCont.text;
@@ -350,15 +389,19 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                           builder: (p0) {
                             return ConfirmBookingDialog(
                               data: widget.data,
-                              bookingPrice: bookingAmountModel.finalGrandTotalAmount,
+                              bookingPrice:
+                                  bookingAmountModel.finalGrandTotalAmount,
                               selectedPackage: widget.selectedPackage,
                               qty: itemCount,
                               couponCode: appliedCouponData?.code,
                               bookingAmountModel: BookingAmountModel(
-                                finalCouponDiscountAmount: bookingAmountModel.finalCouponDiscountAmount,
-                                finalDiscountAmount: bookingAmountModel.finalDiscountAmount,
+                                finalCouponDiscountAmount: bookingAmountModel
+                                    .finalCouponDiscountAmount,
+                                finalDiscountAmount:
+                                    bookingAmountModel.finalDiscountAmount,
                                 finalSubTotal: bookingAmountModel.finalSubTotal,
-                                finalTotalServicePrice: bookingAmountModel.finalTotalServicePrice,
+                                finalTotalServicePrice:
+                                    bookingAmountModel.finalTotalServicePrice,
                                 finalTotalTax: bookingAmountModel.finalTotalTax,
                               ),
                             );
@@ -384,7 +427,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               16.height,
-              Text(language.lblYourAddress, style: boldTextStyle(size: LABEL_TEXT_SIZE)),
+              Text(language.lblYourAddress,
+                  style: boldTextStyle(size: LABEL_TEXT_SIZE)),
               8.height,
               AppTextField(
                 textFieldType: TextFieldType.MULTILINE,
@@ -414,21 +458,24 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // TextButton(
-                  //   child: Text(language.lblChooseFromMap, style: boldTextStyle(color: primaryColor, size: 13)),
-                  //   onPressed: () {
-                  //     _handleSetLocationClick();
-                  //   },
-                  // ).flexible(),
+                  TextButton(
+                    child: Text(language.lblChooseFromMap,
+                        style: boldTextStyle(color: primaryColor, size: 13)),
+                    onPressed: () {
+                      _handleSetLocationClick();
+                    },
+                  ).flexible(),
                   TextButton(
                     onPressed: _handleCurrentLocationClick,
-                    child: Text(language.lblUseCurrentLocation, style: boldTextStyle(color: primaryColor, size: 13), textAlign: TextAlign.right),
+                    child: Text(language.lblUseCurrentLocation,
+                        style: boldTextStyle(color: primaryColor, size: 13),
+                        textAlign: TextAlign.right),
                   ).flexible(),
                 ],
               ),
             ],
           ),
-     //   16.height.visible(!widget.data.serviceDetail!.isOnSiteService),
+        //   16.height.visible(!widget.data.serviceDetail!.isOnSiteService),
       ],
     );
   }
@@ -443,9 +490,12 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.data.serviceDetail!.name.validate(), style: boldTextStyle()),
+              Text(widget.data.serviceDetail!.name.validate(),
+                  style: boldTextStyle()),
               4.height,
-              Text('${language.duration} (${convertToHourMinute(widget.data.serviceDetail!.duration.validate())})', style: secondaryTextStyle()),
+              Text(
+                  '${language.duration} (${convertToHourMinute(widget.data.serviceDetail!.duration.validate())})',
+                  style: secondaryTextStyle()),
               16.height,
               if (widget.data.serviceDetail!.isFixedService)
                 Container(
@@ -478,7 +528,9 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
             ],
           ).expand(),
           CachedImageWidget(
-            url: widget.data.serviceDetail!.attachments.validate().isNotEmpty ? widget.data.serviceDetail!.attachments!.first.validate() : '',
+            url: widget.data.serviceDetail!.attachments.validate().isNotEmpty
+                ? widget.data.serviceDetail!.attachments!.first.validate()
+                : '',
             height: 80,
             width: 80,
             fit: BoxFit.cover,
@@ -529,7 +581,9 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                       }
                     },
                     child: Text(
-                      appliedCouponData != null ? language.lblRemoveCoupon : language.applyCoupon,
+                      appliedCouponData != null
+                          ? language.lblRemoveCoupon
+                          : language.applyCoupon,
                       style: primaryTextStyle(color: context.primaryColor),
                     ),
                   )
@@ -540,7 +594,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(language.priceDetail, style: boldTextStyle(size: LABEL_TEXT_SIZE)),
+              Text(language.priceDetail,
+                  style: boldTextStyle(size: LABEL_TEXT_SIZE)),
             ],
           ),
           16.height,
@@ -553,33 +608,51 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 /// Service or Package Price
                 Row(
                   children: [
-                    Text(language.lblPrice, style: secondaryTextStyle(size: 14)).expand(),
+                    Text(language.lblPrice, style: secondaryTextStyle(size: 14))
+                        .expand(),
                     16.width,
                     if (widget.selectedPackage != null)
-                      PriceWidget(price: bookingAmountModel.finalTotalServicePrice, color: textPrimaryColorGlobal, isBoldText: true)
+                      PriceWidget(
+                          price: bookingAmountModel.finalTotalServicePrice,
+                          color: textPrimaryColorGlobal,
+                          isBoldText: true)
                     else if (!widget.data.serviceDetail!.isHourlyService)
                       Marquee(
                         child: Row(
                           children: [
-                            PriceWidget(price: widget.data.serviceDetail!.price.validate(), size: 12, isBoldText: false, color: textSecondaryColorGlobal),
-                            Text(' * $itemCount  = ', style: secondaryTextStyle()),
-                            PriceWidget(price: bookingAmountModel.finalTotalServicePrice, color: textPrimaryColorGlobal),
+                            PriceWidget(
+                                price:
+                                    widget.data.serviceDetail!.price.validate(),
+                                size: 12,
+                                isBoldText: false,
+                                color: textSecondaryColorGlobal),
+                            Text(' * $itemCount  = ',
+                                style: secondaryTextStyle()),
+                            PriceWidget(
+                                price:
+                                    bookingAmountModel.finalTotalServicePrice,
+                                color: textPrimaryColorGlobal),
                           ],
                         ),
                       )
                     else
-                      PriceWidget(price: bookingAmountModel.finalTotalServicePrice, color: textPrimaryColorGlobal, isBoldText: true)
+                      PriceWidget(
+                          price: bookingAmountModel.finalTotalServicePrice,
+                          color: textPrimaryColorGlobal,
+                          isBoldText: true)
                   ],
                 ),
 
                 /// Fix Discount on Base Price
-                if (widget.data.serviceDetail!.discount.validate() != 0 && widget.selectedPackage == null)
+                if (widget.data.serviceDetail!.discount.validate() != 0 &&
+                    widget.selectedPackage == null)
                   Column(
                     children: [
                       Divider(height: 26, color: context.dividerColor),
                       Row(
                         children: [
-                          Text(language.lblDiscount, style: secondaryTextStyle(size: 14)),
+                          Text(language.lblDiscount,
+                              style: secondaryTextStyle(size: 14)),
                           Text(
                             " (${widget.data.serviceDetail!.discount.validate()}% ${language.lblOff.toLowerCase()})",
                             style: boldTextStyle(color: Colors.green),
@@ -599,23 +672,30 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                 if (widget.selectedPackage == null)
                   Column(
                     children: [
-                      if (appliedCouponData != null) Divider(height: 26, color: context.dividerColor),
+                      if (appliedCouponData != null)
+                        Divider(height: 26, color: context.dividerColor),
                       if (appliedCouponData != null)
                         Row(
                           children: [
                             Row(
                               children: [
-                                Text(language.lblCoupon, style: secondaryTextStyle(size: 14)),
+                                Text(language.lblCoupon,
+                                    style: secondaryTextStyle(size: 14)),
                                 Text(
                                   " (${appliedCouponData!.code})",
-                                  style: boldTextStyle(color: primaryColor, size: 14),
+                                  style: boldTextStyle(
+                                      color: primaryColor, size: 14),
                                 ).onTap(() {
-                                  applyCoupon(isApplied: appliedCouponData!.code.validate().isNotEmpty);
+                                  applyCoupon(
+                                      isApplied: appliedCouponData!.code
+                                          .validate()
+                                          .isNotEmpty);
                                 }).expand(),
                               ],
                             ).expand(),
                             PriceWidget(
-                              price: bookingAmountModel.finalCouponDiscountAmount,
+                              price:
+                                  bookingAmountModel.finalCouponDiscountAmount,
                               color: Colors.green,
                               isBoldText: true,
                             ),
@@ -625,13 +705,23 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                   ),
 
                 /// Show Service Add-on Price
-                if (serviceAddonStore.selectedServiceAddon.validate().isNotEmpty)
+                if (serviceAddonStore.selectedServiceAddon
+                    .validate()
+                    .isNotEmpty)
                   Column(
                     children: [
                       Divider(height: 26, color: context.dividerColor),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [Text(language.serviceAddOns, style: secondaryTextStyle(size: 14)).flexible(fit: FlexFit.loose), 16.width, PriceWidget(price: bookingAmountModel.finalServiceAddonAmount, color: textPrimaryColorGlobal)],
+                        children: [
+                          Text(language.serviceAddOns,
+                                  style: secondaryTextStyle(size: 14))
+                              .flexible(fit: FlexFit.loose),
+                          16.width,
+                          PriceWidget(
+                              price: bookingAmountModel.finalServiceAddonAmount,
+                              color: textPrimaryColorGlobal)
+                        ],
                       ),
                     ],
                   ),
@@ -644,9 +734,13 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(language.lblSubTotal, style: secondaryTextStyle(size: 14)).flexible(fit: FlexFit.loose),
+                          Text(language.lblSubTotal,
+                                  style: secondaryTextStyle(size: 14))
+                              .flexible(fit: FlexFit.loose),
                           16.width,
-                          PriceWidget(price: bookingAmountModel.finalSubTotal, color: textPrimaryColorGlobal),
+                          PriceWidget(
+                              price: bookingAmountModel.finalSubTotal,
+                              color: textPrimaryColorGlobal),
                         ],
                       ),
                     ],
@@ -660,13 +754,20 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                       children: [
                         Row(
                           children: [
-                            Text(language.lblTax, style: secondaryTextStyle(size: 14)).expand(),
-                            Icon(Icons.info_outline_rounded, size: 20, color: context.primaryColor).onTap(
+                            Text(language.lblTax,
+                                    style: secondaryTextStyle(size: 14))
+                                .expand(),
+                            Icon(Icons.info_outline_rounded,
+                                    size: 20, color: context.primaryColor)
+                                .onTap(
                               () {
                                 showModalBottomSheet(
                                   context: context,
                                   builder: (_) {
-                                    return AppliedTaxListBottomSheet(taxes: widget.data.taxes.validate(), subTotal: bookingAmountModel.finalSubTotal);
+                                    return AppliedTaxListBottomSheet(
+                                        taxes: widget.data.taxes.validate(),
+                                        subTotal:
+                                            bookingAmountModel.finalSubTotal);
                                   },
                                 );
                               },
@@ -674,7 +775,10 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                           ],
                         ).expand(),
                         16.width,
-                        PriceWidget(price: bookingAmountModel.finalTotalTax, color: Colors.red, isBoldText: true),
+                        PriceWidget(
+                            price: bookingAmountModel.finalTotalTax,
+                            color: Colors.red,
+                            isBoldText: true),
                       ],
                     ),
                   ],
@@ -686,7 +790,9 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                     Divider(height: 26, color: context.dividerColor),
                     Row(
                       children: [
-                        Text(language.totalAmount, style: secondaryTextStyle(size: 14)).expand(),
+                        Text(language.totalAmount,
+                                style: secondaryTextStyle(size: 14))
+                            .expand(),
                         PriceWidget(
                           price: bookingAmountModel.finalGrandTotalAmount,
                           color: primaryColor,
@@ -706,11 +812,15 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                         children: [
                           Row(
                             children: [
-                              Text(language.advancePayAmount, style: secondaryTextStyle(size: 14)),
-                              Text(" (${widget.data.serviceDetail!.advancePaymentPercentage.validate().toString()}%)  ", style: boldTextStyle(color: Colors.green)),
+                              Text(language.advancePayAmount,
+                                  style: secondaryTextStyle(size: 14)),
+                              Text(
+                                  " (${widget.data.serviceDetail!.advancePaymentPercentage.validate().toString()}%)  ",
+                                  style: boldTextStyle(color: Colors.green)),
                             ],
                           ).expand(),
-                          PriceWidget(price: advancePaymentAmount, color: primaryColor),
+                          PriceWidget(
+                              price: advancePaymentAmount, color: primaryColor),
                         ],
                       ),
                     ],
@@ -726,19 +836,36 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
 
   Widget buildDateWidget() {
     if (widget.data.serviceDetail!.isSlotAvailable) {
-      return Text(widget.data.serviceDetail!.dateTimeVal.validate(), style: boldTextStyle(size: 12));
+      return Text(widget.data.serviceDetail!.dateTimeVal.validate(),
+          style: boldTextStyle(size: 12));
     }
-    return Text(formatBookingDate(widget.data.serviceDetail!.dateTimeVal.validate(), format: DATE_FORMAT_3), style: boldTextStyle(size: 12));
+    return Text(
+        formatBookingDate(widget.data.serviceDetail!.dateTimeVal.validate(),
+            format: DATE_FORMAT_3),
+        style: boldTextStyle(size: 12));
   }
 
   Widget buildTimeWidget() {
     if (widget.data.serviceDetail!.bookingSlot == null) {
-      return Text(formatBookingDate(widget.data.serviceDetail!.dateTimeVal.validate(), format: HOUR_12_FORMAT), style: boldTextStyle(size: 12));
+      return Text(
+          formatBookingDate(widget.data.serviceDetail!.dateTimeVal.validate(),
+              format: HOUR_12_FORMAT),
+          style: boldTextStyle(size: 12));
     }
     return Text(
         TimeOfDay(
-          hour: widget.data.serviceDetail!.bookingSlot.validate().splitBefore(':').split(":").first.toInt(),
-          minute: widget.data.serviceDetail!.bookingSlot.validate().splitBefore(':').split(":").last.toInt(),
+          hour: widget.data.serviceDetail!.bookingSlot
+              .validate()
+              .splitBefore(':')
+              .split(":")
+              .first
+              .toInt(),
+          minute: widget.data.serviceDetail!.bookingSlot
+              .validate()
+              .splitBefore(':')
+              .split(":")
+              .last
+              .toInt(),
         ).format(context),
         style: boldTextStyle(size: 12));
   }
@@ -748,7 +875,8 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         16.height,
-        Text(language.bookingDateAndSlot, style: boldTextStyle(size: LABEL_TEXT_SIZE)),
+        Text(language.bookingDateAndSlot,
+            style: boldTextStyle(size: LABEL_TEXT_SIZE)),
         16.height,
         widget.data.serviceDetail!.dateTimeVal == null
             ? GestureDetector(
@@ -761,12 +889,16 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                   child: Container(
                     padding: EdgeInsets.all(8),
                     alignment: Alignment.center,
-                    decoration: boxDecorationWithShadow(blurRadius: 0, backgroundColor: context.cardColor, borderRadius: radius()),
+                    decoration: boxDecorationWithShadow(
+                        blurRadius: 0,
+                        backgroundColor: context.cardColor,
+                        borderRadius: radius()),
                     child: Column(
                       children: [
                         ic_calendar.iconImage(size: 26),
                         8.height,
-                        Text(language.chooseDateTime, style: secondaryTextStyle()),
+                        Text(language.chooseDateTime,
+                            style: secondaryTextStyle()),
                       ],
                     ),
                   ),
@@ -784,14 +916,16 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                       children: [
                         Row(
                           children: [
-                            Text("${language.lblDate}: ", style: secondaryTextStyle()),
+                            Text("${language.lblDate}: ",
+                                style: secondaryTextStyle()),
                             buildDateWidget(),
                           ],
                         ),
                         8.height,
                         Row(
                           children: [
-                            Text("${language.lblTime}: ", style: secondaryTextStyle()),
+                            Text("${language.lblTime}: ",
+                                style: secondaryTextStyle()),
                             buildTimeWidget(),
                           ],
                         ),
@@ -830,11 +964,14 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Marquee(child: Text(widget.selectedPackage!.name.validate(), style: boldTextStyle())),
+                        Marquee(
+                            child: Text(widget.selectedPackage!.name.validate(),
+                                style: boldTextStyle())),
                         4.height,
                         Row(
                           children: [
-                            Text(language.includedServices, style: secondaryTextStyle()),
+                            Text(language.includedServices,
+                                style: secondaryTextStyle()),
                             8.width,
                             ic_info.iconImage(size: 20),
                           ],
@@ -843,7 +980,12 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                     ).expand(),
                     16.width,
                     CachedImageWidget(
-                      url: widget.selectedPackage!.imageAttachments.validate().isNotEmpty ? widget.selectedPackage!.imageAttachments!.first.validate() : '',
+                      url: widget.selectedPackage!.imageAttachments
+                              .validate()
+                              .isNotEmpty
+                          ? widget.selectedPackage!.imageAttachments!.first
+                              .validate()
+                          : '',
                       height: 60,
                       width: 60,
                       fit: BoxFit.cover,
@@ -856,13 +998,18 @@ class _BookServiceScreenState extends State<BookServiceScreen> {
                       context: context,
                       isScrollControlled: true,
                       isDismissible: true,
-                      shape: RoundedRectangleBorder(borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: radiusOnly(
+                              topLeft: defaultRadius, topRight: defaultRadius)),
                       builder: (_) {
                         return DraggableScrollableSheet(
                           initialChildSize: 0.50,
                           minChildSize: 0.2,
                           maxChildSize: 1,
-                          builder: (context, scrollController) => PackageInfoComponent(packageData: widget.selectedPackage!, scrollController: scrollController),
+                          builder: (context, scrollController) =>
+                              PackageInfoComponent(
+                                  packageData: widget.selectedPackage!,
+                                  scrollController: scrollController),
                         );
                       },
                     );

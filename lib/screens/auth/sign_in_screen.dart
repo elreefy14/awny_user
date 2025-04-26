@@ -1,6 +1,7 @@
 import 'package:booking_system_flutter/component/back_widget.dart';
 import 'package:booking_system_flutter/component/base_scaffold_body.dart';
 import 'package:booking_system_flutter/main.dart';
+import 'package:booking_system_flutter/screens/auth/firebase_otp_login_screen.dart';
 import 'package:booking_system_flutter/screens/auth/forgot_password_screen.dart';
 import 'package:booking_system_flutter/screens/auth/otp_login_screen.dart';
 import 'package:booking_system_flutter/screens/auth/sign_up_screen.dart';
@@ -512,7 +513,7 @@ class _SignInScreenState extends State<SignInScreen> {
   void otpSignIn() async {
     hideKeyboard(context);
 
-    OTPLoginScreenWithWhatsUpApi().launch(context);
+    FirebaseOTPLoginScreen().launch(context);
   }
 
   void onLoginSuccessRedirection() {
