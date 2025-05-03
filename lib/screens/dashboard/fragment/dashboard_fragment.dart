@@ -8,6 +8,7 @@ import 'package:booking_system_flutter/screens/dashboard/component/service_list_
 import 'package:booking_system_flutter/screens/dashboard/component/slider_and_location_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/shimmer/dashboard_shimmer.dart';
 import 'package:booking_system_flutter/screens/service/component/service_component.dart';
+import 'package:booking_system_flutter/screens/service/view_all_service_screen.dart';
 import 'package:booking_system_flutter/utils/colors.dart';
 import 'package:booking_system_flutter/utils/constant.dart';
 import 'package:flutter/material.dart';
@@ -121,26 +122,93 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                child: Text(
+                                  language.allServices,
+                                  style: boldTextStyle(
+                                      size: 18, letterSpacing: 0.5),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: primaryColor.withOpacity(0.5),
+                                      width: 2.0,
+                                    ),
+                                  ),
+                                ),
+                                padding: EdgeInsets.only(bottom: 4),
+                              ),
+                              TextButton.icon(
+                                onPressed: () {
+                                  ViewAllServiceScreen(isFeatured: '')
+                                      .launch(context);
+                                },
+                                icon: Icon(Icons.arrow_forward,
+                                    size: 16, color: primaryColor),
+                                label: Text(
+                                  "View All",
+                                  style: boldTextStyle(
+                                      color: primaryColor, size: 14),
+                                ),
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 0),
+                                  minimumSize: Size(10, 30),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        12.height,
+                        Stack(
+                          alignment: Alignment.centerRight,
                           children: [
-                            Text(
-                              language.allServices,
-                              style: boldTextStyle(size: 18),
+                            HorizontalList(
+                              itemCount: snap.service.validate().length,
+                              spacing: 16,
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              itemBuilder: (context, index) {
+                                return ServiceComponent(
+                                  serviceData: snap.service![index],
+                                  width: context.width() / 2 - 26,
+                                );
+                              },
                             ),
+                            // Right scroll indicator (subtle arrow)
+                            if (snap.service.validate().length > 2)
+                              Positioned(
+                                right: 0,
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.centerRight,
+                                      end: Alignment.centerLeft,
+                                      colors: [
+                                        context.scaffoldBackgroundColor,
+                                        context.scaffoldBackgroundColor
+                                            .withOpacity(0.0),
+                                      ],
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                    color: Colors.grey.withOpacity(0.7),
+                                  ),
+                                ),
+                              ),
                           ],
-                        ).paddingSymmetric(horizontal: 16),
-                        8.height,
-                        HorizontalList(
-                          itemCount: snap.service.validate().length,
-                          spacing: 16,
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          itemBuilder: (context, index) {
-                            return ServiceComponent(
-                              serviceData: snap.service![index],
-                              width: context.width() / 2 - 26,
-                            );
-                          },
                         ),
                       ],
                     ),
