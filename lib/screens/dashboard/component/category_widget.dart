@@ -21,11 +21,19 @@ class CategoryWidget extends StatelessWidget {
     // Vibrant orange color for background
     final orangeColor = Color(0xFFFF7F00);
 
-    // Image dimensions
-    final double imageSize =
-        categoryData.categoryImage.validate().endsWith('.svg') ? 80 : 90;
-    final double rectangleHeight = 65; // Smaller height for modern look
-    final double rectangleWidth = context.width() / 2 - 28; // Slightly wider
+    // Check if widget is used in horizontal list (smaller) or regular size
+    final bool isSmallSize = width != null && width! < 150;
+
+    // Image dimensions - adjust based on usage context
+    final double imageSize = isSmallSize
+        ? (categoryData.categoryImage.validate().endsWith('.svg') ? 60 : 70)
+        : (categoryData.categoryImage.validate().endsWith('.svg') ? 80 : 90);
+
+    final double rectangleHeight =
+        isSmallSize ? 50 : 65; // Smaller height for horizontal list
+    final double rectangleWidth = isSmallSize
+        ? (width! - 12) // Slightly narrower for horizontal list
+        : (context.width() / 2 - 28); // Regular width for grid
 
     return SizedBox(
       width: width ?? context.width() / 2 - 24,
@@ -39,15 +47,14 @@ class CategoryWidget extends StatelessWidget {
               // Orange rectangle positioned below
               Padding(
                 padding: EdgeInsets.only(
-                    top: imageSize *
-                        0.3), // Push down more to let image protrude further
+                    top: imageSize * 0.3), // Push down to let image protrude
                 child: Container(
                   width: rectangleWidth,
                   height: rectangleHeight,
                   margin: EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
                     color: orangeColor,
-                    borderRadius: radius(14), // Slightly more rounded corners
+                    borderRadius: radius(14), // Rounded corners
                     boxShadow: [
                       BoxShadow(
                         color: orangeColor.withOpacity(0.2),
@@ -91,13 +98,14 @@ class CategoryWidget extends StatelessWidget {
 
           // Text below the orange rectangle with proper spacing
           Container(
-            width: context.width() / 2 - 40,
-            padding: EdgeInsets.only(top: 14), // Slightly increased spacing
+            width: isSmallSize ? width! - 8 : (context.width() / 2 - 40),
+            padding: EdgeInsets.only(top: isSmallSize ? 12 : 14),
             child: Text(
               '${categoryData.name.validate()}',
-              style: boldTextStyle(size: 15),
+              style: boldTextStyle(size: isSmallSize ? 12 : 15),
               textAlign: TextAlign.center,
-              maxLines: 2,
+              maxLines:
+                  1, // Only one line for horizontal list to avoid overflow
               overflow: TextOverflow.ellipsis,
             ),
           ),

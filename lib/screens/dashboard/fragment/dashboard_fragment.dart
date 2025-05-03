@@ -4,6 +4,7 @@ import 'package:booking_system_flutter/network/rest_apis.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/category_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/category_service_list_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/featured_service_list_component.dart';
+import 'package:booking_system_flutter/screens/dashboard/component/horizontal_categories_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/service_list_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/slider_and_location_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/shimmer/dashboard_shimmer.dart';
@@ -113,6 +114,12 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                       },
                     ),
                     30.height,
+
+                    // Horizontal Categories
+                    HorizontalCategoriesComponent(
+                        categoryList: snap.category.validate()),
+
+                    16.height,
 
                     // Pending Booking Section
                     PendingBookingComponent(
