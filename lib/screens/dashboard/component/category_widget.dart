@@ -17,81 +17,85 @@ class CategoryWidget extends StatelessWidget {
 
   CategoryWidget({required this.categoryData, this.width, this.isFromCategory});
 
-  Widget buildDefaultComponent(BuildContext context) {
+  Widget buildNewDesignComponent(BuildContext context) {
+    // Vibrant orange color for background
+    final orangeColor = Color(0xFFFF7F00);
+
+    // Image dimensions
+    final double imageSize =
+        categoryData.categoryImage.validate().endsWith('.svg') ? 80 : 90;
+    final double rectangleHeight = 65; // Smaller height for modern look
+    final double rectangleWidth = context.width() / 2 - 28; // Slightly wider
+
     return SizedBox(
-      width: width ?? context.width() / 4 - 20,
+      width: width ?? context.width() / 2 - 24,
       child: Column(
         children: [
-          Container(
-            width: CATEGORY_ICON_SIZE + 16,
-            height: CATEGORY_ICON_SIZE + 16,
-            decoration: BoxDecoration(
-              color: context.cardColor,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
-                ),
-              ],
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  context.cardColor,
-                  categoryData.color.validate(value: '000').toColor().withOpacity(0.1),
-                ],
-              ),
-            ),
-            child: categoryData.categoryImage.validate().endsWith('.svg')
-                ? Container(
-                    padding: EdgeInsets.all(12),
-                    child: SvgPicture.network(
-                      categoryData.categoryImage.validate(),
-                      height: CATEGORY_ICON_SIZE - 10,
-                      width: CATEGORY_ICON_SIZE - 10,
-                      fit: BoxFit.contain,
-                      color: appStore.isDarkMode ? Colors.white : categoryData.color.validate(value: '000').toColor(),
-                      placeholderBuilder: (context) => PlaceHolderWidget(
-                        height: CATEGORY_ICON_SIZE - 10,
-                        width: CATEGORY_ICON_SIZE - 10,
-                        color: transparentColor,
+          // Stack to position image partially above the rectangle
+          Stack(
+            alignment: Alignment.topCenter,
+            clipBehavior: Clip.none,
+            children: [
+              // Orange rectangle positioned below
+              Padding(
+                padding: EdgeInsets.only(
+                    top: imageSize *
+                        0.3), // Push down more to let image protrude further
+                child: Container(
+                  width: rectangleWidth,
+                  height: rectangleHeight,
+                  margin: EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: orangeColor,
+                    borderRadius: radius(14), // Slightly more rounded corners
+                    boxShadow: [
+                      BoxShadow(
+                        color: orangeColor.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                        spreadRadius: 1,
                       ),
-                    ),
-                  )
-                : Container(
-                    padding: EdgeInsets.all(8),
-                    child: CachedImageWidget(
-                      url: categoryData.categoryImage.validate(),
-                      fit: BoxFit.contain,
-                      width: CATEGORY_ICON_SIZE,
-                      height: CATEGORY_ICON_SIZE,
-                      circle: true,
-                      placeHolderImage: '',
-                    ),
+                    ],
                   ),
-          ),
-          8.height,
-          Container(
-            width: (width ?? context.width() / 4 - 20),
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: context.cardColor,
-              borderRadius: radius(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 0.5,
-                  blurRadius: 2,
-                  offset: Offset(0, 1),
                 ),
-              ],
-            ),
+              ),
+
+              // Image positioned to overlap the rectangle
+              Positioned(
+                top: 0,
+                child: categoryData.categoryImage.validate().endsWith('.svg')
+                    ? SvgPicture.network(
+                        categoryData.categoryImage.validate(),
+                        height: imageSize,
+                        width: imageSize,
+                        fit: BoxFit.contain,
+                        color: Colors
+                            .white, // Make SVG white for better visibility
+                        placeholderBuilder: (context) => PlaceHolderWidget(
+                          height: imageSize,
+                          width: imageSize,
+                          color: transparentColor,
+                        ),
+                      )
+                    : CachedImageWidget(
+                        url: categoryData.categoryImage.validate(),
+                        fit: BoxFit.contain,
+                        width: imageSize,
+                        height: imageSize,
+                        radius: 0,
+                        placeHolderImage: '',
+                      ),
+              ),
+            ],
+          ),
+
+          // Text below the orange rectangle with proper spacing
+          Container(
+            width: context.width() / 2 - 40,
+            padding: EdgeInsets.only(top: 14), // Slightly increased spacing
             child: Text(
               '${categoryData.name.validate()}',
-              style: primaryTextStyle(size: 12),
+              style: boldTextStyle(size: 15),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -104,22 +108,7 @@ class CategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget categoryComponent() {
-      return Observer(builder: (context) {
-        if (appConfigurationStore.userDashboardType == DASHBOARD_1) {
-          return buildDefaultComponent(context);
-        } else if (appConfigurationStore.userDashboardType == DASHBOARD_2) {
-          return buildDefaultComponent(context);
-        } else if (appConfigurationStore.userDashboardType == DASHBOARD_3) {
-          return CategoryDashboardComponent3(categoryData: categoryData);
-        } else if (appConfigurationStore.userDashboardType == DASHBOARD_4) {
-          return CategoryDashboardComponent4(categoryData: categoryData);
-        } else {
-          return buildDefaultComponent(context);
-        }
-      });
-    }
-
-    return categoryComponent();
+    // Always return the new design component regardless of dashboardType
+    return buildNewDesignComponent(context);
   }
 }
