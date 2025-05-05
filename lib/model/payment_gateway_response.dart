@@ -9,14 +9,25 @@ class PaymentSetting {
   LiveValue? testValue;
   LiveValue? liveValue;
 
-  PaymentSetting({this.id, this.isTest, this.liveValue, this.status, this.title, this.type, this.testValue});
+  PaymentSetting(
+      {this.id,
+      this.isTest,
+      this.liveValue,
+      this.status,
+      this.title,
+      this.type,
+      this.testValue});
 
   static String encode(List<PaymentSetting> paymentList) {
-    return json.encode(paymentList.map<Map<String, dynamic>>((payment) => payment.toJson()).toList());
+    return json.encode(paymentList
+        .map<Map<String, dynamic>>((payment) => payment.toJson())
+        .toList());
   }
 
   static List<PaymentSetting> decode(String musics) {
-    return (json.decode(musics) as List<dynamic>).map<PaymentSetting>((item) => PaymentSetting.fromJson(item)).toList();
+    return (json.decode(musics) as List<dynamic>)
+        .map<PaymentSetting>((item) => PaymentSetting.fromJson(item))
+        .toList();
   }
 
   PaymentSetting.fromJson(Map<String, dynamic> json)
@@ -25,8 +36,12 @@ class PaymentSetting {
         type = json["type"],
         status = json["status"],
         isTest = json["is_test"],
-        testValue = json['value'] != null ? LiveValue.fromJson(json['value']) : LiveValue(),
-        liveValue = json['live_value'] != null ? LiveValue.fromJson(json['live_value']) : LiveValue();
+        testValue = json['value'] != null
+            ? LiveValue.fromJson(json['value'])
+            : LiveValue(),
+        liveValue = json['live_value'] != null
+            ? LiveValue.fromJson(json['live_value'])
+            : LiveValue();
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
@@ -91,6 +106,13 @@ class LiveValue {
   /// For Midtrans
   String? midtransClientId;
 
+  /// For PayMob
+  String? paymobApiKey;
+  String? paymobIntegrationId;
+  String? paymobIframeId;
+  String? paymobHmac;
+  String? paymobCallbackUrl;
+
   LiveValue({
     this.stripeUrl,
     this.stripeKey,
@@ -117,6 +139,11 @@ class LiveValue {
     this.phonePeSaltIndex,
     this.paystackPublicKey,
     this.midtransClientId,
+    this.paymobApiKey,
+    this.paymobIntegrationId,
+    this.paymobIframeId,
+    this.paymobHmac,
+    this.paymobCallbackUrl,
   });
 
   factory LiveValue.fromJson(Map<String, dynamic> json) {
@@ -141,11 +168,18 @@ class LiveValue {
       airtelClientId: json['client_id'] is String ? json['client_id'] : "",
       airtelSecretKey: json['secret_key'] is String ? json['secret_key'] : "",
       phonePeAppID: json['app_id'] is String ? json['app_id'] : "",
-      phonePeMerchantID: json['merchant_id'] is String ? json['merchant_id'] : "",
+      phonePeMerchantID:
+          json['merchant_id'] is String ? json['merchant_id'] : "",
       phonePeSaltKey: json['salt_key'] is String ? json['salt_key'] : "",
       phonePeSaltIndex: json["salt_index"] is String ? json["salt_index"] : "1",
-      paystackPublicKey: json['paystack_public'] is String ? json['paystack_public'] : "",
+      paystackPublicKey:
+          json['paystack_public'] is String ? json['paystack_public'] : "",
       midtransClientId: json['client_id'] ?? '',
+      paymobApiKey: json['paymob_api_key'] ?? '',
+      paymobIntegrationId: json['paymob_integration_id'] ?? '',
+      paymobIframeId: json['paymob_iframe_id'] ?? '',
+      paymobHmac: json['paymob_Hmac'] ?? '',
+      paymobCallbackUrl: json['paymob_callback_url'] ?? '',
     );
   }
 
@@ -175,7 +209,15 @@ class LiveValue {
     data['salt_key'] = this.phonePeSaltKey;
     data['salt_index'] = this.phonePeSaltIndex;
     data['paystack_public'] = this.paystackPublicKey;
-    data['client_id'] = this.midtransClientId;
+    if (this.midtransClientId != null && this.midtransClientId!.isNotEmpty) {
+      data['client_id'] = this.midtransClientId;
+    }
+
+    data['paymob_api_key'] = this.paymobApiKey;
+    data['paymob_integration_id'] = this.paymobIntegrationId;
+    data['paymob_iframe_id'] = this.paymobIframeId;
+    data['paymob_Hmac'] = this.paymobHmac;
+    data['paymob_callback_url'] = this.paymobCallbackUrl;
 
     return data;
   }
