@@ -29,15 +29,40 @@ class DashboardResponse {
 
   factory DashboardResponse.fromJson(Map<String, dynamic> json) {
     return DashboardResponse(
-      category: json['category'] != null ? (json['category'] as List).map((i) => CategoryData.fromJson(i)).toList() : null,
-      provider: json['provider'] != null ? (json['provider'] as List).map((i) => UserData.fromJson(i)).toList() : null,
-      service: json['service'] != null ? (json['service'] as List).map((i) => ServiceData.fromJson(i)).toList() : null,
-      featuredServices: json['featured_service'] != null ? (json['featured_service'] as List).map((i) => ServiceData.fromJson(i)).toList() : null,
-      slider: json['slider'] != null ? (json['slider'] as List).map((i) => SliderModel.fromJson(i)).toList() : null,
-      dashboardCustomerReview: json['customer_review'] != null ? (json['customer_review'] as List).map((i) => DashboardCustomerReview.fromJson(i)).toList() : null,
-      upcomingData: json['upcomming_confirmed_booking'] != null ? BookingData.fromJson(json['upcomming_confirmed_booking']) : null,
+      category: json['category'] != null
+          ? (json['category'] as List)
+              .map((i) => CategoryData.fromJson(i))
+              .toList()
+          : null,
+      provider: json['provider'] != null
+          ? (json['provider'] as List).map((i) => UserData.fromJson(i)).toList()
+          : null,
+      service: json['service'] != null
+          ? (json['service'] as List)
+              .map((i) => ServiceData.fromJson(i))
+              .toList()
+          : null,
+      featuredServices: json['featured_service'] != null
+          ? (json['featured_service'] as List)
+              .map((i) => ServiceData.fromJson(i))
+              .toList()
+          : null,
+      slider: json['slider'] != null
+          ? (json['slider'] as List)
+              .map((i) => SliderModel.fromJson(i))
+              .toList()
+          : null,
+      dashboardCustomerReview: json['customer_review'] != null
+          ? (json['customer_review'] as List)
+              .map((i) => DashboardCustomerReview.fromJson(i))
+              .toList()
+          : null,
+      upcomingData: json['upcomming_confirmed_booking'] != null
+          ? BookingData.fromJson(json['upcomming_confirmed_booking'])
+          : null,
       notificationUnreadCount: json['notification_unread_count'],
-      isEmailVerified: json['is_email_verified'] != null ? json['is_email_verified'] : 0,
+      isEmailVerified:
+          json['is_email_verified'] != null ? json['is_email_verified'] : 0,
     );
   }
 
@@ -60,10 +85,13 @@ class DashboardResponse {
       data['slider'] = this.slider!.map((v) => v.toJson()).toList();
     }
     if (this.dashboardCustomerReview != null) {
-      data['customer_review'] = this.dashboardCustomerReview!.map((v) => v.toJson()).toList();
+      data['customer_review'] =
+          this.dashboardCustomerReview!.map((v) => v.toJson()).toList();
     }
     if (this.upcomingData != null) {
-      data['upcomming_confirmed_booking'] != null ? BookingData.fromJson(data['upcomming_confirmed_booking']) : null;
+      data['upcomming_confirmed_booking'] != null
+          ? BookingData.fromJson(data['upcomming_confirmed_booking'])
+          : null;
     }
 
     return data;
@@ -79,6 +107,11 @@ class SliderModel {
   String? title;
   String? type;
   int? typeId;
+  String? direction;
+  String? mediaType;
+
+  bool get isDirectionUp => (direction ?? '').toLowerCase() == 'up';
+  bool get isVideo => (mediaType ?? '').toLowerCase() == 'video';
 
   SliderModel({
     this.description,
@@ -89,6 +122,8 @@ class SliderModel {
     this.title,
     this.type,
     this.typeId,
+    this.direction,
+    this.mediaType,
   });
 
   factory SliderModel.fromJson(Map<String, dynamic> json) {
@@ -101,6 +136,8 @@ class SliderModel {
       title: json['title'],
       type: json['type'],
       typeId: json['type_id'],
+      direction: json['direction'],
+      mediaType: json['media_type'],
     );
   }
 
@@ -114,6 +151,8 @@ class SliderModel {
     data['title'] = this.title;
     data['type'] = this.type;
     data['type_id'] = this.typeId;
+    data['direction'] = this.direction;
+    data['media_type'] = this.mediaType;
     return data;
   }
 }
@@ -131,11 +170,24 @@ class DashboardCustomerReview {
   int? serviceId;
   String? serviceName;
 
-  DashboardCustomerReview({this.attchments, this.bookingId, this.createdAt, this.customerId, this.customerName, this.id, this.profileImage, this.rating, this.review, this.serviceId, this.serviceName});
+  DashboardCustomerReview(
+      {this.attchments,
+      this.bookingId,
+      this.createdAt,
+      this.customerId,
+      this.customerName,
+      this.id,
+      this.profileImage,
+      this.rating,
+      this.review,
+      this.serviceId,
+      this.serviceName});
 
   factory DashboardCustomerReview.fromJson(Map<String, dynamic> json) {
     return DashboardCustomerReview(
-      attchments: json['attchments'] != null ? new List<String>.from(json['attchments']) : null,
+      attchments: json['attchments'] != null
+          ? new List<String>.from(json['attchments'])
+          : null,
       bookingId: json['booking_id'],
       createdAt: json['created_at'],
       customerId: json['customer_id'],

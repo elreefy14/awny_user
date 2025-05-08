@@ -11,7 +11,8 @@ class CategoryListDashboardComponent3 extends StatelessWidget {
   final List<CategoryData> categoryList;
   final String listTiTle;
 
-  CategoryListDashboardComponent3({required this.categoryList, this.listTiTle = ''});
+  CategoryListDashboardComponent3(
+      {required this.categoryList, this.listTiTle = ''});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class CategoryListDashboardComponent3 extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        16.height,
+        12.height,
         ViewAllLabel(
           label: listTiTle,
           list: categoryList,
@@ -32,16 +33,30 @@ class CategoryListDashboardComponent3 extends StatelessWidget {
           },
         ).paddingSymmetric(horizontal: 16),
         if (categoryList.isNotEmpty)
-          HorizontalList(
-            itemCount: categoryList.length,
-            spacing: 16,
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            itemBuilder: (context, index) {
-              return CategoryDashboardComponent3(
-                categoryData: categoryList[index],
-              );
-            },
-          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: GridView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                childAspectRatio:
+                    0.56, // Further adjusted for even larger icons
+                crossAxisSpacing: 4, // Maintain small spacing
+                mainAxisSpacing: 6, // Slightly increase vertical spacing
+              ),
+              itemCount: categoryList.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  height: 130, // Increased container height for larger images
+                  child: CategoryDashboardComponent3(
+                    categoryData: categoryList[index],
+                    width: context.width() / 4 - 6,
+                  ),
+                );
+              },
+            ),
+          ).paddingSymmetric(horizontal: 8),
       ],
     );
   }

@@ -4,6 +4,7 @@ import 'package:booking_system_flutter/utils/string_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../../component/cached_image_widget.dart';
 import '../../../../main.dart';
@@ -23,32 +24,72 @@ class SliderDashboardComponent1 extends StatefulWidget {
   final List<ServiceData>? featuredList;
   final VoidCallback? callback;
 
-  SliderDashboardComponent1({required this.sliderList, this.callback, this.featuredList});
+  SliderDashboardComponent1(
+      {required this.sliderList, this.callback, this.featuredList});
 
   @override
-  _SliderDashboardComponent1State createState() => _SliderDashboardComponent1State();
+  _SliderDashboardComponent1State createState() =>
+      _SliderDashboardComponent1State();
 }
 
 class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
   PageController sliderPageController = PageController(initialPage: 0);
   int _currentPage = 0;
   Timer? _timer;
+  Map<int, VideoPlayerController> videoControllers = {};
 
   @override
   void initState() {
     super.initState();
-    if (getBoolAsync(AUTO_SLIDER_STATUS, defaultValue: true) && widget.sliderList.length >= 2) {
-      _timer = Timer.periodic(Duration(seconds: DASHBOARD_AUTO_SLIDER_SECOND), (Timer timer) {
+
+    // Initialize video controllers for any video sliders
+    for (int i = 0; i < widget.sliderList.length; i++) {
+      if (widget.sliderList[i].isVideo) {
+        videoControllers[i] = VideoPlayerController.network(
+            widget.sliderList[i].sliderImage.validate())
+          ..initialize().then((_) {
+            if (mounted) setState(() {});
+          });
+      }
+    }
+
+    if (getBoolAsync(AUTO_SLIDER_STATUS, defaultValue: true) &&
+        widget.sliderList.length >= 2) {
+      _timer = Timer.periodic(Duration(seconds: DASHBOARD_AUTO_SLIDER_SECOND),
+          (Timer timer) {
         if (_currentPage < widget.sliderList.length - 1) {
           _currentPage++;
         } else {
           _currentPage = 0;
         }
-        sliderPageController.animateToPage(_currentPage, duration: Duration(milliseconds: 950), curve: Curves.easeOutQuart);
+
+        // Pause current video if any
+        if (videoControllers.containsKey(_currentPage) &&
+            videoControllers[_currentPage]!.value.isPlaying) {
+          videoControllers[_currentPage]!.pause();
+        }
+
+        sliderPageController.animateToPage(_currentPage,
+            duration: Duration(milliseconds: 950), curve: Curves.easeOutQuart);
       });
 
       sliderPageController.addListener(() {
-        _currentPage = sliderPageController.page!.toInt();
+        int newPage = sliderPageController.page!.toInt();
+        if (_currentPage != newPage) {
+          // Pause previous video if playing
+          if (videoControllers.containsKey(_currentPage) &&
+              videoControllers[_currentPage]!.value.isPlaying) {
+            videoControllers[_currentPage]!.pause();
+          }
+
+          // Play new video if available
+          if (videoControllers.containsKey(newPage) &&
+              !videoControllers[newPage]!.value.isPlaying) {
+            videoControllers[newPage]!.play();
+          }
+
+          _currentPage = newPage;
+        }
       });
     }
   }
@@ -58,37 +99,102 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
     super.dispose();
     _timer?.cancel();
     sliderPageController.dispose();
+
+    // Dispose all video controllers
+    videoControllers.forEach((key, controller) {
+      controller.dispose();
+    });
+  }
+
+  // Widget to render either image or video based on media_type
+  Widget getMediaWidget(SliderModel data) {
+    if (data.isVideo) {
+      int index = widget.sliderList.indexOf(data);
+      VideoPlayerController? controller = videoControllers[index];
+
+      if (controller != null && controller.value.isInitialized) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            AspectRatio(
+              aspectRatio: controller.value.aspectRatio,
+              child: VideoPlayer(controller),
+            ),
+            if (!controller.value.isPlaying)
+              IconButton(
+                icon: Icon(Icons.play_circle_outline,
+                    size: 50, color: Colors.white),
+                onPressed: () {
+                  controller.play();
+                  setState(() {});
+                },
+              ),
+          ],
+        ).onTap(() {
+          if (data.type == SERVICE) {
+            ServiceDetailScreen(serviceId: data.typeId.validate().toInt())
+                .launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
+          }
+        });
+      } else {
+        return Center(child: CircularProgressIndicator());
+      }
+    } else {
+      // Regular image slider
+      return CachedImageWidget(
+              url: data.sliderImage.validate(),
+              height: 250,
+              width: context.width(),
+              fit: BoxFit.cover)
+          .onTap(() {
+        if (data.type == SERVICE) {
+          ServiceDetailScreen(serviceId: data.typeId.validate().toInt())
+              .launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
+        }
+      });
+    }
+  }
+
+  // Get sliders for a specific direction - returns sliders filtered by direction
+  List<SliderModel> getSlidersByDirection(String direction) {
+    return widget.sliderList
+        .where((slider) =>
+            (slider.direction ?? '').toLowerCase() == direction.toLowerCase() ||
+            (slider.direction ?? '').isEmpty)
+        .toList();
   }
 
   Widget getSliderWidget() {
+    // Get sliders that should be displayed at the top (default position)
+    List<SliderModel> topSliders = getSlidersByDirection('up');
+    if (topSliders.isEmpty)
+      topSliders =
+          widget.sliderList; // If no direction specified, show all at top
+
     return SizedBox(
       height: 300,
       width: context.width(),
       child: Stack(
         children: [
-          widget.sliderList.isNotEmpty
+          topSliders.isNotEmpty
               ? PageView(
                   controller: sliderPageController,
                   children: List.generate(
-                    widget.sliderList.length,
+                    topSliders.length,
                     (index) {
-                      SliderModel data = widget.sliderList[index];
-                      return CachedImageWidget(url: data.sliderImage.validate(), height: 250, width: context.width(), fit: BoxFit.cover).onTap(() {
-                        if (data.type == SERVICE) {
-                          ServiceDetailScreen(serviceId: data.typeId.validate().toInt()).launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
-                        }
-                      });
+                      SliderModel data = topSliders[index];
+                      return getMediaWidget(data);
                     },
                   ),
                 )
               : CachedImageWidget(url: '', height: 250, width: context.width()),
-          if (widget.sliderList.length.validate() > 1)
+          if (topSliders.length > 1)
             Positioned(
               bottom: 25,
               left: 16,
               child: DotIndicator(
                 pageController: sliderPageController,
-                pages: widget.sliderList,
+                pages: topSliders,
                 indicatorColor: primaryColor,
                 unselectedIndicatorColor: white,
                 currentBoxShape: BoxShape.rectangle,
@@ -105,14 +211,17 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
               top: context.statusBarHeight + 16,
               right: 16,
               child: Container(
-                decoration: boxDecorationDefault(color: context.cardColor, shape: BoxShape.circle),
+                decoration: boxDecorationDefault(
+                    color: context.cardColor, shape: BoxShape.circle),
                 height: 36,
                 padding: EdgeInsets.all(8),
                 width: 36,
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    ic_notification.iconImage(size: 24, color: primaryColor).center(),
+                    ic_notification
+                        .iconImage(size: 24, color: primaryColor)
+                        .center(),
                     Observer(builder: (context) {
                       return Positioned(
                         top: -20,
@@ -121,9 +230,12 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
                             ? Container(
                                 padding: EdgeInsets.all(4),
                                 child: FittedBox(
-                                  child: Text(appStore.unreadCount.toString(), style: primaryTextStyle(size: 12, color: Colors.white)),
+                                  child: Text(appStore.unreadCount.toString(),
+                                      style: primaryTextStyle(
+                                          size: 12, color: Colors.white)),
                                 ),
-                                decoration: boxDecorationDefault(color: Colors.red, shape: BoxShape.circle),
+                                decoration: boxDecorationDefault(
+                                    color: Colors.red, shape: BoxShape.circle),
                               )
                             : Offstage(),
                       );
@@ -139,6 +251,52 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
     );
   }
 
+  // Get bottom sliders widget if there are any with direction=down
+  Widget? getBottomSlidersWidget() {
+    List<SliderModel> bottomSliders = getSlidersByDirection('down');
+
+    if (bottomSliders.isEmpty) return null;
+
+    PageController bottomSliderController = PageController(initialPage: 0);
+
+    return SizedBox(
+      height: 200, // Slightly smaller height for bottom sliders
+      width: context.width(),
+      child: Stack(
+        children: [
+          PageView(
+            controller: bottomSliderController,
+            children: List.generate(
+              bottomSliders.length,
+              (index) {
+                SliderModel data = bottomSliders[index];
+                return getMediaWidget(data);
+              },
+            ),
+          ),
+          if (bottomSliders.length > 1)
+            Positioned(
+              bottom: 25,
+              left: 16,
+              child: DotIndicator(
+                pageController: bottomSliderController,
+                pages: bottomSliders,
+                indicatorColor: primaryColor,
+                unselectedIndicatorColor: white,
+                currentBoxShape: BoxShape.rectangle,
+                boxShape: BoxShape.rectangle,
+                borderRadius: radius(16),
+                currentBorderRadius: radius(16),
+                currentDotSize: 70,
+                currentDotWidth: 20,
+                dotSize: 40,
+              ).scale(scale: 0.4),
+            ),
+        ],
+      ),
+    );
+  }
+
   Decoration get commonDecoration {
     return boxDecorationDefault(
       color: context.cardColor,
@@ -147,6 +305,9 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
 
   @override
   Widget build(BuildContext context) {
+    // Get bottom sliders widget if any
+    Widget? bottomSlidersWidget = getBottomSlidersWidget();
+
     return Column(
       children: [
         getSliderWidget(),
@@ -163,16 +324,25 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        ic_location.iconImage(color: appStore.isDarkMode ? Colors.white : Colors.black),
+                        ic_location.iconImage(
+                            color: appStore.isDarkMode
+                                ? Colors.white
+                                : Colors.black),
                         8.width,
                         Text(
-                          appStore.isCurrentLocation ? getStringAsync(CURRENT_ADDRESS) : language.lblLocationOff,
+                          appStore.isCurrentLocation
+                              ? getStringAsync(CURRENT_ADDRESS)
+                              : language.lblLocationOff,
                           style: secondaryTextStyle(),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ).expand(),
                         8.width,
-                        ic_active_location.iconImage(size: 24, color: appStore.isCurrentLocation ? primaryColor : grey),
+                        ic_active_location.iconImage(
+                            size: 24,
+                            color: appStore.isCurrentLocation
+                                ? primaryColor
+                                : grey),
                       ],
                     ),
                   ),
@@ -187,7 +357,8 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
             16.width,
             GestureDetector(
               onTap: () {
-                SearchServiceScreen(featuredList: widget.featuredList).launch(context);
+                SearchServiceScreen(featuredList: widget.featuredList)
+                    .launch(context);
               },
               child: Container(
                 padding: EdgeInsets.all(16),
@@ -197,6 +368,9 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
             ),
           ],
         ).paddingAll(16),
+
+        // Add bottom sliders if any
+        if (bottomSlidersWidget != null) bottomSlidersWidget,
       ],
     );
   }

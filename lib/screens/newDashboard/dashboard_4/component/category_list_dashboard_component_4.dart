@@ -11,7 +11,8 @@ class CategoryListDashboardComponent4 extends StatelessWidget {
   final List<CategoryData> categoryList;
   final String listTiTle;
 
-  CategoryListDashboardComponent4({required this.categoryList, required this.listTiTle});
+  CategoryListDashboardComponent4(
+      {required this.categoryList, required this.listTiTle});
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +32,30 @@ class CategoryListDashboardComponent4 extends StatelessWidget {
           },
         ).paddingSymmetric(horizontal: 16),
         if (categoryList.isNotEmpty)
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            direction: Axis.horizontal,
-            children: categoryList.map((e) => CategoryDashboardComponent4(categoryData: e)).take(8).toList(),
-          ).paddingSymmetric(horizontal: 16)
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: GridView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                childAspectRatio:
+                    0.56, // Further adjusted for even larger icons
+                crossAxisSpacing: 4, // Maintain small spacing
+                mainAxisSpacing: 6, // Slightly increase vertical spacing
+              ),
+              itemCount: categoryList.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  height: 130, // Increased container height for larger images
+                  child: CategoryDashboardComponent4(
+                    categoryData: categoryList[index],
+                    width: context.width() / 4 - 6,
+                  ),
+                );
+              },
+            ),
+          ).paddingSymmetric(horizontal: 8)
       ],
     );
   }
