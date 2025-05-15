@@ -42,6 +42,30 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
   void initState() {
     super.initState();
 
+    // Debug log for sliders
+    debugPrint('========== SLIDER COMPONENT 1 DEBUG ==========');
+    debugPrint('Total sliders received: ${widget.sliderList.length}');
+
+    // Print all sliders and their directions
+    widget.sliderList.forEach((slider) {
+      debugPrint(
+          'Slider ID: ${slider.id}, Direction: ${slider.direction ?? "null"}');
+    });
+
+    // Check top and bottom sliders
+    List<SliderModel> topSliders = getSlidersByDirection('up');
+    List<SliderModel> bottomSliders = getSlidersByDirection('down');
+
+    debugPrint('Top sliders count: ${topSliders.length}');
+    debugPrint('Bottom sliders count: ${bottomSliders.length}');
+
+    if (topSliders.isEmpty && bottomSliders.isNotEmpty) {
+      debugPrint(
+          'WARNING: No top sliders found, but found ${bottomSliders.length} bottom sliders');
+    }
+
+    debugPrint('===========================================');
+
     // Initialize video controllers for any video sliders
     for (int i = 0; i < widget.sliderList.length; i++) {
       if (widget.sliderList[i].isVideo) {
@@ -159,8 +183,12 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
   List<SliderModel> getSlidersByDirection(String direction) {
     return widget.sliderList
         .where((slider) =>
-            (slider.direction ?? '').toLowerCase() == direction.toLowerCase() ||
-            (slider.direction ?? '').isEmpty)
+                (slider.direction ?? '').toLowerCase() ==
+                    direction.toLowerCase() ||
+                (direction == 'up' &&
+                    (slider.direction ?? '')
+                        .isEmpty) // Only include empty directions for "up"
+            )
         .toList();
   }
 

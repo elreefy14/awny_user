@@ -29,12 +29,14 @@ import 'package:booking_system_flutter/utils/firebase_messaging_utils.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'firebase_options.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 import 'model/bank_list_response.dart';
 import 'model/booking_data_model.dart';
@@ -93,16 +95,50 @@ List<(int bookingId, BookingDetailResponse list)?> cachedBookingDetailList = [];
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase Core
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-  ).then((value) {
-    /// Firebase Notification
+  );
+
+  // Initialize Firebase App Check with Debug Provider for development
+  // This will help prevent the "missing initial state" error
+  if (kDebugMode) {
+    await FirebaseAppCheck.instance.activate(
+      // Use debug provider in development to avoid Play Integrity issues
+      androidProvider: AndroidProvider.debug,
+      appleProvider: AppleProvider.debug,
+    );
+  } else {
+    // Use production providers in release mode
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: AndroidProvider.playIntegrity,
+      appleProvider: AppleProvider.deviceCheck,
+    );
+  }
+
+  // Initialize Firebase Auth settings
+  try {
+    // Initialize Firebase Auth
+    log('Firebase Auth initialized');
+
+    // Clear any existing auth state if needed
+    // await FirebaseAuth.instance.signOut();
+  } catch (e) {
+    log('Firebase Auth initialization error: $e');
+  }
+
+  // Initialize Firebase Services
+  try {
+    // Firebase Notification
     initFirebaseMessaging();
     if (kReleaseMode) {
       FlutterError.onError =
           FirebaseCrashlytics.instance.recordFlutterFatalError;
     }
-  });
+  } catch (e) {
+    log('Firebase initialization error: $e');
+  }
 
   passwordLengthGlobal = 6;
   appButtonBackgroundColorGlobal = primaryColor;

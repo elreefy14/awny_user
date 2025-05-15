@@ -81,6 +81,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int currentIndex = 0;
   bool _isLocationCheckCompleted = false;
+  bool _isLocationDialogShownThisSession = false;
 
   @override
   void initState() {
@@ -227,8 +228,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  // Function to check location availability once per session
+  Future<void> checkLocationAndShowDialogOnce(
+      BuildContext context, Position position) async {
+    // Skip showing dialog if already shown this session
+    if (_isLocationDialogShownThisSession) return;
+
+    // Mark as shown for this session
+    _isLocationDialogShownThisSession = true;
+
+    // You can add your location availability check logic here if needed
+    // For now, we're just skipping the dialog
+  }
+
   Future<void> requestLocationAccess() async {
     try {
+      // Check if we already have location saved (for subsequent app opens)
+      double savedLat = getDoubleAsync(LATITUDE);
+      double savedLong = getDoubleAsync(LONGITUDE);
+
+      // If we already have the location and it's not the first run, use saved location
+      if (savedLat != 0 && savedLong != 0 && !isFirstTime()) {
+        appStore.setCurrentLocation(true);
+        _isLocationCheckCompleted = true;
+
+        // Still update in background without showing dialog
+        getLocationInBackground();
+
+        setState(() {});
+        return;
+      }
+
       appStore.setLoading(true);
 
       // Check if location services are enabled at the system level
@@ -333,6 +363,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         appStore.setCurrentLocation(true);
       }
 
+      // Mark first time as false after successful location capture
+      await setValue(IS_FIRST_TIME, false);
+
       // Check if service is available at this location using our helper function
       await checkLocationAndShowDialogOnce(context, position);
 
@@ -348,6 +381,61 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _isLocationCheckCompleted = true;
       setState(() {});
     }
+  }
+
+  // Get location in background without UI interference
+  Future<void> getLocationInBackground() async {
+    try {
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      // Check permission
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return;
+      }
+
+      // Get the location with a shorter timeout
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: Duration(seconds: 10),
+      ).catchError((e) {
+        // Just log error and continue - don't interrupt user
+        log('Background location error: $e');
+        return Position(
+          longitude: 0,
+          latitude: 0,
+          timestamp: DateTime.now(),
+          accuracy: 0,
+          altitude: 0,
+          heading: 0,
+          speed: 0,
+          speedAccuracy: 0,
+          altitudeAccuracy: 0,
+          headingAccuracy: 0,
+        );
+      });
+
+      // Only update if we got a valid location
+      if (position.latitude != 0 && position.longitude != 0) {
+        await setValue(LATITUDE, position.latitude);
+        await setValue(LONGITUDE, position.longitude);
+        appStore.setCurrentLocation(true);
+
+        // Quietly update the dashboard
+        LiveStream().emit(LIVESTREAM_UPDATE_DASHBOARD);
+      }
+    } catch (e) {
+      // Silently log error
+      log('Background location error: $e');
+    }
+  }
+
+  // Helper to check if it's first time opening the app
+  bool isFirstTime() {
+    return getBoolAsync(IS_FIRST_TIME, defaultValue: true);
   }
 
   void initializeThemeMode() {
@@ -460,10 +548,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: radius(0),
           child: NavigationBarTheme(
             data: NavigationBarThemeData(
-              backgroundColor: context.primaryColor.withOpacity(0.02),
-              indicatorColor: context.primaryColor.withOpacity(0.1),
-              labelTextStyle:
-                  WidgetStateProperty.all(primaryTextStyle(size: 12)),
+              backgroundColor: primaryColor,
+              indicatorColor: Colors.white.withOpacity(0.1),
+              labelTextStyle: WidgetStateProperty.all(
+                  primaryTextStyle(size: 12, color: Colors.white)),
               surfaceTintColor: Colors.transparent,
               shadowColor: Colors.transparent,
             ),
@@ -471,25 +559,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
               selectedIndex: currentIndex,
               destinations: [
                 NavigationDestination(
-                  icon: ic_home.iconImage(color: appTextSecondaryColor),
-                  selectedIcon: ic_home.iconImage(color: context.primaryColor),
+                  icon: ic_home.iconImage(color: Colors.white70),
+                  selectedIcon: ic_home.iconImage(color: Colors.white),
                   label: language.home,
                 ),
                 NavigationDestination(
-                  icon: ic_ticket.iconImage(color: appTextSecondaryColor),
-                  selectedIcon:
-                      ic_ticket.iconImage(color: context.primaryColor),
+                  icon: ic_ticket.iconImage(color: Colors.white70),
+                  selectedIcon: ic_ticket.iconImage(color: Colors.white),
                   label: language.booking,
                 ),
                 NavigationDestination(
-                  icon: ic_category.iconImage(color: appTextSecondaryColor),
-                  selectedIcon:
-                      ic_category.iconImage(color: context.primaryColor),
+                  icon: ic_category.iconImage(color: Colors.white70),
+                  selectedIcon: ic_category.iconImage(color: Colors.white),
                   label: language.category,
                 ),
                 NavigationDestination(
-                  icon: ic_chat.iconImage(color: appTextSecondaryColor),
-                  selectedIcon: ic_chat.iconImage(color: context.primaryColor),
+                  icon: ic_chat.iconImage(color: Colors.white70),
+                  selectedIcon: ic_chat.iconImage(color: Colors.white),
                   label: language.lblChat,
                 ),
                 Observer(builder: (context) {
@@ -500,14 +586,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ignoring: true,
                             child: ImageBorder(
                                 src: appStore.userProfileImage, height: 26))
-                        : ic_profile2.iconImage(color: appTextSecondaryColor),
+                        : ic_profile2.iconImage(color: Colors.white70),
                     selectedIcon: (appStore.isLoggedIn &&
                             appStore.userProfileImage.isNotEmpty)
                         ? IgnorePointer(
                             ignoring: true,
                             child: ImageBorder(
                                 src: appStore.userProfileImage, height: 26))
-                        : ic_profile2.iconImage(color: context.primaryColor),
+                        : ic_profile2.iconImage(color: Colors.white),
                     label: language.profile,
                   );
                 }),

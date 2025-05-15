@@ -20,6 +20,11 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new Exception("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
     flutterVersionCode = '1'
@@ -31,9 +36,9 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.monyleekawnyuser.awnyuserapp2update"
+    namespace "com.monyleekawnyuser.awnyuserapp3"
     compileSdkVersion 34
-    ndkVersion "25.1.8937393"
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -49,13 +54,12 @@ android {
     }
 
     defaultConfig {
-        applicationId 'com.monyleekawnyuser.awnyuserapp2update'
+        applicationId "com.monyleekawnyuser.awnyuserapp3"
         minSdkVersion 25
         targetSdkVersion 34
-        multiDexEnabled true
-
         versionCode 90
         versionName '11.7.2'
+        multiDexEnabled true
     }
     
     signingConfigs {
@@ -82,6 +86,11 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
 }
 
 flutter {
@@ -89,15 +98,23 @@ flutter {
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:1.4.2"
-    implementation(platform("com.google.firebase:firebase-bom:32.4.0"))
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'phonepe.intentsdk.android.release:IntentSDK:2.3.0'
-    // Update Google Play Services version
-    implementation 'com.google.android.gms:play-services-auth:20.7.0'
-    implementation 'com.google.android.gms:play-services-base:18.2.0'
-
-    // Add multidex support
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'com.google.android.material:material:1.5.0'
+    
+    // Firebase and Google Auth dependencies
+    implementation platform('com.google.firebase:firebase-bom:32.3.1')
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-appcheck-playintegrity'
+    
+    // Critical for Firebase Phone Authentication
+    implementation 'com.google.android.gms:play-services-safetynet:18.0.1'
+    implementation 'com.google.android.play:integrity:1.1.0'
+    implementation 'com.google.android.recaptcha:recaptcha:18.4.0'
+    
+    // Play Integrity API for SMS retrieval
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
 }

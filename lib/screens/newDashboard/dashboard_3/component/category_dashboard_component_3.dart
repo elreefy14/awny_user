@@ -19,11 +19,14 @@ class CategoryDashboardComponent3 extends StatelessWidget {
     // Vibrant orange color for background
     final orangeColor = Color(0xFFFF7F00);
 
-    // Image dimensions
-    final double imageSize =
-        categoryData.categoryImage.validate().endsWith('.svg') ? 80 : 90;
-    final double rectangleHeight = 65; // Smaller height for modern look
-    final double rectangleWidth = context.width() / 2 - 28; // Slightly wider
+    // Always use grid item sizing now for consistency
+    final bool isGridItem = true;
+
+    // Much larger image sizes for better visibility
+    final double imageSize = 75;
+    // Smaller background rectangle
+    final double rectangleHeight = 44;
+    final double rectangleWidth = width ?? 80;
 
     return GestureDetector(
       onTap: () {
@@ -33,32 +36,32 @@ class CategoryDashboardComponent3 extends StatelessWidget {
                 isFromCategory: true)
             .launch(context);
       },
-      child: SizedBox(
-        width: width ?? context.width() / 2 - 24,
+      child: Container(
+        width: width,
+        height: 120, // Increased height to accommodate larger image
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Stack to position image partially above the rectangle
             Stack(
               alignment: Alignment.topCenter,
               clipBehavior: Clip.none,
               children: [
-                // Orange rectangle positioned below
+                // Orange rectangle positioned below with more of the image showing above it
                 Padding(
-                  padding: EdgeInsets.only(
-                      top: imageSize *
-                          0.3), // Push down more to let image protrude further
+                  padding: EdgeInsets.only(top: imageSize * 0.35),
                   child: Container(
                     width: rectangleWidth,
                     height: rectangleHeight,
-                    margin: EdgeInsets.symmetric(horizontal: 4),
+                    margin: EdgeInsets.symmetric(horizontal: 2),
                     decoration: BoxDecoration(
                       color: orangeColor,
-                      borderRadius: radius(14), // Slightly more rounded corners
+                      borderRadius: radius(14),
                       boxShadow: [
                         BoxShadow(
-                          color: orangeColor.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: Offset(0, 4),
+                          color: orangeColor.withOpacity(0.25),
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
                           spreadRadius: 1,
                         ),
                       ],
@@ -66,7 +69,7 @@ class CategoryDashboardComponent3 extends StatelessWidget {
                   ),
                 ),
 
-                // Image positioned to overlap the rectangle
+                // Image positioned to overlap the rectangle more prominently
                 Positioned(
                   top: 0,
                   child: categoryData.categoryImage.validate().endsWith('.svg')
@@ -75,8 +78,7 @@ class CategoryDashboardComponent3 extends StatelessWidget {
                           height: imageSize,
                           width: imageSize,
                           fit: BoxFit.contain,
-                          color: Colors
-                              .white, // Make SVG white for better visibility
+                          color: Colors.white,
                           placeholderBuilder: (context) => PlaceHolderWidget(
                             height: imageSize,
                             width: imageSize,
@@ -95,15 +97,14 @@ class CategoryDashboardComponent3 extends StatelessWidget {
               ],
             ),
 
-            // Text below the orange rectangle with proper spacing
+            // Compact text for grid items
             Container(
-              width: context.width() / 2 - 40,
-              padding: EdgeInsets.only(top: 14), // Slightly increased spacing
+              padding: EdgeInsets.only(top: 6),
               child: Text(
                 '${categoryData.name.validate()}',
-                style: boldTextStyle(size: 15),
+                style: boldTextStyle(size: 12),
                 textAlign: TextAlign.center,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),

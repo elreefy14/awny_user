@@ -5,6 +5,7 @@ import 'package:booking_system_flutter/screens/auth/firebase_otp_login_screen.da
 import 'package:booking_system_flutter/screens/auth/forgot_password_screen.dart';
 import 'package:booking_system_flutter/screens/auth/otp_login_screen.dart';
 import 'package:booking_system_flutter/screens/auth/sign_up_screen.dart';
+import 'package:booking_system_flutter/screens/auth/simple_phone_login_screen.dart';
 import 'package:booking_system_flutter/screens/dashboard/dashboard_screen.dart';
 import 'package:booking_system_flutter/utils/colors.dart';
 import 'package:booking_system_flutter/utils/common.dart';
@@ -261,6 +262,9 @@ class _SignInScreenState extends State<SignInScreen> {
 
   bool isRemember = true;
 
+  // Prevent double taps for Google Sign-in
+  bool _isGoogleSignInProgress = false;
+
   @override
   void initState() {
     super.initState();
@@ -408,14 +412,41 @@ class _SignInScreenState extends State<SignInScreen> {
   Future<void> googleSignIn() async {
     hideKeyboard(context);
 
-    if (appStore.isLoading) return; // Prevent duplicate calls while loading
+    // Prevent duplicate calls while loading or in progress
+    if (appStore.isLoading || _isGoogleSignInProgress) {
+      debugPrint('Google sign-in already in progress, ignoring duplicate call');
+      return;
+    }
 
     try {
+      // Set both loading flags to prevent double taps
+      _isGoogleSignInProgress = true;
       appStore.setLoading(true);
 
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      // Show immediate feedback to user
+      toast('جاري تسجيل الدخول...', gravity: ToastGravity.CENTER);
+
+      // Initialize the GoogleSignIn object with scopes and server client ID if needed
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+      );
+
+      // First, try to sign in silently for better UX
+      GoogleSignInAccount? googleUser = await googleSignIn.signInSilently();
+
+      // If silent sign-in fails, try regular sign-in
+      googleUser ??= await googleSignIn.signIn().timeout(
+        Duration(seconds: 25),
+        onTimeout: () {
+          throw 'تجاوز وقت تسجيل الدخول المحدد. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.';
+        },
+      );
+
       if (googleUser == null) {
+        // User canceled the sign-in process
+        toast(language.userCancelled);
         appStore.setLoading(false);
+        _isGoogleSignInProgress = false;
         return;
       }
 
@@ -483,7 +514,11 @@ class _SignInScreenState extends State<SignInScreen> {
       }
     } catch (e) {
       appStore.setLoading(false);
+      _isGoogleSignInProgress = false;
       toast(e.toString());
+    } finally {
+      // Make sure we always reset the flags
+      _isGoogleSignInProgress = false;
     }
   }
 
@@ -513,7 +548,7 @@ class _SignInScreenState extends State<SignInScreen> {
   void otpSignIn() async {
     hideKeyboard(context);
 
-    FirebaseOTPLoginScreen().launch(context);
+    SimplePhoneLoginScreen().launch(context);
   }
 
   void onLoginSuccessRedirection() {
@@ -665,7 +700,6 @@ class _SignInScreenState extends State<SignInScreen> {
               ],
             ),
           24.height,
-
           if (appConfigurationStore.facebookLoginStatus)
             AppButton(
               text: '',
@@ -719,34 +753,38 @@ class _SignInScreenState extends State<SignInScreen> {
               onTap: googleSignIn,
             ),
           if (appConfigurationStore.googleLoginStatus) 16.height,
-          //TODO: Add otp login !!!!!!!!!!!!!!!!!!!!!!
           if (appConfigurationStore.otpLoginStatus)
-            AppButton(
-              text: '',
-              color: context.cardColor,
-              padding: EdgeInsets.all(8),
-              textStyle: boldTextStyle(),
-              width: context.width() - context.navigationBarHeight,
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: boxDecorationWithRoundedCorners(
-                      backgroundColor: primaryColor.withOpacity(0.1),
-                      boxShape: BoxShape.circle,
-                    ),
-                    child: ic_calling
-                        .iconImage(size: 18, color: primaryColor)
-                        .paddingAll(4),
-                  ),
-                  Text(language.lblSignInWithOTP,
-                          style: boldTextStyle(size: 12),
-                          textAlign: TextAlign.center)
-                      .expand(),
-                ],
-              ),
-              onTap: otpSignIn,
-            ),
+            //todo sign in with otp make ot works
+            // AppButton(
+            //   text: '',
+            //   color: context.cardColor,
+            //   padding: EdgeInsets.all(8),
+            //   textStyle: boldTextStyle(),
+            //   width: context.width() - context.navigationBarHeight,
+            //   child: Row(
+            //     children: [
+            //       Container(
+            //         padding: EdgeInsets.all(8),
+            //         decoration: boxDecorationWithRoundedCorners(
+            //           backgroundColor:
+            //               Color(0xFF25D366).withOpacity(0.1), // WhatsApp green
+            //           boxShape: BoxShape.circle,
+            //         ),
+            //         child: Image.asset(
+            //           'assets/icons/ic_whatsapp.png',
+            //           height: 20,
+            //           width: 20,
+            //           color: Color(0xFF25D366), // WhatsApp green
+            //         ),
+            //       ),
+            //       Text("Sign in with WhatsApp OTP",
+            //               style: boldTextStyle(size: 12),
+            //               textAlign: TextAlign.center)
+            //           .expand(),
+            //     ],
+            //   ),
+            //   onTap: otpSignIn,
+            // ),
           if (appConfigurationStore.otpLoginStatus) 16.height,
           if (isIOS)
             if (appConfigurationStore.appleLoginStatus)

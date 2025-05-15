@@ -52,8 +52,12 @@ class _SliderDashboardComponent2State extends State<SliderDashboardComponent2> {
   List<SliderModel> getSlidersByDirection(String direction) {
     return widget.sliderList
         .where((slider) =>
-            (slider.direction ?? '').toLowerCase() == direction.toLowerCase() ||
-            (slider.direction ?? '').isEmpty)
+                (slider.direction ?? '').toLowerCase() ==
+                    direction.toLowerCase() ||
+                (direction == 'up' &&
+                    (slider.direction ?? '')
+                        .isEmpty) // Only include empty directions for "up"
+            )
         .toList();
   }
 

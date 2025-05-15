@@ -40,7 +40,82 @@ class _DashboardFragment1State extends State<DashboardFragment1> {
   }
 
   void init() async {
-    future = userDashboard(isCurrentLocation: appStore.isCurrentLocation, lat: getDoubleAsync(LATITUDE), long: getDoubleAsync(LONGITUDE));
+    future = userDashboard(
+        isCurrentLocation: appStore.isCurrentLocation,
+        lat: getDoubleAsync(LATITUDE),
+        long: getDoubleAsync(LONGITUDE));
+
+    // Debug slider data
+    future!.then((response) {
+      // DIAGNOSTIC: If no sliders have direction set, manually set some for testing
+      bool hasUpSliders = false;
+      bool hasDownSliders = false;
+
+      // Check if any sliders have directions set
+      response.slider?.forEach((slider) {
+        if ((slider.direction ?? '').toLowerCase() == 'up') hasUpSliders = true;
+        if ((slider.direction ?? '').toLowerCase() == 'down')
+          hasDownSliders = true;
+      });
+
+      debugPrint('Has UP sliders: $hasUpSliders');
+      debugPrint('Has DOWN sliders: $hasDownSliders');
+
+      // If no directions are set, let's set some for testing
+      if (!hasUpSliders &&
+          !hasDownSliders &&
+          response.slider != null &&
+          response.slider!.length >= 2) {
+        debugPrint('SETTING TEST DIRECTIONS ON SLIDERS');
+
+        // Set first half of sliders to "up"
+        for (int i = 0; i < response.slider!.length ~/ 2; i++) {
+          response.slider![i].direction = 'up';
+          debugPrint('Set slider ${response.slider![i].id} to direction UP');
+        }
+
+        // Set second half to "down"
+        for (int i = response.slider!.length ~/ 2;
+            i < response.slider!.length;
+            i++) {
+          response.slider![i].direction = 'down';
+          debugPrint('Set slider ${response.slider![i].id} to direction DOWN');
+        }
+
+        // Force UI update
+        setState(() {});
+      }
+
+      // Original debug code
+      debugPrint('=============== DEBUG SLIDER DATA ===============');
+      debugPrint('Total sliders: ${response.slider?.length ?? 0}');
+
+      response.slider?.forEach((slider) {
+        debugPrint('Slider ID: ${slider.id}, Title: ${slider.title}');
+        debugPrint('  Direction: ${slider.direction ?? "null"}');
+        debugPrint('  Media Type: ${slider.mediaType ?? "null"}');
+        debugPrint('  Image URL: ${slider.sliderImage}');
+        debugPrint('-------------------------------------------');
+      });
+
+      // Check top and bottom sliders
+      List<SliderModel> topSliders = response.slider
+              ?.where((slider) =>
+                  (slider.direction ?? '').toLowerCase() == 'up' ||
+                  (slider.direction ?? '').isEmpty)
+              .toList() ??
+          [];
+
+      List<SliderModel> bottomSliders = response.slider
+              ?.where(
+                  (slider) => (slider.direction ?? '').toLowerCase() == 'down')
+              .toList() ??
+          [];
+
+      debugPrint('Top sliders count: ${topSliders.length}');
+      debugPrint('Bottom sliders count: ${bottomSliders.length}');
+      debugPrint('===============================================');
+    });
   }
 
   @override
@@ -102,21 +177,28 @@ class _DashboardFragment1State extends State<DashboardFragment1> {
                         setState(() {});
                       },
                     ),
-                    BookingConfirmedComponent1(upcomingConfirmedBooking: snap.upcomingData),
+                    BookingConfirmedComponent1(
+                        upcomingConfirmedBooking: snap.upcomingData),
                     16.height,
-                    CategoryComponent(categoryList: snap.category.validate(), isNewDashboard: true),
+                    CategoryComponent(
+                        categoryList: snap.category.validate(),
+                        isNewDashboard: true),
                     16.height,
-                    ServiceListDashboardComponent1(serviceList: snap.service.validate()),
+                    ServiceListDashboardComponent1(
+                        serviceList: snap.service.validate()),
                     16.height,
-                    FeatureServicesDashboardComponent1(serviceList: snap.featuredServices.validate()),
+                    FeatureServicesDashboardComponent1(
+                        serviceList: snap.featuredServices.validate()),
                     16.height,
-                    if (appConfigurationStore.jobRequestStatus) NewJobRequestDashboardComponent1()
+                    if (appConfigurationStore.jobRequestStatus)
+                      NewJobRequestDashboardComponent1()
                   ],
                 );
               });
             },
           ),
-          Observer(builder: (context) => LoaderWidget().visible(appStore.isLoading)),
+          Observer(
+              builder: (context) => LoaderWidget().visible(appStore.isLoading)),
         ],
       ),
     );

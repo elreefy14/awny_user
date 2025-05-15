@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 const APP_NAME = 'Awny';
 const APP_NAME_TAG_LINE = 'On-Demand Home Services App';
-var defaultPrimaryColor = Color(0xFFf68500);
+//F4550F
+var defaultPrimaryColor = Color(0xFFF4550F);
 
 // Don't add slash at the end of the url
 //https://awnyapp.com
@@ -17,9 +18,11 @@ const DEFAULT_LANGUAGE = 'en';
 /// This will be used in Registered As Partner in Sign In Screen where your users can redirect to the Play/App Store for Provider App
 /// You can specify in Admin Panel, These will be used if you don't specify in Admin Panel
 const PROVIDER_PACKAGE_NAME = 'com.iqonic.provider';
-const IOS_LINK_FOR_PARTNER = "https://apps.apple.com/in/app/handyman-provider-app/id1596025324";
+const IOS_LINK_FOR_PARTNER =
+    "https://apps.apple.com/in/app/handyman-provider-app/id1596025324";
 
-const IOS_LINK_FOR_USER = 'https://apps.apple.com/us/app/handyman-service-user/id1591427211';
+const IOS_LINK_FOR_USER =
+    'https://apps.apple.com/us/app/handyman-service-user/id1591427211';
 
 const DASHBOARD_AUTO_SLIDER_SECOND = 5;
 const OTP_TEXT_FIELD_LENGTH = 6;
@@ -27,7 +30,8 @@ const OTP_TEXT_FIELD_LENGTH = 6;
 const TERMS_CONDITION_URL = 'https://iqonic.design/terms-of-use/';
 const PRIVACY_POLICY_URL = 'https://iqonic.design/privacy-policy/';
 const HELP_AND_SUPPORT_URL = 'https://iqonic.design/privacy-policy/';
-const REFUND_POLICY_URL = 'https://iqonic.design/licensing-terms-more/#refund-policy';
+const REFUND_POLICY_URL =
+    'https://iqonic.design/licensing-terms-more/#refund-policy';
 const INQUIRY_SUPPORT_EMAIL = 'hello@iqonic.design';
 
 /// You can add help line number here for contact. It's demo number
@@ -87,8 +91,12 @@ const chatFilesAllowedExtensions = [
 
 const max_acceptable_file_size = 5; //Size in Mb
 
-// PayMob Configurations
-const PAYMOB_API_KEY = 'YOUR_API_KEY';
-const PAYMOB_INTEGRATION_ID = 'YOUR_INTEGRATION_ID';
-const PAYMOB_IFRAME_ID = 'YOUR_IFRAME_ID';
-const PAYMOB_TEST_MODE = true; // تغيير إلى false في الإنتاج
+// PayMob Configurations - DEPRECATED: These values are no longer used.
+// The actual PayMob credentials are now retrieved dynamically from the API
+// via the /api/payment-gateways endpoint response
+// Example response: {"paymob_api_key": "...", "paymob_iframe_id": "...", "paymob_integration_id": "..."}
+const PAYMOB_API_KEY = 'DEPRECATED - Values now come from API';
+const PAYMOB_INTEGRATION_ID = 'DEPRECATED - Values now come from API';
+const PAYMOB_IFRAME_ID = 'DEPRECATED - Values now come from API';
+const PAYMOB_TEST_MODE =
+    true; // Deprecated - We now use payment.isTest from the API

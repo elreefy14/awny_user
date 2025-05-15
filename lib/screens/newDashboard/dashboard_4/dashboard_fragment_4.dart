@@ -41,7 +41,10 @@ class _DashboardFragment4State extends State<DashboardFragment4> {
   }
 
   void init() async {
-    future = userDashboard(isCurrentLocation: appStore.isCurrentLocation, lat: getDoubleAsync(LATITUDE), long: getDoubleAsync(LONGITUDE));
+    future = userDashboard(
+        isCurrentLocation: appStore.isCurrentLocation,
+        lat: getDoubleAsync(LATITUDE),
+        long: getDoubleAsync(LONGITUDE));
   }
 
   @override
@@ -58,7 +61,9 @@ class _DashboardFragment4State extends State<DashboardFragment4> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: appStore.isDarkMode ? context.primaryColor.withOpacity(0.01) : primaryLightColor,
+      backgroundColor: appStore.isDarkMode
+          ? context.primaryColor.withOpacity(0.01)
+          : primaryLightColor,
       body: Stack(
         children: [
           SnapHelperWidget<DashboardResponse>(
@@ -103,10 +108,11 @@ class _DashboardFragment4State extends State<DashboardFragment4> {
                     },
                   ),
                   40.height,
-                  CategoryListDashboardComponent4(categoryList: snap.category.validate(), listTiTle: language.category),
-                  UpComingBookingDashboardComponent4(upComingBookingData: snap.upcomingData),
-                  30.height,
-                  SliderDashboardComponent4(sliderList: snap.slider.validate()),
+                  CategoryListDashboardComponent4(
+                      categoryList: snap.category.validate(),
+                      listTiTle: language.category),
+                  UpComingBookingDashboardComponent4(
+                      upComingBookingData: snap.upcomingData),
                   30.height,
                   ServiceListDashboardComponent4(
                     serviceList: snap.service.validate(),
@@ -119,12 +125,16 @@ class _DashboardFragment4State extends State<DashboardFragment4> {
                     isFeatured: true,
                   ),
                   16.height,
-                  if (appConfigurationStore.jobRequestStatus) JobRequestDashboardComponent4()
+                  SliderDashboardComponent4(sliderList: snap.slider.validate()),
+                  16.height,
+                  if (appConfigurationStore.jobRequestStatus)
+                    JobRequestDashboardComponent4()
                 ],
               );
             },
           ),
-          Observer(builder: (context) => LoaderWidget().visible(appStore.isLoading)),
+          Observer(
+              builder: (context) => LoaderWidget().visible(appStore.isLoading)),
         ],
       ),
     );

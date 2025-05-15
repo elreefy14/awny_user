@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/appbar_dashboard_component_3.dart';
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/category_list_dashboard_component_3.dart';
+import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/category_services_component.dart';
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/job_request_dahboard_component_3.dart';
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/service_list_dashboard_component_3.dart';
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/slider_dashboard_component_3.dart';
@@ -36,7 +37,8 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
     init();
 
     afterBuildCreated(() {
-      setStatusBarColor(transparentColor, delayInMilliSeconds: 800, statusBarIconBrightness: appStore.isDarkMode ? Brightness.light : Brightness.dark);
+      setStatusBarColor(primaryColor,
+          delayInMilliSeconds: 800, statusBarIconBrightness: Brightness.light);
     });
 
     LiveStream().on(LIVESTREAM_UPDATE_DASHBOARD, (p0) {
@@ -48,7 +50,10 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
   }
 
   void init() async {
-    future = userDashboard(isCurrentLocation: appStore.isCurrentLocation, lat: getDoubleAsync(LATITUDE), long: getDoubleAsync(LONGITUDE));
+    future = userDashboard(
+        isCurrentLocation: appStore.isCurrentLocation,
+        lat: getDoubleAsync(LATITUDE),
+        long: getDoubleAsync(LONGITUDE));
   }
 
   @override
@@ -85,6 +90,38 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
             },
             loadingWidget: DashboardShimmer3(),
             onSuccess: (snap) {
+              // Split the sliders into two groups for top and bottom banners
+              List<SliderModel> allSliders = snap.slider.validate();
+              List<SliderModel> topSliders = [];
+              List<SliderModel> bottomSliders = [];
+
+              if (allSliders.isNotEmpty) {
+                // First check if sliders already have direction specified
+                topSliders = allSliders
+                    .where((slider) =>
+                        (slider.direction ?? '').isEmpty ||
+                        (slider.direction ?? '').toLowerCase() == 'up')
+                    .toList();
+
+                bottomSliders = allSliders
+                    .where((slider) =>
+                        (slider.direction ?? '').toLowerCase() == 'down')
+                    .toList();
+
+                // If no direction specified, distribute sliders automatically
+                if (bottomSliders.isEmpty && allSliders.length > 1) {
+                  int midPoint = (allSliders.length / 2).ceil();
+                  // Keep already assigned ones in topSliders
+                  List<SliderModel> unassignedSliders = allSliders
+                      .where((slider) => !topSliders.contains(slider))
+                      .toList();
+
+                  if (unassignedSliders.isNotEmpty) {
+                    bottomSliders = unassignedSliders;
+                  }
+                }
+              }
+
               return Observer(builder: (context) {
                 return AnimatedScrollView(
                   physics: AlwaysScrollableScrollPhysics(),
@@ -100,7 +137,7 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
                     return await 2.seconds.delay;
                   },
                   children: [
-                    (context.statusBarHeight).toInt().height,
+                    // App Bar with search and notification
                     AppbarDashboardComponent3(
                       featuredList: snap.featuredServices.validate(),
                       callback: () async {
@@ -110,61 +147,119 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
                         setState(() {});
                       },
                     ),
+
+                    // Location Selection Bar
                     Observer(
                       builder: (context) {
-                        return AppButton(
-                          padding: EdgeInsets.all(0),
-                          width: context.width(),
-                          child: Container(
-                            padding: EdgeInsets.all(16),
-                            decoration: boxDecorationDefault(color: context.cardColor),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                ic_location.iconImage(color: appStore.isDarkMode ? Colors.white : Colors.black, size: 24),
-                                8.width,
-                                Text(
-                                  appStore.isCurrentLocation ? getStringAsync(CURRENT_ADDRESS) : language.lblLocationOff,
-                                  style: secondaryTextStyle(),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ).expand(),
-                                8.width,
-                                Icon(Icons.keyboard_arrow_down, size: 24, color: appStore.isCurrentLocation ? primaryColor : context.iconColor),
-                              ],
-                            ),
+                        return Container(
+                          margin: EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: context.cardColor,
+                            borderRadius: radius(28),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
                           ),
-                          onTap: () async {
-                            locationWiseService(context, () {
-                              appStore.setLoading(true);
+                          child: AppButton(
+                            padding: EdgeInsets.all(0),
+                            width: context.width(),
+                            child: Container(
+                              padding: EdgeInsets.all(16),
+                              decoration: boxDecorationDefault(
+                                  color: context.cardColor),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  ic_location.iconImage(
+                                      color: appStore.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black,
+                                      size: 24),
+                                  8.width,
+                                  Text(
+                                    appStore.isCurrentLocation
+                                        ? getStringAsync(CURRENT_ADDRESS)
+                                        : language.lblLocationOff,
+                                    style: secondaryTextStyle(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ).expand(),
+                                  8.width,
+                                  Icon(Icons.keyboard_arrow_down,
+                                      size: 24,
+                                      color: appStore.isCurrentLocation
+                                          ? primaryColor
+                                          : context.iconColor),
+                                ],
+                              ),
+                            ),
+                            onTap: () async {
+                              locationWiseService(context, () {
+                                appStore.setLoading(true);
 
-                              init();
-                              setState(() {});
-                            });
-                          },
-                        ).cornerRadiusWithClipRRect(28);
+                                init();
+                                setState(() {});
+                              });
+                            },
+                          ),
+                        );
                       },
-                    ).paddingSymmetric(horizontal: 16),
-                    24.height,
-                    SliderDashboardComponent3(sliderList: snap.slider.validate()),
-                    UpcomingBookingDashboardComponent3(upcomingBookingData: snap.upcomingData).paddingTop(16),
-                    CategoryListDashboardComponent3(categoryList: snap.category.validate(), listTiTle: language.category),
+                    ),
+
                     16.height,
-                    ServiceListDashboardComponent3(serviceList: snap.service.validate(), serviceListTitle: language.popularServices),
-                    14.height,
+
+                    // TOP BANNER - Featured Sliders
+                    if (topSliders.isNotEmpty)
+                      SliderDashboardComponent3(sliderList: topSliders),
+
+                    24.height,
+
+                    // Upcoming Bookings Section
+                    UpcomingBookingDashboardComponent3(
+                        upcomingBookingData: snap.upcomingData),
+
+                    16.height,
+
+                    // Services by Category - New Component
+                    CategoryServicesComponent(
+                      categories: snap.category.validate(),
+                      services: snap.service.validate(),
+                    ),
+
+                    24.height,
+
+                    // Featured Services Section
                     ServiceListDashboardComponent3(
                       serviceList: snap.featuredServices.validate(),
                       serviceListTitle: language.featuredServices,
                       isFeatured: true,
                     ),
+
+                    24.height,
+
+                    // BOTTOM BANNER - Promotional Sliders
+                    if (bottomSliders.isNotEmpty)
+                      SliderDashboardComponent3(sliderList: bottomSliders),
+
                     16.height,
-                    if (appConfigurationStore.jobRequestStatus) JobRequestDashboardComponent3(),
+
+                    // Job Request Section (if enabled)
+                    if (appConfigurationStore.jobRequestStatus)
+                      JobRequestDashboardComponent3(),
+
+                    // Extra bottom space for better scrolling experience
+                    60.height,
                   ],
                 );
               });
             },
           ),
-          Observer(builder: (context) => LoaderWidget().visible(appStore.isLoading)),
+          Observer(
+              builder: (context) => LoaderWidget().visible(appStore.isLoading)),
         ],
       ),
     );

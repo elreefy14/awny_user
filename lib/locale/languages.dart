@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 abstract class BaseLanguage {
   var changeLocation = 'Change Location';
 
-  static BaseLanguage of(BuildContext context) => Localizations.of<BaseLanguage>(context, BaseLanguage)!;
+  static BaseLanguage of(BuildContext context) =>
+      Localizations.of<BaseLanguage>(context, BaseLanguage)!;
 //// Add to your language class
 // String get addPhoneNumber => 'Add Phone Number';
 // String get pleaseAddPhoneNumber => 'Please add your phone number to complete registration';
@@ -12,7 +13,8 @@ abstract class BaseLanguage {
 // String get invalidSaudiPhoneNumber => 'Enter valid Saudi mobile number';
   // Add to your language class
   String get addPhoneNumber => 'Add Phone Number';
-  String get pleaseAddPhoneNumber => 'Please add your phone number to complete registration';
+  String get pleaseAddPhoneNumber =>
+      'Please add your phone number to complete registration';
   String get phoneNumberRequired => 'Phone number is required';
   String get invalidEgyptianPhoneNumber => 'Enter valid Egyptian mobile number';
   String get invalidSaudiPhoneNumber => 'Enter valid Saudi mobile number';
@@ -24,13 +26,14 @@ abstract class BaseLanguage {
   //   String get currentLocation => 'موقعك الحالي';
   //   String get locationNotAvailable => 'لم نتمكن من تحديد موقعك';
   String get serviceNotAvailable => 'خدمتنا غير متاحة في موقعك الحالي';
-  String get serviceNotAvailableSubTitle => 'نعتذر، لكن خدماتنا غير متوفرة في منطقتك حالياً. يمكنك تجربة موقع آخر أو التحقق لاحقاً من توفر الخدمة في منطقتك.';
+  String get serviceNotAvailableSubTitle =>
+      'نعتذر، لكن خدماتنا غير متوفرة في منطقتك حالياً. يمكنك تجربة موقع آخر أو التحقق لاحقاً من توفر الخدمة في منطقتك.';
   String get tryDifferentLocation => 'تغيير الموقع';
   String get close => 'إغلاق';
   String get gettingLocation => 'جارِ تحديد الموقع...';
   String get currentLocation => 'موقعك الحالي';
   String get locationNotAvailable => 'لم نتمكن من تحديد موقعك';
-
+  String get emailAlreadyTaken => 'The email has already been taken';
 
 // //   //iAgree
 //   //             //acceptTermsCondition
@@ -45,10 +48,12 @@ abstract class BaseLanguage {
 
   // Add these to your language class
   String get unavailableLocation => 'الموقع غير متاح';
-  String get serviceUnavailableMessage => 'نأسف، خدماتنا غير متوفرة في موقعك الحالي. نحن نعمل على توسيع نطاق خدماتنا، يرجى المحاولة مرة أخرى لاحقاً.';
+  String get serviceUnavailableMessage =>
+      'نأسف، خدماتنا غير متوفرة في موقعك الحالي. نحن نعمل على توسيع نطاق خدماتنا، يرجى المحاولة مرة أخرى لاحقاً.';
   String get tryAgain => 'حاول مرة أخرى';
 
-  String get accountExistsWithDifferentCredential => "Account exists with different credential";
+  String get accountExistsWithDifferentCredential =>
+      "Account exists with different credential";
   String get invalidCredentials => "Invalid credentials";
   String get authFailed => "Authentication failed";
   String get signInFailed => "Sign in failed";
@@ -61,7 +66,7 @@ abstract class BaseLanguage {
 
   String get getStarted;
 
-  String get lblSignInWithFacebook ;
+  String get lblSignInWithFacebook;
   //String get lblSignInWithGoogle = > "Sign In with Google";
 
   String get signIn;
@@ -72,7 +77,6 @@ abstract class BaseLanguage {
   String get selectPreferences;
   String get selectCountry;
   String get pleaseSelectBoth;
-
 
   String get signUp;
 

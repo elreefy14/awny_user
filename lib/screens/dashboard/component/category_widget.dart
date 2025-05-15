@@ -21,45 +21,48 @@ class CategoryWidget extends StatelessWidget {
     // Vibrant orange color for background
     final orangeColor = Color(0xFFFF7F00);
 
-    // Check if widget is used in horizontal list (smaller) or regular size
-    final bool isSmallSize = width != null && width! < 150;
+    // Check if widget is used in grid
+    final bool isGridItem =
+        isFromCategory == true || (width != null && width! < 100);
 
-    // Image dimensions - adjust based on usage context
-    final double imageSize = isSmallSize
-        ? (categoryData.categoryImage.validate().endsWith('.svg') ? 60 : 70)
-        : (categoryData.categoryImage.validate().endsWith('.svg') ? 80 : 90);
+    // Much larger image sizes for better visibility
+    final double imageSize = isGridItem
+        ? (categoryData.categoryImage.validate().endsWith('.svg') ? 75 : 78)
+        : (categoryData.categoryImage.validate().endsWith('.svg') ? 130 : 140);
 
-    final double rectangleHeight =
-        isSmallSize ? 50 : 65; // Smaller height for horizontal list
-    final double rectangleWidth = isSmallSize
-        ? (width! - 12) // Slightly narrower for horizontal list
-        : (context.width() / 2 - 28); // Regular width for grid
+    // Smaller background rectangle
+    final double rectangleHeight = isGridItem ? 44 : 80;
+    final double rectangleWidth =
+        isGridItem ? (width ?? 80) : (context.width() / 2 - 30);
 
-    return SizedBox(
-      width: width ?? context.width() / 2 - 24,
+    return Container(
+      width: width,
+      height: isGridItem ? 120 : null, // Increased height for grid items
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // Stack to position image partially above the rectangle
           Stack(
             alignment: Alignment.topCenter,
             clipBehavior: Clip.none,
             children: [
-              // Orange rectangle positioned below
+              // Orange rectangle positioned below with more of the image showing above it
               Padding(
                 padding: EdgeInsets.only(
-                    top: imageSize * 0.3), // Push down to let image protrude
+                    top: imageSize * (isGridItem ? 0.35 : 0.38)),
                 child: Container(
                   width: rectangleWidth,
                   height: rectangleHeight,
-                  margin: EdgeInsets.symmetric(horizontal: 4),
+                  margin: EdgeInsets.symmetric(horizontal: isGridItem ? 2 : 4),
                   decoration: BoxDecoration(
                     color: orangeColor,
-                    borderRadius: radius(14), // Rounded corners
+                    borderRadius: radius(isGridItem ? 14 : 16),
                     boxShadow: [
                       BoxShadow(
-                        color: orangeColor.withOpacity(0.2),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
+                        color: orangeColor.withOpacity(0.25),
+                        blurRadius: isGridItem ? 6 : 12,
+                        offset: Offset(0, 3),
                         spreadRadius: 1,
                       ),
                     ],
@@ -67,7 +70,7 @@ class CategoryWidget extends StatelessWidget {
                 ),
               ),
 
-              // Image positioned to overlap the rectangle
+              // Image positioned to overlap the rectangle more prominently
               Positioned(
                 top: 0,
                 child: categoryData.categoryImage.validate().endsWith('.svg')
@@ -76,8 +79,7 @@ class CategoryWidget extends StatelessWidget {
                         height: imageSize,
                         width: imageSize,
                         fit: BoxFit.contain,
-                        color: Colors
-                            .white, // Make SVG white for better visibility
+                        color: Colors.white,
                         placeholderBuilder: (context) => PlaceHolderWidget(
                           height: imageSize,
                           width: imageSize,
@@ -96,16 +98,17 @@ class CategoryWidget extends StatelessWidget {
             ],
           ),
 
-          // Text below the orange rectangle with proper spacing
+          // Text below the orange rectangle
           Container(
-            width: isSmallSize ? width! - 8 : (context.width() / 2 - 40),
-            padding: EdgeInsets.only(top: isSmallSize ? 12 : 14),
+            width: isGridItem
+                ? width ?? context.width() / 4 - 4
+                : (context.width() / 2 - 40),
+            padding: EdgeInsets.only(top: isGridItem ? 6 : 12),
             child: Text(
               '${categoryData.name.validate()}',
-              style: boldTextStyle(size: isSmallSize ? 12 : 15),
+              style: boldTextStyle(size: isGridItem ? 12 : 14),
               textAlign: TextAlign.center,
-              maxLines:
-                  1, // Only one line for horizontal list to avoid overflow
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),

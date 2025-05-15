@@ -16,9 +16,6 @@ class HorizontalCategoriesComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     if (categoryList.isEmpty) return SizedBox();
 
-    // Create scroll controller for categories
-    final ScrollController scrollController = ScrollController();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -45,91 +42,61 @@ class HorizontalCategoriesComponent extends StatelessWidget {
                 ),
                 padding: EdgeInsets.only(bottom: 4),
               ).expand(),
-              TextButton.icon(
-                onPressed: () {
-                  CategoryScreen().launch(context);
-                },
-                icon: Icon(Icons.arrow_forward, size: 16, color: primaryColor),
-                label: Text(
-                  "View All",
-                  style: boldTextStyle(color: primaryColor, size: 14),
+              if (categoryList.length > 8)
+                TextButton.icon(
+                  onPressed: () {
+                    CategoryScreen().launch(context);
+                  },
+                  icon:
+                      Icon(Icons.arrow_forward, size: 16, color: primaryColor),
+                  label: Text(
+                    "View All",
+                    style: boldTextStyle(color: primaryColor, size: 14),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                    minimumSize: Size(10, 30),
+                  ),
                 ),
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                  minimumSize: Size(10, 30),
-                ),
-              ),
             ],
           ),
         ),
 
-        16.height,
+        12.height,
 
-        // Horizontal categories list with scroll indicator
-        Stack(
-          alignment: Alignment.centerRight,
-          children: [
-            NotificationListener<ScrollNotification>(
-              onNotification: (scrollNotification) {
-                return true;
-              },
-              child: HorizontalList(
-                itemCount: categoryList.length,
-                spacing: 16,
-                controller: scrollController,
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      ViewAllServiceScreen(
-                              categoryId: categoryList[index].id,
-                              categoryName: categoryList[index].name,
-                              isFromCategory: true)
-                          .launch(context);
-                    },
-                    child: CategoryWidget(
-                      categoryData: categoryList[index],
-                      width: context.width() / 4 -
-                          16, // Better size for horizontal list
-                      isFromCategory: true,
-                    ),
-                  );
-                },
-              ),
+        // Grid layout for categories - fixed item size approach
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: GridView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              childAspectRatio: 0.56, // Further adjusted for even larger icons
+              crossAxisSpacing: 4, // Maintain small spacing
+              mainAxisSpacing: 6, // Slightly increase vertical spacing
             ),
-
-            // Right scroll indicator (subtle arrow)
-            if (categoryList.length > 3)
-              Positioned(
-                right: 0,
+            itemCount: categoryList.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: () {
+                  ViewAllServiceScreen(
+                    categoryId: categoryList[index].id,
+                    categoryName: categoryList[index].name,
+                    isFromCategory: true,
+                  ).launch(context);
+                },
                 child: Container(
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.centerRight,
-                      end: Alignment.centerLeft,
-                      colors: [
-                        context.scaffoldBackgroundColor,
-                        context.scaffoldBackgroundColor.withOpacity(0.0),
-                      ],
-                    ),
-                    shape: BoxShape.circle,
+                  height: 130, // Increased container height for larger images
+                  child: CategoryWidget(
+                    categoryData: categoryList[index],
+                    width: context.width() / 4 - 6,
+                    isFromCategory: true,
                   ),
-                  child: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey.withOpacity(0.7),
-                  ),
-                ).onTap(() {
-                  scrollController.animateTo(
-                    scrollController.offset + 150,
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                }),
-              ),
-          ],
+                ),
+              );
+            },
+          ),
         ),
 
         16.height,

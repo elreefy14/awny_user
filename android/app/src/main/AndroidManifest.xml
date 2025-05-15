@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.monyleekawnyuser.awnyuserapp2update">
+    package="com.monyleekawnyuser.awnyuserapp3">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -34,6 +34,26 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <!-- Play Integrity API Key for Firebase Phone Auth -->
+        <meta-data
+            android:name="com.google.android.gms.safetynet.API_KEY"
+            android:value="AIzaSyD7D524g0bCnCChDsvT4KOn_G1nGv9jDQ8" />
+
+        <!-- Web API key for reCAPTCHA verification -->
+        <meta-data  
+            android:name="com.google.firebase.auth.API_KEY"
+            android:value="AIzaSyD7D524g0bCnCChDsvT4KOn_G1nGv9jDQ8" />
+
+        <!-- App Check Debug Provider - only for development -->
+        <meta-data
+            android:name="firebase_app_check_debug_token"
+            android:value="854e8d2d-1a95-48c2-97f0-1a510cfa92ef" />
+
+        <!-- App Check Provider -->
+        <meta-data
+            android:name="firebase_performance_logcat_enabled"
+            android:value="true" />
 
         <activity
             android:name=".MainActivity"

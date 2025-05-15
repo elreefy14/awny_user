@@ -15,6 +15,9 @@ import 'package:booking_system_flutter/utils/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
+import 'dart:async';
+import 'package:booking_system_flutter/component/cached_image_widget.dart';
+import 'package:booking_system_flutter/screens/service/service_detail_screen.dart';
 
 import '../../../component/empty_error_state_widget.dart';
 import '../../../component/loader_widget.dart';
@@ -85,8 +88,21 @@ class _DashboardFragmentState extends State<DashboardFragment> {
             },
             loadingWidget: DashboardShimmer(),
             onSuccess: (snap) {
-              // Debug: Check if we have categories and services
-              log('Dashboard received - Categories: ${snap.category?.length ?? 0}, Services: ${snap.service?.length ?? 0}');
+              // Split the sliders into two groups if there are enough of them
+              List<SliderModel> topSliders = [];
+              List<SliderModel> bottomSliders = [];
+
+              if (snap.slider != null && snap.slider!.isNotEmpty) {
+                if (snap.slider!.length > 1) {
+                  // If we have multiple sliders, split them between top and bottom
+                  int midPoint = (snap.slider!.length / 2).ceil();
+                  topSliders = snap.slider!.sublist(0, midPoint);
+                  bottomSliders = snap.slider!.sublist(midPoint);
+                } else {
+                  // If we have only one slider, put it at the top
+                  topSliders = snap.slider!;
+                }
+              }
 
               return Observer(builder: (context) {
                 return AnimatedScrollView(
@@ -103,12 +119,12 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                     return await 2.seconds.delay;
                   },
                   children: [
+                    // Top Banner Slider
                     SliderLocationComponent(
-                      sliderList: snap.slider.validate(),
+                      sliderList: topSliders,
                       featuredList: snap.featuredServices.validate(),
                       callback: () async {
                         appStore.setLoading(true);
-
                         init();
                         setState(() {});
                       },
@@ -124,6 +140,8 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                     // Pending Booking Section
                     PendingBookingComponent(
                         upcomingConfirmedBooking: snap.upcomingData),
+
+                    16.height,
 
                     // All Services section
                     Column(
@@ -222,7 +240,7 @@ class _DashboardFragmentState extends State<DashboardFragment> {
 
                     16.height,
 
-                    // Categories with their services section - main feature
+                    // Categories with their services section
                     CategoryServiceListComponent(
                       categoryList: snap.category.validate(),
                       serviceList: snap.service.validate(),
@@ -234,6 +252,49 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                     if (snap.featuredServices.validate().isNotEmpty)
                       FeaturedServiceListComponent(
                           serviceList: snap.featuredServices.validate()),
+
+                    24.height,
+
+                    // Bottom Banner Slider
+                    if (bottomSliders.isNotEmpty)
+                      Container(
+                        margin: EdgeInsets.only(bottom: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              child: Container(
+                                child: Text(
+                                  "Promotions",
+                                  style: boldTextStyle(
+                                      size: 18, letterSpacing: 0.5),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: primaryColor.withOpacity(0.5),
+                                      width: 2.0,
+                                    ),
+                                  ),
+                                ),
+                                padding: EdgeInsets.only(bottom: 4),
+                              ),
+                            ),
+                            16.height,
+                            Container(
+                              height: 200, // Reduced height for bottom banner
+                              child: SliderWidget(
+                                sliderList: bottomSliders,
+                                autoPlay: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
 
                     16.height,
 
@@ -248,6 +309,166 @@ class _DashboardFragmentState extends State<DashboardFragment> {
           Observer(
               builder: (context) => LoaderWidget().visible(appStore.isLoading)),
         ],
+      ),
+    );
+  }
+}
+
+// Custom Slider Widget to address the video display issues
+class SliderWidget extends StatefulWidget {
+  final List<SliderModel> sliderList;
+  final bool autoPlay;
+
+  SliderWidget({required this.sliderList, this.autoPlay = true});
+
+  @override
+  _SliderWidgetState createState() => _SliderWidgetState();
+}
+
+class _SliderWidgetState extends State<SliderWidget> {
+  PageController sliderPageController = PageController(initialPage: 0);
+  int _currentPage = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.autoPlay && widget.sliderList.length > 1) {
+      _timer = Timer.periodic(Duration(seconds: 5), (Timer timer) {
+        if (_currentPage < widget.sliderList.length - 1) {
+          _currentPage++;
+        } else {
+          _currentPage = 0;
+        }
+
+        if (sliderPageController.hasClients) {
+          sliderPageController.animateToPage(
+            _currentPage,
+            duration: Duration(milliseconds: 950),
+            curve: Curves.easeOutQuart,
+          );
+        }
+      });
+
+      sliderPageController.addListener(() {
+        if (sliderPageController.page != null) {
+          _currentPage = sliderPageController.page!.round();
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    sliderPageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        borderRadius: radius(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: radius(10),
+        child: Stack(
+          children: [
+            // Page View for Slides
+            PageView.builder(
+              controller: sliderPageController,
+              itemCount: widget.sliderList.length,
+              itemBuilder: (context, index) {
+                SliderModel data = widget.sliderList[index];
+                return GestureDetector(
+                  onTap: () {
+                    if (data.type == SERVICE) {
+                      ServiceDetailScreen(
+                              serviceId: data.typeId.validate().toInt())
+                          .launch(context,
+                              pageRouteAnimation: PageRouteAnimation.Fade);
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: context.cardColor,
+                    ),
+                    child: Stack(
+                      children: [
+                        // Image with specific display settings
+                        CachedImageWidget(
+                          url: data.sliderImage.validate(),
+                          fit: BoxFit.cover, // Cover for full screen
+                          width: context.width(),
+                          height: double.infinity,
+                        ),
+                        // Optional caption overlay
+                        if (data.title.validate().isNotEmpty)
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 16),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.7),
+                                  ],
+                                ),
+                              ),
+                              child: Text(
+                                data.title.validate(),
+                                style: boldTextStyle(color: Colors.white),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            // Slide Indicators
+            if (widget.sliderList.length > 1)
+              Positioned(
+                bottom: 8,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    widget.sliderList.length,
+                    (index) => Container(
+                      margin: EdgeInsets.symmetric(horizontal: 4),
+                      height: 8,
+                      width: _currentPage == index ? 16 : 8,
+                      decoration: BoxDecoration(
+                        color:
+                            _currentPage == index ? primaryColor : Colors.white,
+                        borderRadius: radius(4),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

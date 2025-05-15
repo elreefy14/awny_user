@@ -15,10 +15,12 @@ class CategoryListDashboardComponent2 extends StatefulWidget {
   CategoryListDashboardComponent2({this.categoryList});
 
   @override
-  _CategoryListDashboardComponent2State createState() => _CategoryListDashboardComponent2State();
+  _CategoryListDashboardComponent2State createState() =>
+      _CategoryListDashboardComponent2State();
 }
 
-class _CategoryListDashboardComponent2State extends State<CategoryListDashboardComponent2> {
+class _CategoryListDashboardComponent2State
+    extends State<CategoryListDashboardComponent2> {
   int currentIndex = 0;
 
   @override
@@ -48,26 +50,41 @@ class _CategoryListDashboardComponent2State extends State<CategoryListDashboardC
             });
           },
         ).paddingSymmetric(horizontal: 16),
-        HorizontalList(
-          itemCount: widget.categoryList.validate().length,
-          padding: EdgeInsets.only(left: 16, right: 16),
-          runSpacing: 8,
-          spacing: 12,
-          itemBuilder: (context, i) {
-            CategoryData data = widget.categoryList![i];
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: GridView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              childAspectRatio: 0.56, // Further adjusted for even larger icons
+              crossAxisSpacing: 4, // Maintain small spacing
+              mainAxisSpacing: 6, // Slightly increase vertical spacing
+            ),
+            itemCount: widget.categoryList.validate().length,
+            itemBuilder: (context, i) {
+              CategoryData data = widget.categoryList![i];
 
-            return GestureDetector(
-              onTap: () {
-                setState(() => currentIndex = i);
-                ViewAllServiceScreen(categoryId: data.id.validate(), categoryName: data.name, isFromCategory: true).launch(context);
-              },
-              child: CategoryDashboardComponent2(
-                categoryData: data,
-                isSelected: currentIndex == i,
-              ),
-            );
-          },
-        ),
+              return GestureDetector(
+                onTap: () {
+                  setState(() => currentIndex = i);
+                  ViewAllServiceScreen(
+                          categoryId: data.id.validate(),
+                          categoryName: data.name,
+                          isFromCategory: true)
+                      .launch(context);
+                },
+                child: Container(
+                  height: 130, // Increased container height for larger images
+                  child: CategoryDashboardComponent2(
+                    categoryData: data,
+                    isSelected: currentIndex == i,
+                  ),
+                ),
+              );
+            },
+          ),
+        ).paddingSymmetric(horizontal: 8),
       ],
     );
   }

@@ -31,10 +31,6 @@ import 'package:booking_system_flutter/utils/constant.dart';
 import 'package:booking_system_flutter/utils/string_extensions.dart';
 import 'package:geolocator/geolocator.dart';
 
-
-
-
-
 class SliderLocationComponent extends StatefulWidget {
   final List<SliderModel> sliderList;
   final List<ServiceData>? featuredList;
@@ -83,8 +79,6 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
     sliderPageController.dispose();
   }
 
-
-
   Widget getSliderWidget() {
     return SizedBox(
       height: 325,
@@ -93,34 +87,44 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
         children: [
           widget.sliderList.isNotEmpty
               ? PageView(
-            controller: sliderPageController,
-            children: List.generate(
-              widget.sliderList.length,
-                  (index) {
-                SliderModel data = widget.sliderList[index];
-                return Container(
+                  controller: sliderPageController,
+                  children: List.generate(
+                    widget.sliderList.length,
+                    (index) {
+                      SliderModel data = widget.sliderList[index];
+                      return Container(
+                        height: 325,
+                        width: context.width(),
+                        decoration: BoxDecoration(
+                          borderRadius: radius(8),
+                          color: context.cardColor,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: radius(8),
+                          child: CachedImageWidget(
+                            url: data.sliderImage.validate(),
+                            height: 325,
+                            width: context.width(),
+                            fit: BoxFit.cover,
+                          ),
+                        ).onTap(() {
+                          if (data.type == SERVICE) {
+                            ServiceDetailScreen(
+                                    serviceId: data.typeId.validate().toInt())
+                                .launch(context,
+                                    pageRouteAnimation:
+                                        PageRouteAnimation.Fade);
+                          }
+                        }),
+                      );
+                    },
+                  ),
+                )
+              : CachedImageWidget(
+                  url: '',
                   height: 325,
                   width: context.width(),
-                  decoration: BoxDecoration(
-                    borderRadius: radius(8),
-                    color: context.cardColor,
-                  ),
-                  child: CachedImageWidget(
-                    url: data.sliderImage.validate(),
-                    height: 325,
-                    width: context.width(),
-                    fit: BoxFit.contain, // Changed to contain to show full image
-                  ).onTap(() {
-                    if (data.type == SERVICE) {
-                      ServiceDetailScreen(serviceId: data.typeId.validate().toInt())
-                          .launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
-                    }
-                  }),
-                );
-              },
-            ),
-          )
-              : CachedImageWidget(url: '', height: 325, width: context.width(), fit: BoxFit.contain),
+                  fit: BoxFit.cover),
           if (widget.sliderList.length.validate() > 1)
             Positioned(
               bottom: 34,
@@ -162,15 +166,15 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
                         right: -10,
                         child: appStore.unreadCount.validate() > 0
                             ? Container(
-                          padding: EdgeInsets.all(4),
-                          child: FittedBox(
-                            child: Text(appStore.unreadCount.toString(),
-                                style: primaryTextStyle(
-                                    size: 12, color: Colors.white)),
-                          ),
-                          decoration: boxDecorationDefault(
-                              color: Colors.red, shape: BoxShape.circle),
-                        )
+                                padding: EdgeInsets.all(4),
+                                child: FittedBox(
+                                  child: Text(appStore.unreadCount.toString(),
+                                      style: primaryTextStyle(
+                                          size: 12, color: Colors.white)),
+                                ),
+                                decoration: boxDecorationDefault(
+                                    color: Colors.red, shape: BoxShape.circle),
+                              )
                             : Offstage(),
                       );
                     })
@@ -184,6 +188,7 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
       ),
     );
   }
+
   Decoration get commonDecoration {
     return boxDecorationDefault(
       color: context.cardColor,

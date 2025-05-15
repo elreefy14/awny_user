@@ -111,7 +111,18 @@ class SliderModel {
   String? mediaType;
 
   bool get isDirectionUp => (direction ?? '').toLowerCase() == 'up';
-  bool get isVideo => (mediaType ?? '').toLowerCase() == 'video';
+  bool get isVideo {
+    // Check if mediaType is explicitly set to 'video'
+    if ((mediaType ?? '').toLowerCase() == 'video') return true;
+
+    // If sliderImage is available, check its extension for common video formats
+    final url = sliderImage?.toLowerCase() ?? '';
+    return url.endsWith('.mp4') ||
+        url.endsWith('.mov') ||
+        url.endsWith('.avi') ||
+        url.endsWith('.webm') ||
+        url.endsWith('.mkv');
+  }
 
   SliderModel({
     this.description,
@@ -125,6 +136,11 @@ class SliderModel {
     this.direction,
     this.mediaType,
   });
+
+  @override
+  String toString() {
+    return 'SliderModel(id: $id, title: $title, direction: $direction, mediaType: $mediaType)';
+  }
 
   factory SliderModel.fromJson(Map<String, dynamic> json) {
     return SliderModel(

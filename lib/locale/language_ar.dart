@@ -29,6 +29,7 @@ class LanguageAr extends BaseLanguage {
 
   String get changeLocation => 'تغيير الموقع';
   String get close => 'إغلاق';
+  String get emailAlreadyTaken => 'البريد الإلكتروني مسجل مسبقاً';
   String get unavailableLocation => 'الموقع غير متاح';
   @override
   String get serviceUnavailableMessage =>
@@ -210,7 +211,7 @@ class LanguageAr extends BaseLanguage {
   String get category => 'فئة';
 
   @override
-  String get booking => 'الحجز';
+  String get booking => 'عروض';
 
   @override
   String get profile => 'الملف الشخصي';
@@ -701,7 +702,7 @@ class LanguageAr extends BaseLanguage {
   String get lblSignInWithGoogle => "الدخول مع جوجل";
 
   @override
-  String get lblSignInWithOTP => "تسجيل الدخول مع OTP";
+  String get lblSignInWithOTP => "تسجيل الدخول مع رقم الهاتف";
 
   @override
   String get lblDangerZone => "منطقة الخطر";
