@@ -376,9 +376,19 @@ void locationWiseService(BuildContext context, VoidCallback onTap) async {
 
       if (res ?? false) {
         appStore.setLoading(true);
+
+        // Toggle the current location state
+        bool newLocationState = !appStore.isCurrentLocation;
+        appStore.setCurrentLocation(newLocationState);
+
+        await setValue(IS_CURRENT_LOCATION, newLocationState);
+
+        // Execute the callback function that should refresh the UI
+        onTap.call();
       }
     }
   }).catchError((e) {
+    appStore.setLoading(false);
     toast(e.toString(), print: true);
   });
 }

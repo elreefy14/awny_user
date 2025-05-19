@@ -53,7 +53,17 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
     future = userDashboard(
         isCurrentLocation: appStore.isCurrentLocation,
         lat: getDoubleAsync(LATITUDE),
-        long: getDoubleAsync(LONGITUDE));
+        long: getDoubleAsync(LONGITUDE))
+      ..then((value) {
+        // Turn off loading when data is loaded successfully
+        appStore.setLoading(false);
+        return value;
+      })
+      ..catchError((e) {
+        // Make sure to turn off loading state on error
+        appStore.setLoading(false);
+        toast(e.toString(), print: true);
+      });
   }
 
   @override
