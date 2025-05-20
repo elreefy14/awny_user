@@ -543,39 +543,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ],
         ),
-        bottomNavigationBar: Blur(
-          blur: 30,
-          borderRadius: radius(0),
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: context.cardColor,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                spreadRadius: 0,
+                offset: Offset(0, -5),
+              ),
+            ],
+          ),
           child: NavigationBarTheme(
             data: NavigationBarThemeData(
-              backgroundColor: primaryColor,
-              indicatorColor: Colors.white.withOpacity(0.1),
-              labelTextStyle: WidgetStateProperty.all(
-                  primaryTextStyle(size: 12, color: Colors.white)),
+              labelTextStyle: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return primaryTextStyle(size: 12, color: primaryColor);
+                }
+                return primaryTextStyle(
+                    size: 12, color: appTextSecondaryColor.withOpacity(0.6));
+              }),
+              iconTheme: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return IconThemeData(color: primaryColor);
+                }
+                return IconThemeData(
+                    color: appTextSecondaryColor.withOpacity(0.6));
+              }),
+              indicatorColor: primaryColor.withOpacity(0.1),
+              backgroundColor: context.cardColor,
               surfaceTintColor: Colors.transparent,
               shadowColor: Colors.transparent,
+              height: 68,
             ),
             child: NavigationBar(
               selectedIndex: currentIndex,
               destinations: [
                 NavigationDestination(
-                  icon: ic_home.iconImage(color: Colors.white70),
-                  selectedIcon: ic_home.iconImage(color: Colors.white),
+                  icon: ic_home.iconImage(
+                      color: appTextSecondaryColor.withOpacity(0.6)),
+                  selectedIcon: ic_home.iconImage(color: primaryColor),
                   label: language.home,
                 ),
                 NavigationDestination(
-                  icon: ic_ticket.iconImage(color: Colors.white70),
-                  selectedIcon: ic_ticket.iconImage(color: Colors.white),
+                  icon: ic_ticket.iconImage(
+                      color: appTextSecondaryColor.withOpacity(0.6)),
+                  selectedIcon: ic_ticket.iconImage(color: primaryColor),
                   label: language.booking,
                 ),
                 NavigationDestination(
-                  icon: ic_category.iconImage(color: Colors.white70),
-                  selectedIcon: ic_category.iconImage(color: Colors.white),
+                  icon: ic_category.iconImage(
+                      color: appTextSecondaryColor.withOpacity(0.6)),
+                  selectedIcon: ic_category.iconImage(color: primaryColor),
                   label: language.category,
                 ),
                 NavigationDestination(
-                  icon: ic_chat.iconImage(color: Colors.white70),
-                  selectedIcon: ic_chat.iconImage(color: Colors.white),
+                  icon: ic_chat.iconImage(
+                      color: appTextSecondaryColor.withOpacity(0.6)),
+                  selectedIcon: ic_chat.iconImage(color: primaryColor),
                   label: language.lblChat,
                 ),
                 Observer(builder: (context) {
@@ -586,14 +612,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ignoring: true,
                             child: ImageBorder(
                                 src: appStore.userProfileImage, height: 26))
-                        : ic_profile2.iconImage(color: Colors.white70),
+                        : ic_profile2.iconImage(
+                            color: appTextSecondaryColor.withOpacity(0.6)),
                     selectedIcon: (appStore.isLoggedIn &&
                             appStore.userProfileImage.isNotEmpty)
                         ? IgnorePointer(
                             ignoring: true,
                             child: ImageBorder(
                                 src: appStore.userProfileImage, height: 26))
-                        : ic_profile2.iconImage(color: Colors.white),
+                        : ic_profile2.iconImage(color: primaryColor),
                     label: language.profile,
                   );
                 }),

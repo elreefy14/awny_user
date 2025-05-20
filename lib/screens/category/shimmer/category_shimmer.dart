@@ -16,7 +16,8 @@ class CategoryShimmer extends StatelessWidget {
         spacing: 16,
         itemCount: 16,
         listAnimationType: ListAnimationType.None,
-        scaleConfiguration: ScaleConfiguration(duration: 300.milliseconds, delay: 50.milliseconds),
+        scaleConfiguration: ScaleConfiguration(
+            duration: 300.milliseconds, delay: 50.milliseconds),
         itemBuilder: (_, index) {
           return ShimmerWidget(
             child: SizedBox(
@@ -27,13 +28,15 @@ class CategoryShimmer extends StatelessWidget {
                     width: CATEGORY_ICON_SIZE,
                     height: CATEGORY_ICON_SIZE,
                     padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: context.cardColor, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                        color: context.cardColor, shape: BoxShape.circle),
                   ),
                   4.height,
                   Container(
                     width: 60,
                     height: 10,
-                    decoration: boxDecorationWithRoundedCorners(backgroundColor: context.cardColor),
+                    decoration: boxDecorationWithRoundedCorners(
+                        backgroundColor: context.cardColor),
                   ),
                 ],
               ),

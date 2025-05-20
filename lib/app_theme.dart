@@ -17,11 +17,14 @@ class AppTheme {
         scaffoldBackgroundColor: Colors.white,
         fontFamily: GoogleFonts.inter().fontFamily,
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: color ?? primaryColor,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white70,
-          selectedLabelStyle: TextStyle(color: Colors.white),
-          unselectedLabelStyle: TextStyle(color: Colors.white70),
+          backgroundColor: Colors.white,
+          selectedItemColor: color ?? primaryColor,
+          unselectedItemColor: appTextSecondaryColor.withOpacity(0.6),
+          selectedLabelStyle: TextStyle(color: color ?? primaryColor),
+          unselectedLabelStyle:
+              TextStyle(color: appTextSecondaryColor.withOpacity(0.6)),
+          elevation: 8.0,
+          type: BottomNavigationBarType.fixed,
         ),
         iconTheme: IconThemeData(color: appTextSecondaryColor),
         textTheme: GoogleFonts.interTextTheme(),
@@ -39,23 +42,23 @@ class AppTheme {
             backgroundColor: color ?? primaryColor),
         appBarTheme: AppBarTheme(
             elevation: 0,
-            backgroundColor: color ?? primaryColor,
-            iconTheme: IconThemeData(color: Colors.white),
+            backgroundColor: Colors.white,
+            iconTheme: IconThemeData(color: appTextPrimaryColor),
             titleTextStyle: TextStyle(
-              color: Colors.white,
+              color: appTextPrimaryColor,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
             systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarIconBrightness: Brightness.light,
-                statusBarColor: color ?? primaryColor)),
+                statusBarIconBrightness: Brightness.dark,
+                statusBarColor: Colors.white)),
         dialogTheme: DialogTheme(shape: dialogShape()),
         navigationBarTheme: NavigationBarThemeData(
           labelTextStyle: MaterialStateProperty.all(primaryTextStyle(size: 10)),
-          backgroundColor: color ?? primaryColor,
-          indicatorColor: Colors.white.withOpacity(0.1),
+          backgroundColor: Colors.white,
+          indicatorColor: (color ?? primaryColor).withOpacity(0.1),
           iconTheme: MaterialStateProperty.all(
-            IconThemeData(color: Colors.white70),
+            IconThemeData(color: appTextSecondaryColor.withOpacity(0.6)),
           ),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         ),
@@ -76,7 +79,7 @@ class AppTheme {
             seedColor: color ?? primaryColor, outlineVariant: borderColor),
         appBarTheme: AppBarTheme(
           elevation: 0,
-          backgroundColor: color ?? primaryColor,
+          backgroundColor: scaffoldSecondaryDark,
           iconTheme: IconThemeData(color: Colors.white),
           titleTextStyle: TextStyle(
             color: Colors.white,
@@ -85,16 +88,18 @@ class AppTheme {
           ),
           systemOverlayStyle: SystemUiOverlayStyle(
               statusBarIconBrightness: Brightness.light,
-              statusBarColor: color ?? primaryColor),
+              statusBarColor: scaffoldSecondaryDark),
         ),
         scaffoldBackgroundColor: scaffoldColorDark,
         fontFamily: GoogleFonts.inter().fontFamily,
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: color ?? primaryColor,
+          backgroundColor: scaffoldSecondaryDark,
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.white70,
           selectedLabelStyle: TextStyle(color: Colors.white),
           unselectedLabelStyle: TextStyle(color: Colors.white70),
+          elevation: 8.0,
+          type: BottomNavigationBarType.fixed,
         ),
         iconTheme: IconThemeData(color: Colors.white),
         textTheme: GoogleFonts.interTextTheme(),
@@ -112,8 +117,8 @@ class AppTheme {
         cardColor: scaffoldSecondaryDark,
         dialogTheme: DialogTheme(shape: dialogShape()),
         navigationBarTheme: NavigationBarThemeData(
-            backgroundColor: color ?? primaryColor,
-            indicatorColor: Colors.white.withOpacity(0.1),
+            backgroundColor: scaffoldSecondaryDark,
+            indicatorColor: (color ?? primaryColor).withOpacity(0.2),
             iconTheme: MaterialStateProperty.all(
               IconThemeData(color: Colors.white70),
             ),

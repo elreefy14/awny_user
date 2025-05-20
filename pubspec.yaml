@@ -17,7 +17,7 @@ dependencies:
   google_fonts: ^6.2.1
   just_audio:
   html: ^0.15.4
-  http: ^1.2.1
+  http: ^1.4.0
   intl: ^0.19.0
   cached_network_image: ^3.3.1
   url_launcher: ^6.3.0

@@ -23,7 +23,7 @@ class SliderDashboardComponent3 extends StatefulWidget {
 }
 
 class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   // Full-width page controllers
   PageController topSliderPageController = PageController(initialPage: 0);
   PageController bottomSliderPageController = PageController(initialPage: 0);
@@ -34,14 +34,21 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
   Timer? _topTimer;
   Timer? _bottomTimer;
   Map<int, VideoPlayerController> videoControllers = {};
+  // Track if a video is being interacted with to prevent auto-slide
+  bool _isVideoInteracting = false;
 
   // Animation controllers for subtle fade effects
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
+  // Add a new field to track completions
+  Map<int, bool> completedVideos = {};
+
   @override
   void initState() {
     super.initState();
+    // Register to app lifecycle changes to pause videos when app is in background
+    WidgetsBinding.instance.addObserver(this);
 
     // Initialize fade animation
     _fadeController = AnimationController(
@@ -62,7 +69,30 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
     // Initialize video controllers for any video sliders
     initializeVideoControllers();
 
+    // Listen for events to pause videos
+    LiveStream().on('PAUSE_ALL_VIDEOS', (_) {
+      pauseAllVideos();
+    });
+
     init();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Pause all videos when app goes to background
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      pauseAllVideos();
+    }
+  }
+
+  // Pause all active videos - call when navigating away
+  void pauseAllVideos() {
+    videoControllers.forEach((key, controller) {
+      if (controller.value.isPlaying) {
+        controller.pause();
+      }
+    });
   }
 
   // Separate method for video controller initialization for better organization
@@ -85,32 +115,52 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
 
               // Add a listener to handle video completion for each controller
               videoControllers[i]?.addListener(() {
-                // Check if video has reached the end
-                if (videoControllers[i]?.value.isInitialized == true &&
-                    videoControllers[i]?.value.position ==
-                        videoControllers[i]?.value.duration) {
+                final controller = videoControllers[i];
+                if (controller == null) return;
+
+                // Check if video has reached the end (with a small threshold)
+                if (controller.value.isInitialized &&
+                    controller.value.position >=
+                        controller.value.duration -
+                            Duration(milliseconds: 300)) {
                   print('Video at index $i completed playback');
-                  // Move to next slide logic...
-                  handleVideoCompletion(i);
+
+                  // تغيير هنا: نسجل أن الفيديو قد اكتمل ولكن نتيح إعادة مشاهدته
+                  completedVideos[i] = true;
+                  _isVideoInteracting = false;
+
+                  // لا ننتقل للشريحة التالية مباشرة، بل نظهر زر إعادة التشغيل
+                  controller.pause();
+                  controller.seekTo(Duration.zero);
+                  setState(() {});
+
+                  // إذا كان التبديل التلقائي مفعلا، ننتقل للشريحة التالية بعد فترة
+                  if (_isAutoSlideEnabled() && !_isVideoInteracting) {
+                    Future.delayed(Duration(seconds: 3), () {
+                      if (mounted && !_isVideoInteracting) {
+                        handleVideoCompletion(i);
+                      }
+                    });
+                  }
                 }
               });
 
-              // Auto-play first video if it's the first slide
-              if (mounted && i == 0) {
-                List<SliderModel> topSliders = getSlidersByDirection('up');
-                if (topSliders.isNotEmpty &&
-                    topSliders[0] == widget.sliderList[i]) {
-                  print('Auto-playing first video at index $i');
-                  videoControllers[i]?.play();
-                  videoControllers[i]?.setLooping(false);
-                }
-              }
+              // Volume settings
+              videoControllers[i]?.setVolume(1.0);
+
+              // Don't autoplay videos initially - let user tap to play
+              videoControllers[i]?.pause();
             });
         } catch (e) {
           print('Error initializing video at index $i: $e');
         }
       }
     }
+  }
+
+  // Add helper to check if auto-slide is enabled
+  bool _isAutoSlideEnabled() {
+    return getBoolAsync(AUTO_SLIDER_STATUS, defaultValue: true);
   }
 
   // Handle video completion event
@@ -236,63 +286,50 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
     if (isCurrentSlideVideo &&
         currentVideoController != null &&
         currentVideoController.value.isInitialized) {
-      // For video slides, listen for video completion to advance
-      _topTimer = Timer(currentVideoController.value.duration, () {
-        if (mounted) {
-          // Video finished, move to next slide
-          if (_currentTopPage < topSliders.length - 1) {
-            _currentTopPage++;
-          } else {
-            _currentTopPage = 0;
-          }
-
-          // Pause current video
-          currentVideoController.pause();
-
-          // Animate to next slide
-          topSliderPageController.animateToPage(_currentTopPage,
-              duration: Duration(milliseconds: 800),
-              curve: Curves.easeOutQuint);
-
-          // This will trigger the listener which will schedule the next transition
+      // تعديل: لا نضع مؤقت للفيديو - سننتظر الاستماع للحدث في الـ listener
+      // Just ensure video is playing if supposed to be
+      if (_isAutoSlideEnabled() && !_isVideoInteracting) {
+        // Make sure the video is playing and not looping
+        currentVideoController.setLooping(false);
+        if (!currentVideoController.value.isPlaying) {
+          currentVideoController.play();
         }
-      });
-
-      // Make sure the video is playing and not looping
-      currentVideoController.setLooping(false);
-      currentVideoController.play();
-    } else {
+      }
+    } else if (_isAutoSlideEnabled()) {
       // For image slides, use the standard timer
       _topTimer = Timer.periodic(
           Duration(seconds: DASHBOARD_AUTO_SLIDER_SECOND), (Timer timer) {
         if (mounted) {
-          if (_currentTopPage < topSliders.length - 1) {
-            _currentTopPage++;
-          } else {
-            _currentTopPage = 0;
-          }
-
-          // Pause any currently playing videos before sliding
-          videoControllers.forEach((index, controller) {
-            if (controller.value.isPlaying) {
-              controller.pause();
+          // ننتقل فقط للشريحة التالية إذا لم نكن في وضع تفاعل مع الفيديو
+          if (!_isVideoInteracting) {
+            if (_currentTopPage < topSliders.length - 1) {
+              _currentTopPage++;
+            } else {
+              _currentTopPage = 0;
             }
-          });
 
-          topSliderPageController.animateToPage(_currentTopPage,
-              duration: Duration(milliseconds: 800),
-              curve: Curves.easeOutQuint);
+            // Pause any currently playing videos before sliding
+            videoControllers.forEach((index, controller) {
+              if (controller.value.isPlaying) {
+                controller.pause();
+              }
+            });
 
-          // Play the video at the new position if it's a video
-          int sliderIndex =
-              widget.sliderList.indexOf(topSliders[_currentTopPage]);
-          if (sliderIndex != -1 && topSliders[_currentTopPage].isVideo) {
-            videoControllers[sliderIndex]?.setLooping(false);
-            videoControllers[sliderIndex]?.play();
+            topSliderPageController.animateToPage(_currentTopPage,
+                duration: Duration(milliseconds: 800),
+                curve: Curves.easeOutQuint);
 
-            // Cancel the timer and wait for video to finish
-            timer.cancel();
-            _scheduleTopSliderTransition(topSliders);
+            // Play the video at the new position if it's a video
+            int sliderIndex =
+                widget.sliderList.indexOf(topSliders[_currentTopPage]);
+            if (sliderIndex != -1 && topSliders[_currentTopPage].isVideo) {
+              videoControllers[sliderIndex]?.setLooping(false);
+              videoControllers[sliderIndex]?.play();
+
+              // Cancel the timer - we'll let the video completion listener handle the next transition
+              timer.cancel();
+              _scheduleTopSliderTransition(topSliders);
+            }
           }
         }
       });
@@ -316,63 +353,51 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
     if (isCurrentSlideVideo &&
         currentVideoController != null &&
         currentVideoController.value.isInitialized) {
-      // For video slides, listen for video completion to advance
-      _bottomTimer = Timer(currentVideoController.value.duration, () {
-        if (mounted) {
-          // Video finished, move to next slide
-          if (_currentBottomPage < bottomSliders.length - 1) {
-            _currentBottomPage++;
-          } else {
-            _currentBottomPage = 0;
-          }
-
-          // Pause current video
-          currentVideoController.pause();
-
-          // Animate to next slide
-          bottomSliderPageController.animateToPage(_currentBottomPage,
-              duration: Duration(milliseconds: 800),
-              curve: Curves.easeOutQuint);
-
-          // This will trigger the listener which will schedule the next transition
+      // تعديل: لا نضع مؤقت للفيديو - سننتظر الاستماع للحدث في الـ listener
+      // Just ensure video is playing if supposed to be
+      if (_isAutoSlideEnabled() && !_isVideoInteracting) {
+        // Make sure the video is playing and not looping
+        currentVideoController.setLooping(false);
+        if (!currentVideoController.value.isPlaying) {
+          currentVideoController.play();
         }
-      });
-
-      // Make sure the video is playing and not looping
-      currentVideoController.setLooping(false);
-      currentVideoController.play();
-    } else {
+      }
+    } else if (_isAutoSlideEnabled()) {
       // For image slides, use the standard timer
       _bottomTimer = Timer.periodic(
           Duration(seconds: DASHBOARD_AUTO_SLIDER_SECOND), (Timer timer) {
         if (mounted) {
-          if (_currentBottomPage < bottomSliders.length - 1) {
-            _currentBottomPage++;
-          } else {
-            _currentBottomPage = 0;
-          }
-
-          // Pause any currently playing videos before sliding
-          videoControllers.forEach((index, controller) {
-            if (controller.value.isPlaying) {
-              controller.pause();
+          // ننتقل فقط للشريحة التالية إذا لم نكن في وضع تفاعل مع الفيديو
+          if (!_isVideoInteracting) {
+            if (_currentBottomPage < bottomSliders.length - 1) {
+              _currentBottomPage++;
+            } else {
+              _currentBottomPage = 0;
             }
-          });
 
-          bottomSliderPageController.animateToPage(_currentBottomPage,
-              duration: Duration(milliseconds: 800),
-              curve: Curves.easeOutQuint);
+            // Pause any currently playing videos before sliding
+            videoControllers.forEach((index, controller) {
+              if (controller.value.isPlaying) {
+                controller.pause();
+              }
+            });
 
-          // Play the video at the new position if it's a video
-          int sliderIndex =
-              widget.sliderList.indexOf(bottomSliders[_currentBottomPage]);
-          if (sliderIndex != -1 && bottomSliders[_currentBottomPage].isVideo) {
-            videoControllers[sliderIndex]?.setLooping(false);
-            videoControllers[sliderIndex]?.play();
+            bottomSliderPageController.animateToPage(_currentBottomPage,
+                duration: Duration(milliseconds: 800),
+                curve: Curves.easeOutQuint);
 
-            // Cancel the timer and wait for video to finish
-            timer.cancel();
-            _scheduleBottomSliderTransition(bottomSliders);
+            // Play the video at the new position if it's a video
+            int sliderIndex =
+                widget.sliderList.indexOf(bottomSliders[_currentBottomPage]);
+            if (sliderIndex != -1 &&
+                bottomSliders[_currentBottomPage].isVideo) {
+              videoControllers[sliderIndex]?.setLooping(false);
+              videoControllers[sliderIndex]?.play();
+
+              // Cancel the timer - we'll let the video completion listener handle the next transition
+              timer.cancel();
+              _scheduleBottomSliderTransition(bottomSliders);
+            }
           }
         }
       });
@@ -381,6 +406,12 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
 
   @override
   void dispose() {
+    // Remove observer
+    WidgetsBinding.instance.removeObserver(this);
+
+    // Remove LiveStream listener
+    LiveStream().dispose('PAUSE_ALL_VIDEOS');
+
     _topTimer?.cancel();
     _bottomTimer?.cancel();
     topSliderPageController.dispose();
@@ -522,87 +553,214 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
     );
   }
 
-  // Enhanced video slider widget
+  // Enhanced video slider widget with YouTube-like controls
   Widget _buildVideoSlider(
       SliderModel data, int index, double height, double width) {
     VideoPlayerController? controller = videoControllers[index];
 
+    if (controller == null) {
+      return Center(child: CircularProgressIndicator(color: primaryColor));
+    }
+
+    // رمز الفيديو المشاهد سابقاً
+    bool isVideoCompleted = completedVideos[index] ?? false;
+
     return GestureDetector(
       onTap: () {
-        if (data.type == SERVICE) {
-          ServiceDetailScreen(serviceId: data.typeId.validate().toInt())
-              .launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
-        } else if (controller != null) {
-          // Toggle play/pause when tapping on video
-          controller.value.isPlaying ? controller.pause() : controller.play();
-          setState(() {});
+        if (controller.value.isInitialized) {
+          setState(() {
+            _isVideoInteracting = true;
+          });
 
-          // If we're playing the video, make sure it's not set to loop
+          // Toggle play/pause when tapping on video
           if (controller.value.isPlaying) {
-            controller.setLooping(false);
+            controller.pause();
+          } else {
+            // إعادة تشغيل الفيديو من البداية إذا كان قد انتهى
+            if (controller.value.position >=
+                controller.value.duration - Duration(milliseconds: 300)) {
+              controller.seekTo(Duration.zero);
+            }
+
+            // Pause any other playing videos first
+            videoControllers.forEach((key, videoController) {
+              if (key != index && videoController.value.isPlaying) {
+                videoController.pause();
+              }
+            });
+            controller.play();
+
+            // إعادة ضبط متغير الاكتمال عند إعادة التشغيل
+            completedVideos[index] = false;
           }
+          setState(() {});
         }
       },
-      child: Container(
-        height: height,
-        width: width,
-        color: Colors.black,
-        child: controller != null && controller.value.isInitialized
-            ? Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    height: height,
-                    width: width,
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: SizedBox(
-                        width: controller.value.size.width,
-                        height: controller.value.size.height,
-                        child: VideoPlayer(controller),
-                      ),
-                    ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(
+            height: height,
+            width: width,
+            color: Colors.black,
+            child: controller.value.isInitialized
+                ? AspectRatio(
+                    aspectRatio: controller.value.aspectRatio,
+                    child: VideoPlayer(controller),
+                  )
+                : Center(
+                    child: CircularProgressIndicator(color: primaryColor),
                   ),
+          ),
+
+          // Professional video controls overlay - تحسين الظهور
+          AnimatedOpacity(
+            opacity: controller.value.isPlaying ? 0.0 : 1.0,
+            duration: Duration(milliseconds: 300),
+            child: Container(
+              color: Colors.black.withOpacity(0.4),
+              child: Center(
+                child: Container(
+                  height: 80,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 1.5),
+                  ),
+                  child: Icon(
+                    isVideoCompleted && !controller.value.isPlaying
+                        ? Icons.replay_rounded
+                        : controller.value.isPlaying
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
+                    size: 48,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Video progress indicator at bottom مع تحسين العرض
+          if (controller.value.isInitialized)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // إضافة شريط تحكم محسن
                   if (!controller.value.isPlaying)
                     Container(
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      margin: EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.8),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 12,
-                            spreadRadius: 2,
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: radius(16),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // زر التحكم في الصوت
+                          GestureDetector(
+                            onTap: () {
+                              final isMuted = controller.value.volume == 0;
+                              controller.setVolume(isMuted ? 1.0 : 0.0);
+                              setState(() {});
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(right: 12),
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: controller.value.volume > 0
+                                    ? primaryColor
+                                    : Colors.grey.withOpacity(0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                controller.value.volume > 0
+                                    ? Icons.volume_up
+                                    : Icons.volume_off,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
                           ),
+                          // مؤشر الوقت
+                          Text(
+                            '${_formatDuration(controller.value.position)} / ${_formatDuration(controller.value.duration)}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          // مؤشر إذا كان الفيديو قد شوهد
+                          if (isVideoCompleted)
+                            Container(
+                              margin: EdgeInsets.only(left: 8),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: primaryColor.withOpacity(0.8),
+                                borderRadius: radius(8),
+                              ),
+                              child: Text(
+                                "تمت المشاهدة",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
-                      child:
-                          Icon(Icons.play_arrow, color: Colors.white, size: 36),
                     ),
-                  // Add video progress indicator
-                  if (controller.value.isPlaying)
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: LinearProgressIndicator(
-                        value: controller.value.isInitialized
-                            ? controller.value.position.inMilliseconds /
-                                controller.value.duration.inMilliseconds
-                            : 0.0,
-                        backgroundColor: Colors.transparent,
-                        valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                        minHeight: 3,
+                  Container(
+                    height: 5,
+                    child: VideoProgressIndicator(
+                      controller,
+                      allowScrubbing: true,
+                      colors: VideoProgressColors(
+                        playedColor: primaryColor,
+                        bufferedColor: Colors.white.withOpacity(0.5),
+                        backgroundColor: Colors.white.withOpacity(0.2),
                       ),
+                      padding: EdgeInsets.zero,
                     ),
+                  ),
                 ],
-              )
-            : Center(
-                child: CircularProgressIndicator(color: primaryColor),
               ),
+            ),
+
+          // Add play/pause control buttons with overlay
+          if (controller.value.isInitialized && controller.value.isPlaying)
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isVideoInteracting = true;
+                });
+                controller.pause();
+                setState(() {});
+              },
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
+        ],
       ),
     );
+  }
+
+  // Helper to format duration
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String minutes = twoDigits(duration.inMinutes.remainder(60));
+    String seconds = twoDigits(duration.inSeconds.remainder(60));
+    return '$minutes:$seconds';
   }
 
   // Enhanced image slider widget with improved dimensions
@@ -628,89 +786,72 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
     );
   }
 
-  // Modern professional indicator with sleek animation
+  // Modern simplified indicator with minimal design
   Widget buildIndicator(int pageCount, int currentIndex) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.35),
-        borderRadius: radius(30),
-        border: Border.all(color: Colors.white.withOpacity(0.2), width: 0.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 8,
-            spreadRadius: 1,
-          ),
-        ],
+        color: Colors.black.withOpacity(0.2),
+        borderRadius: radius(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(
-          pageCount,
-          (index) {
-            bool isActive = currentIndex == index;
-            return AnimatedContainer(
-              duration: Duration(milliseconds: 350),
-              margin: EdgeInsets.symmetric(horizontal: 4),
-              height: isActive ? 8 : 6,
-              width: isActive ? 24 : 6,
-              decoration: BoxDecoration(
-                color: isActive ? primaryColor : Colors.white.withOpacity(0.3),
-                borderRadius: radius(isActive ? 4 : 3),
-                boxShadow: isActive
-                    ? [
-                        BoxShadow(
-                          color: primaryColor.withOpacity(0.5),
-                          blurRadius: 6,
-                          spreadRadius: 0,
-                        )
-                      ]
-                    : null,
-                gradient: isActive
-                    ? LinearGradient(
-                        colors: [
-                          Colors.white.withOpacity(0.9),
-                          primaryColor,
-                        ],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      )
-                    : null,
-              ),
-              child: isActive
-                  ? Center(
-                      child: AnimatedOpacity(
-                        duration: Duration(milliseconds: 300),
-                        opacity: 1.0,
-                        child: Container(
-                          height: 3,
-                          width: 3,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.white.withOpacity(0.8),
-                                blurRadius: 4,
-                                spreadRadius: 1,
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  : null,
-            );
-          },
-        ),
+        children: [
+          // Simplified dots
+          ...List.generate(
+            pageCount,
+            (index) {
+              bool isActive = currentIndex == index;
+              bool isVideo = false;
+
+              if (pageCount == widget.sliderList.length) {
+                isVideo = widget.sliderList[index].isVideo;
+              } else {
+                List<SliderModel> sliders =
+                    pageCount == topSliderPageController.page!.round() + 1
+                        ? getSlidersByDirection('up')
+                        : getSlidersByDirection('down');
+                if (index < sliders.length) {
+                  isVideo = sliders[index].isVideo;
+                }
+              }
+
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: 3),
+                height: 6,
+                width: isActive ? 16 : 6,
+                decoration: BoxDecoration(
+                  color:
+                      isActive ? primaryColor : Colors.white.withOpacity(0.6),
+                  borderRadius: radius(8),
+                  boxShadow: isActive
+                      ? [
+                          BoxShadow(
+                            color: primaryColor.withOpacity(0.3),
+                            blurRadius: 4,
+                            spreadRadius: 0,
+                          )
+                        ]
+                      : null,
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Pause videos when this widget is removed from the widget tree
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        pauseAllVideos();
+      }
+    });
+
     // Get top and bottom sliders
     final topSliders = getSlidersByDirection('up');
     final bottomSliders = getSlidersByDirection('down');
@@ -838,5 +979,16 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
           ),
       ],
     );
+  }
+
+  // Add route observer to detect when the user navigates away
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Add route observer to pause videos when route changes
+    ModalRoute.of(context)?.addScopedWillPopCallback(() async {
+      pauseAllVideos();
+      return true;
+    });
   }
 }

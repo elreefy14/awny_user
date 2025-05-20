@@ -37,43 +37,64 @@ class _AppbarDashboardComponent3State extends State<AppbarDashboardComponent3> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: primaryColor,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(16),
-          bottomRight: Radius.circular(16),
+        gradient: LinearGradient(
+          colors: [primaryColor, primaryColor.withOpacity(0.8)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.2),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
       ),
       child: Row(
         children: [
           if (appStore.isLoggedIn)
-            CachedImageWidget(
-              url: appStore.userProfileImage.validate(),
-              height: 50,
-              width: 50,
-              fit: BoxFit.cover,
-            ).cornerRadiusWithClipRRect(100).paddingRight(16),
+            Container(
+              decoration: BoxDecoration(
+                border:
+                    Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: CachedImageWidget(
+                url: appStore.userProfileImage.validate(),
+                height: 46,
+                width: 46,
+                fit: BoxFit.cover,
+              ).cornerRadiusWithClipRRect(100),
+            ).paddingRight(16),
           Row(
             children: [
-              Text(
-                appStore.isLoggedIn
-                    ? appStore.userFullName
-                    : language.helloGuest,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: boldTextStyle(color: Colors.white, size: 18),
+              Expanded(
+                child: Text(
+                  appStore.isLoggedIn
+                      ? appStore.userFullName
+                      : language.helloGuest,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: boldTextStyle(color: Colors.white, size: 18),
+                ),
               ),
               appStore.isLoggedIn
                   ? Offstage()
                   : Image.asset(ic_hi, height: 24, fit: BoxFit.cover),
             ],
-          ).expand(),
+          ),
           16.width,
           Container(
             padding: EdgeInsets.symmetric(
                 horizontal: 16, vertical: appStore.unreadCount > 0 ? 12 : 10),
             decoration: boxDecorationDefault(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withOpacity(0.15),
               borderRadius: radius(28),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

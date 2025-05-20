@@ -26,54 +26,244 @@ class CategoryServicesComponent extends StatefulWidget {
 class _CategoryServicesComponentState extends State<CategoryServicesComponent> {
   @override
   Widget build(BuildContext context) {
-    // Filter categories that have services
-    final categoriesWithServices = widget.categories.where((category) {
-      return widget.services
-          .any((service) => service.categoryId == category.id);
-    }).toList();
+    // DEBUG: Print all categories received from API
+    print('\n==== ALL CATEGORIES FROM API (in component) ====');
+    widget.categories.forEach((category) {
+      print('Category: ${category.name} (ID: ${category.id})');
+    });
 
-    if (categoriesWithServices.isEmpty) return Offstage();
+    // DEBUG: Print all services to check category associations
+    print('\n==== ALL SERVICES FROM API (in component) ====');
+    widget.services.forEach((service) {
+      print(
+          'Service: ${service.name} (ID: ${service.id}, Category ID: ${service.categoryId})');
+    });
+
+    // IMPORTANT: Make a copy of categories to work with
+    final List<CategoryData> allCategories = List.from(widget.categories);
+
+    // DEBUG: Check country parameter being used
+    String countryCode =
+        getStringAsync(USER_COUNTRY_CODE_KEY, defaultValue: 'EG');
+    String country = countryCode == 'EG' ? 'egypt' : 'saudi arabia';
+    print('\n==== COUNTRY SETTINGS ====');
+    print('Country Code: $countryCode');
+    print('Country Parameter: $country');
+
+    // IMPROVED: Enhanced category-service matching with better type handling and null checking
+    Map<String, List<ServiceData>> categoryServicesMap = {};
+
+    // First initialize the map with empty lists for all categories
+    for (var category in allCategories) {
+      if (category.id != null) {
+        categoryServicesMap[category.id.toString()] = [];
+      }
+    }
+
+    // Then populate the map with services with robust type checking
+    for (var service in widget.services) {
+      if (service.categoryId == null) {
+        print(
+            'WARNING: Service "${service.name}" (ID: ${service.id}) has null categoryId');
+        continue;
+      }
+
+      String catId = service.categoryId.toString();
+
+      // Check if this service should be included based on country filter
+      bool shouldIncludeService = true;
+
+      // If service has country restrictions, check if the current country is included
+      if (service.country != null && service.country!.isNotEmpty) {
+        shouldIncludeService = service.country!
+            .any((c) => c.toString().toLowerCase() == country.toLowerCase());
+
+        if (!shouldIncludeService) {
+          print(
+              'Service "${service.name}" filtered out due to country restrictions. Service countries: ${service.country}, User country: $country');
+        }
+      }
+
+      if (shouldIncludeService && categoryServicesMap.containsKey(catId)) {
+        categoryServicesMap[catId]!.add(service);
+        print('Matched service "${service.name}" to category ID $catId');
+      } else if (shouldIncludeService) {
+        // If service has a valid category ID but it's not in our categories list
+        print(
+            'WARNING: Service "${service.name}" has category ID $catId which is not in available categories');
+
+        // Try to find if there's a category with numeric ID matching
+        var numericCatId = int.tryParse(catId);
+        if (numericCatId != null) {
+          var matchingCategory = allCategories.firstWhere(
+              (category) => category.id.toString() == numericCatId.toString(),
+              orElse: () => CategoryData());
+
+          if (matchingCategory.id != null) {
+            print(
+                'RECOVERY: Found matching category by numeric ID: ${matchingCategory.name}');
+            categoryServicesMap[matchingCategory.id.toString()]!.add(service);
+          }
+        }
+      }
+    }
+
+    // Print the count of services for each category
+    allCategories.forEach((category) {
+      String catId = category.id.toString();
+      List<ServiceData> matchingServices = categoryServicesMap[catId] ?? [];
+      print(
+          'Category: ${category.name} (ID: ${category.id}) - Service count: ${matchingServices.length}');
+
+      // For debugging, show all services that match this category
+      if (matchingServices.isNotEmpty) {
+        print(
+            '  Matching services: ${matchingServices.map((s) => "${s.name} (ID: ${s.id})").join(", ")}');
+      } else {
+        print('  No matching services found');
+      }
+    });
+
+    // Sort categories with priority order
+    allCategories.sort((a, b) {
+      // Arabic names for air conditioning and refrigeration - expanded list
+      final airConditioningNames = [
+        'تكييف',
+        'تكييفات',
+        'مكيف',
+        'مكيفات',
+        'Air Conditioning',
+        'AC',
+        'air condition',
+        'A/C',
+        'air',
+        'conditioning'
+      ];
+      final refrigerationNames = [
+        'تبريد',
+        'ثلاجات',
+        'ثلاجة',
+        'Refrigeration',
+        'Cooling',
+        'fridge',
+        'refrigerator',
+        'freezer'
+      ];
+
+      // Check if category a is air conditioning - more flexible matching
+      bool aIsAC = airConditioningNames.any((name) {
+        bool matches =
+            a.name.validate().toLowerCase().contains(name.toLowerCase());
+        if (matches) print('Category "${a.name}" matches AC keyword: $name');
+        return matches;
+      });
+
+      // Check if category b is air conditioning
+      bool bIsAC = airConditioningNames.any((name) {
+        bool matches =
+            b.name.validate().toLowerCase().contains(name.toLowerCase());
+        if (matches) print('Category "${b.name}" matches AC keyword: $name');
+        return matches;
+      });
+
+      // Check if category a is refrigeration
+      bool aIsRefrigeration = refrigerationNames.any((name) {
+        bool matches =
+            a.name.validate().toLowerCase().contains(name.toLowerCase());
+        if (matches)
+          print('Category "${a.name}" matches refrigeration keyword: $name');
+        return matches;
+      });
+
+      // Check if category b is refrigeration
+      bool bIsRefrigeration = refrigerationNames.any((name) {
+        bool matches =
+            b.name.validate().toLowerCase().contains(name.toLowerCase());
+        if (matches)
+          print('Category "${b.name}" matches refrigeration keyword: $name');
+        return matches;
+      });
+
+      // Sort logic:
+      // 1. Air conditioning first
+      // 2. Refrigeration second
+      // 3. Everything else by name
+      if (aIsAC) return -1; // a comes first
+      if (bIsAC) return 1; // b comes first
+      if (aIsRefrigeration) return -1; // a comes second
+      if (bIsRefrigeration) return 1; // b comes second
+
+      // Sort alphabetically by name for the rest
+      return a.name.validate().compareTo(b.name.validate());
+    });
+
+    // Print categories to help debug
+    print('\n==== SORTED CATEGORIES ====');
+    allCategories.forEach((category) {
+      String catId = category.id.toString();
+      final count = categoryServicesMap[catId]?.length ?? 0;
+      print(
+          'Category: ${category.name} (ID: ${category.id}) - Services count: $count');
+    });
+
+    // Filter out categories with no services if needed
+    // Uncomment this line if you want to hide empty categories
+    // allCategories.removeWhere((category) => (categoryServicesMap[category.id.toString()] ?? []).isEmpty);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: categoriesWithServices.map((category) {
-        // Get services for this category
-        final categoryServices = widget.services
-            .where((service) => service.categoryId == category.id)
-            .toList();
+      children: [
+        Text(
+          'Available Categories',
+          style: boldTextStyle(size: 18),
+        ).paddingSymmetric(horizontal: 16),
+        8.height,
+        ...allCategories.map((category) {
+          // FIXED: Get services for this category using string-based key
+          final categoryServices =
+              categoryServicesMap[category.id.toString()] ?? [];
 
-        if (categoryServices.isEmpty) return SizedBox();
+          // Print services for debugging
+          print(
+              'Rendering category ${category.name} with ${categoryServices.length} services');
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            16.height,
-            ViewAllLabel(
-              label: category.name.validate(),
-              list: categoryServices,
-              trailingTextStyle: boldTextStyle(color: primaryColor, size: 12),
-              onTap: () {
-                ViewAllServiceScreen(
-                  categoryId: category.id,
-                  categoryName: category.name,
-                  isFromCategory: true,
-                ).launch(context);
-              },
-            ).paddingSymmetric(horizontal: 16),
-            8.height,
-            HorizontalList(
-              itemCount: categoryServices.length.clamp(0, 10),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              spacing: 12,
-              runSpacing: 16,
-              itemBuilder: (context, index) {
-                final service = categoryServices[index];
-                return ServiceItemWidget(serviceData: service);
-              },
-            ),
-          ],
-        );
-      }).toList(),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              16.height,
+              ViewAllLabel(
+                label: category.name.validate(),
+                list: categoryServices,
+                trailingTextStyle: boldTextStyle(color: primaryColor, size: 12),
+                onTap: () {
+                  ViewAllServiceScreen(
+                    categoryId: category.id,
+                    categoryName: category.name,
+                    isFromCategory: true,
+                  ).launch(context);
+                },
+              ).paddingSymmetric(horizontal: 16),
+              8.height,
+              categoryServices.isEmpty
+                  ? Text(
+                      'Click "View All" to see services in this category',
+                      style: secondaryTextStyle(),
+                    ).paddingSymmetric(horizontal: 16)
+                  : HorizontalList(
+                      itemCount: categoryServices.length.clamp(0, 10),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      spacing: 12,
+                      runSpacing: 16,
+                      itemBuilder: (context, index) {
+                        final service = categoryServices[index];
+                        return ServiceItemWidget(serviceData: service);
+                      },
+                    ),
+            ],
+          );
+        }).toList(),
+      ],
     );
   }
 }

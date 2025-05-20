@@ -33,6 +33,8 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
 
+import 'package:booking_system_flutter/screens/auth/google_phone_verification_screen.dart';
+
 class PhoneCollectionDialog extends StatefulWidget {
   @override
   _PhoneCollectionDialogState createState() => _PhoneCollectionDialogState();
@@ -495,23 +497,12 @@ class _SignInScreenState extends State<SignInScreen> {
         'social_image': user.photoURL,
       };
 
-      try {
-        var loginResponse = await loginUser(request, isSocialLogin: true);
-        await saveUserData(loginResponse.userData!);
-        await appStore.setLoginType(LOGIN_TYPE_GOOGLE);
+      // Instead of trying to login/create user directly, redirect to phone verification
+      appStore.setLoading(false);
+      _isGoogleSignInProgress = false;
 
-        // Use onLoginSuccessRedirection instead of direct navigation
-        onLoginSuccessRedirection();
-      } catch (e) {
-        if (e.toString().contains('User not found')) {
-          var signupResponse = await createUser(request);
-          await saveUserData(signupResponse.userData!);
-          await appStore.setLoginType(LOGIN_TYPE_GOOGLE);
-          onLoginSuccessRedirection();
-        } else {
-          throw e;
-        }
-      }
+      // Navigate to phone verification screen with Google user data
+      GooglePhoneVerificationScreen(googleUserData: request).launch(context);
     } catch (e) {
       appStore.setLoading(false);
       _isGoogleSignInProgress = false;
@@ -755,37 +746,37 @@ class _SignInScreenState extends State<SignInScreen> {
           if (appConfigurationStore.googleLoginStatus) 16.height,
           if (appConfigurationStore.otpLoginStatus)
             //todo sign in with otp make ot works
-            // AppButton(
-            //   text: '',
-            //   color: context.cardColor,
-            //   padding: EdgeInsets.all(8),
-            //   textStyle: boldTextStyle(),
-            //   width: context.width() - context.navigationBarHeight,
-            //   child: Row(
-            //     children: [
-            //       Container(
-            //         padding: EdgeInsets.all(8),
-            //         decoration: boxDecorationWithRoundedCorners(
-            //           backgroundColor:
-            //               Color(0xFF25D366).withOpacity(0.1), // WhatsApp green
-            //           boxShape: BoxShape.circle,
+            //   AppButton(
+            //     text: '',
+            //     color: context.cardColor,
+            //     padding: EdgeInsets.all(8),
+            //     textStyle: boldTextStyle(),
+            //     width: context.width() - context.navigationBarHeight,
+            //     child: Row(
+            //       children: [
+            //         Container(
+            //           padding: EdgeInsets.all(8),
+            //           decoration: boxDecorationWithRoundedCorners(
+            //             backgroundColor:
+            //                 Color(0xFF25D366).withOpacity(0.1), // WhatsApp green
+            //             boxShape: BoxShape.circle,
+            //           ),
+            //           child: Image.asset(
+            //             'assets/icons/ic_whatsapp.png',
+            //             height: 20,
+            //             width: 20,
+            //             color: Color(0xFF25D366), // WhatsApp green
+            //           ),
             //         ),
-            //         child: Image.asset(
-            //           'assets/icons/ic_whatsapp.png',
-            //           height: 20,
-            //           width: 20,
-            //           color: Color(0xFF25D366), // WhatsApp green
-            //         ),
-            //       ),
-            //       Text("Sign in with WhatsApp OTP",
-            //               style: boldTextStyle(size: 12),
-            //               textAlign: TextAlign.center)
-            //           .expand(),
-            //     ],
+            //         Text("Sign in with WhatsApp OTP",
+            //                 style: boldTextStyle(size: 12),
+            //                 textAlign: TextAlign.center)
+            //             .expand(),
+            //       ],
+            //     ),
+            //     onTap: otpSignIn,
             //   ),
-            //   onTap: otpSignIn,
-            // ),
-          if (appConfigurationStore.otpLoginStatus) 16.height,
+            if (appConfigurationStore.otpLoginStatus) 16.height,
           if (isIOS)
             if (appConfigurationStore.appleLoginStatus)
               AppButton(

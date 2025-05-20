@@ -10,7 +10,12 @@ class ViewAllLabel extends StatelessWidget {
   final int? labelSize;
   final TextStyle? trailingTextStyle;
 
-  ViewAllLabel({required this.label, this.onTap, this.labelSize, this.list, this.trailingTextStyle});
+  ViewAllLabel(
+      {required this.label,
+      this.onTap,
+      this.labelSize,
+      this.list,
+      this.trailingTextStyle});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +29,10 @@ class ViewAllLabel extends StatelessWidget {
                   onTap?.call();
                 }
               : null,
-          child: (list == null ? true : isViewAllVisible(list!)) ? Text(language.lblViewAll, style: trailingTextStyle ?? secondaryTextStyle()) : SizedBox(),
+          child: (list == null ? true : isViewAllVisible(list!))
+              ? Text(language.lblViewAll,
+                  style: trailingTextStyle ?? secondaryTextStyle())
+              : SizedBox(),
         )
       ],
     );
