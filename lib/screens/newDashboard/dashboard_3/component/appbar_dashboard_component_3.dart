@@ -37,11 +37,21 @@ class _AppbarDashboardComponent3State extends State<AppbarDashboardComponent3> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: primaryColor,
+        color:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(16),
           bottomRight: Radius.circular(16),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: appStore.isDarkMode
+                ? Colors.black.withOpacity(0.2)
+                : orangePrimaryColor.withOpacity(0.3),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
       ),
       child: Row(
         children: [

@@ -548,34 +548,88 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: radius(0),
           child: NavigationBarTheme(
             data: NavigationBarThemeData(
-              backgroundColor: primaryColor,
-              indicatorColor: Colors.white.withOpacity(0.1),
-              labelTextStyle: WidgetStateProperty.all(
-                  primaryTextStyle(size: 12, color: Colors.white)),
+              backgroundColor: appStore.isDarkMode
+                  ? bottomNavBarDarkBgColor
+                  : bottomNavBarLightBgColor,
+              indicatorColor: appStore.isDarkMode
+                  ? orangePrimaryDarkColor.withOpacity(0.2)
+                  : orangePrimaryColor.withOpacity(0.2),
+              labelTextStyle:
+                  MaterialStateProperty.resolveWith<TextStyle>((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return primaryTextStyle(
+                    size: 12,
+                    color: appStore.isDarkMode
+                        ? orangePrimaryDarkColor
+                        : orangePrimaryColor,
+                    weight: FontWeight.w600,
+                  );
+                }
+                return primaryTextStyle(
+                  size: 12,
+                  color: appStore.isDarkMode
+                      ? unselectedNavItemDarkColor
+                      : unselectedNavItemLightColor,
+                );
+              }),
               surfaceTintColor: Colors.transparent,
               shadowColor: Colors.transparent,
+              height: 68,
+              elevation: 2,
             ),
             child: NavigationBar(
               selectedIndex: currentIndex,
               destinations: [
                 NavigationDestination(
-                  icon: ic_home.iconImage(color: Colors.white70),
-                  selectedIcon: ic_home.iconImage(color: Colors.white),
+                  icon: ic_home.iconImage(
+                    color: appStore.isDarkMode
+                        ? unselectedNavItemDarkColor
+                        : unselectedNavItemLightColor,
+                  ),
+                  selectedIcon: ic_home.iconImage(
+                    color: appStore.isDarkMode
+                        ? orangePrimaryDarkColor
+                        : orangePrimaryColor,
+                  ),
                   label: language.home,
                 ),
                 NavigationDestination(
-                  icon: ic_ticket.iconImage(color: Colors.white70),
-                  selectedIcon: ic_ticket.iconImage(color: Colors.white),
+                  icon: ic_ticket.iconImage(
+                    color: appStore.isDarkMode
+                        ? unselectedNavItemDarkColor
+                        : unselectedNavItemLightColor,
+                  ),
+                  selectedIcon: ic_ticket.iconImage(
+                    color: appStore.isDarkMode
+                        ? orangePrimaryDarkColor
+                        : orangePrimaryColor,
+                  ),
                   label: language.booking,
                 ),
                 NavigationDestination(
-                  icon: ic_category.iconImage(color: Colors.white70),
-                  selectedIcon: ic_category.iconImage(color: Colors.white),
+                  icon: ic_category.iconImage(
+                    color: appStore.isDarkMode
+                        ? unselectedNavItemDarkColor
+                        : unselectedNavItemLightColor,
+                  ),
+                  selectedIcon: ic_category.iconImage(
+                    color: appStore.isDarkMode
+                        ? orangePrimaryDarkColor
+                        : orangePrimaryColor,
+                  ),
                   label: language.category,
                 ),
                 NavigationDestination(
-                  icon: ic_chat.iconImage(color: Colors.white70),
-                  selectedIcon: ic_chat.iconImage(color: Colors.white),
+                  icon: ic_chat.iconImage(
+                    color: appStore.isDarkMode
+                        ? unselectedNavItemDarkColor
+                        : unselectedNavItemLightColor,
+                  ),
+                  selectedIcon: ic_chat.iconImage(
+                    color: appStore.isDarkMode
+                        ? orangePrimaryDarkColor
+                        : orangePrimaryColor,
+                  ),
                   label: language.lblChat,
                 ),
                 Observer(builder: (context) {
@@ -586,14 +640,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ignoring: true,
                             child: ImageBorder(
                                 src: appStore.userProfileImage, height: 26))
-                        : ic_profile2.iconImage(color: Colors.white70),
+                        : ic_profile2.iconImage(
+                            color: appStore.isDarkMode
+                                ? unselectedNavItemDarkColor
+                                : unselectedNavItemLightColor,
+                          ),
                     selectedIcon: (appStore.isLoggedIn &&
                             appStore.userProfileImage.isNotEmpty)
                         ? IgnorePointer(
                             ignoring: true,
                             child: ImageBorder(
                                 src: appStore.userProfileImage, height: 26))
-                        : ic_profile2.iconImage(color: Colors.white),
+                        : ic_profile2.iconImage(
+                            color: appStore.isDarkMode
+                                ? orangePrimaryDarkColor
+                                : orangePrimaryColor,
+                          ),
                     label: language.profile,
                   );
                 }),
@@ -602,6 +664,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 currentIndex = index;
                 setState(() {});
               },
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
             ),
           ),
         ),

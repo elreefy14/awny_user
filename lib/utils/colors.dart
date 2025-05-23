@@ -11,7 +11,7 @@ const appTextPrimaryColor = Color(0xff1C1F34);
 const appTextSecondaryColor = Color(0xff6C757D);
 const cardColor = Color(0xFFF6F7F9);
 const borderColor = Color(0xFFEBEBEB);
-//292929 
+//292929
 const scaffoldColorDark = Color(0xFF292929);
 const scaffoldSecondaryDark = Color(0xFF1C1F26);
 const appButtonColorDark = Color(0xFF282828);
@@ -48,5 +48,19 @@ const walletCardColor = Color(0xFF1C1E33);
 const showRedForZeroRatingColor = Color(0xFFFA6565);
 
 //Dashboard 3
-const jobRequestComponentColor=Color(0xFFE4BB97);
-const dashboard3CardColor=Color(0xFFF6F7F9);
+const jobRequestComponentColor = Color(0xFFE4BB97);
+const dashboard3CardColor = Color(0xFFF6F7F9);
+
+// Bottom Navigation Bar Colors
+const bottomNavBarLightBgColor =
+    Color(0xFFFFE9D6); // Softer, modern orange for light mode
+const bottomNavBarDarkBgColor =
+    Color(0xFF3A1D09); // Deep warm brown for dark mode
+const orangePrimaryColor =
+    Color(0xFFFF7F00); // Selected icon & label for light mode
+const orangePrimaryDarkColor =
+    Color(0xFFFF9E40); // Selected icon & label for dark mode
+const unselectedNavItemLightColor =
+    Color(0xFF9E9E9E); // Unselected icon & label for light mode
+const unselectedNavItemDarkColor =
+    Colors.grey; // Unselected icon & label for dark mode

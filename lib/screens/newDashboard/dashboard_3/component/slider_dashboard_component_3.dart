@@ -78,21 +78,38 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
         }
 
         try {
-          videoControllers[i] = VideoPlayerController.network(videoUrl)
-            ..initialize().then((_) {
+          // Configure video controller with better options
+          videoControllers[i] = VideoPlayerController.network(
+            videoUrl,
+            videoPlayerOptions: VideoPlayerOptions(
+              mixWithOthers: true,
+              allowBackgroundPlayback: false,
+            ),
+          )..initialize().then((_) {
               print('Video at index $i successfully initialized');
               if (mounted) setState(() {});
 
+              // Configure video playback settings
+              videoControllers[i]?.setVolume(1.0);
+              videoControllers[i]?.setLooping(false);
+
               // Add a listener to handle video completion for each controller
               videoControllers[i]?.addListener(() {
+                final controller = videoControllers[i];
+                if (controller == null) return;
+
                 // Check if video has reached the end
-                if (videoControllers[i]?.value.isInitialized == true &&
-                    videoControllers[i]?.value.position ==
-                        videoControllers[i]?.value.duration) {
+                if (controller.value.isInitialized &&
+                    controller.value.position >=
+                        controller.value.duration -
+                            Duration(milliseconds: 300)) {
                   print('Video at index $i completed playback');
                   // Move to next slide logic...
                   handleVideoCompletion(i);
                 }
+
+                // Update UI when video state changes
+                if (mounted) setState(() {});
               });
 
               // Auto-play first video if it's the first slide
@@ -529,10 +546,8 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
 
     return GestureDetector(
       onTap: () {
-        if (data.type == SERVICE) {
-          ServiceDetailScreen(serviceId: data.typeId.validate().toInt())
-              .launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
-        } else if (controller != null) {
+        // First check if we have a valid video controller
+        if (controller != null) {
           // Toggle play/pause when tapping on video
           controller.value.isPlaying ? controller.pause() : controller.play();
           setState(() {});
@@ -541,6 +556,11 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
           if (controller.value.isPlaying) {
             controller.setLooping(false);
           }
+        }
+        // Only navigate if we don't have a valid video controller
+        else if (data.type == SERVICE) {
+          ServiceDetailScreen(serviceId: data.typeId.validate().toInt())
+              .launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
         }
       },
       child: Container(
@@ -551,6 +571,7 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
             ? Stack(
                 alignment: Alignment.center,
                 children: [
+                  // Video player
                   SizedBox(
                     height: height,
                     width: width,
@@ -563,8 +584,12 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
                       ),
                     ),
                   ),
-                  if (!controller.value.isPlaying)
-                    Container(
+
+                  // Enhanced play/pause button with animation
+                  AnimatedOpacity(
+                    opacity: !controller.value.isPlaying ? 1.0 : 0.0,
+                    duration: Duration(milliseconds: 300),
+                    child: Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: primaryColor.withOpacity(0.8),
@@ -580,29 +605,161 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
                       child:
                           Icon(Icons.play_arrow, color: Colors.white, size: 36),
                     ),
-                  // Add video progress indicator
+                  ),
+
+                  // Service button when video is paused (if applicable)
+                  if (!controller.value.isPlaying && data.type == SERVICE)
+                    Positioned(
+                      bottom: 16,
+                      right: 16,
+                      child: GestureDetector(
+                        onTap: () {
+                          // Navigate to service details
+                          ServiceDetailScreen(
+                                  serviceId: data.typeId.validate().toInt())
+                              .launch(context,
+                                  pageRouteAnimation: PageRouteAnimation.Fade);
+                        },
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: radius(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 8,
+                                spreadRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            'View Service',
+                            style: boldTextStyle(color: Colors.white, size: 14),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  // Video controls overlay that appears briefly when tapped
                   if (controller.value.isPlaying)
                     Positioned(
                       bottom: 0,
                       left: 0,
                       right: 0,
-                      child: LinearProgressIndicator(
-                        value: controller.value.isInitialized
-                            ? controller.value.position.inMilliseconds /
-                                controller.value.duration.inMilliseconds
-                            : 0.0,
-                        backgroundColor: Colors.transparent,
-                        valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                        minHeight: 3,
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.7),
+                            ],
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Video progress indicator
+                            LinearProgressIndicator(
+                              value: controller.value.isInitialized
+                                  ? controller.value.position.inMilliseconds /
+                                      controller.value.duration.inMilliseconds
+                                  : 0.0,
+                              backgroundColor: Colors.grey.withOpacity(0.5),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(primaryColor),
+                              minHeight: 3,
+                            ),
+
+                            // Time indicator and service link row
+                            8.height,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Current position
+                                Text(
+                                  _formatDuration(controller.value.position),
+                                  style:
+                                      secondaryTextStyle(color: Colors.white),
+                                ),
+
+                                // Service button (if applicable)
+                                if (data.type == SERVICE)
+                                  GestureDetector(
+                                    onTap: () {
+                                      // Pause video before navigating
+                                      controller.pause();
+                                      ServiceDetailScreen(
+                                              serviceId: data.typeId
+                                                  .validate()
+                                                  .toInt())
+                                          .launch(context,
+                                              pageRouteAnimation:
+                                                  PageRouteAnimation.Fade);
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: primaryColor,
+                                        borderRadius: radius(20),
+                                      ),
+                                      child: Text(
+                                        'View Service',
+                                        style: boldTextStyle(
+                                            color: Colors.white, size: 12),
+                                      ),
+                                    ),
+                                  ),
+
+                                // Duration
+                                Text(
+                                  _formatDuration(controller.value.duration),
+                                  style:
+                                      secondaryTextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                 ],
               )
-            : Center(
-                child: CircularProgressIndicator(color: primaryColor),
+            : Container(
+                color: Colors.black.withOpacity(0.6),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                        strokeWidth: 3,
+                      ),
+                      16.height,
+                      Text(
+                        'Loading video...',
+                        style: boldTextStyle(color: Colors.white, size: 14),
+                      ),
+                    ],
+                  ),
+                ),
               ),
       ),
     );
+  }
+
+  // Helper method to format duration for video time display
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String minutes = twoDigits(duration.inMinutes.remainder(60));
+    String seconds = twoDigits(duration.inSeconds.remainder(60));
+    return "$minutes:$seconds";
   }
 
   // Enhanced image slider widget with improved dimensions

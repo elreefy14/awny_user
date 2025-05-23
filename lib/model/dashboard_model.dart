@@ -121,7 +121,12 @@ class SliderModel {
         url.endsWith('.mov') ||
         url.endsWith('.avi') ||
         url.endsWith('.webm') ||
-        url.endsWith('.mkv');
+        url.endsWith('.mkv') ||
+        url.endsWith('.3gp') ||
+        url.endsWith('.m4v') ||
+        url.contains('video') ||
+        url.contains('youtube.com') ||
+        url.contains('youtu.be');
   }
 
   SliderModel({

@@ -58,17 +58,15 @@ import '../utils/firebase_messaging_utils.dart';
 // }
 
 //function to check if address is available for service
-Future<AvailabilityResponse> checkAddressAvailableForService(Map request) async {
+Future<AvailabilityResponse> checkAddressAvailableForService(
+    Map request) async {
   try {
-    var response = await buildHttpResponse(
-        'availability', // Correct endpoint name
-        request: request,
-        method: HttpMethodType.POST
-    );
+    var response =
+        await buildHttpResponse('availability', // Correct endpoint name
+            request: request,
+            method: HttpMethodType.POST);
 
-    return AvailabilityResponse.fromJson(
-        await handleResponse(response)
-    );
+    return AvailabilityResponse.fromJson(await handleResponse(response));
   } catch (e) {
     log('Error checking address availability: $e');
     return AvailabilityResponse(exists: false);
@@ -87,6 +85,7 @@ class AvailabilityResponse {
     );
   }
 }
+
 //region Auth Api
 Future<LoginResponse> createUser(Map request) async {
   return LoginResponse.fromJson(await (handleResponse(await buildHttpResponse(
@@ -377,16 +376,21 @@ Future<DashboardResponse> userDashboard({
   String endPoint = 'dashboard-detail';
 
   // Get country code from shared preferences
-  String countryCode = getStringAsync(USER_COUNTRY_CODE_KEY, defaultValue: 'EG');
+  String countryCode =
+      getStringAsync(USER_COUNTRY_CODE_KEY, defaultValue: 'EG');
   String country = countryCode == 'EG' ? 'egypt' : 'saudi arabia';
 
   // Build endpoint with query parameters
-  if (isCurrentLocation && appStore.isLoggedIn && appStore.userId.validate() != 0) {
-    endPoint = "$endPoint?latitude=$lat&longitude=$long&customer_id=${appStore.userId.validate()}&country=$country";
+  if (isCurrentLocation &&
+      appStore.isLoggedIn &&
+      appStore.userId.validate() != 0) {
+    endPoint =
+        "$endPoint?latitude=$lat&longitude=$long&customer_id=${appStore.userId.validate()}&country=$country";
   } else if (isCurrentLocation) {
     endPoint = "$endPoint?latitude=$lat&longitude=$long&country=$country";
   } else if (appStore.isLoggedIn && appStore.userId.validate() != 0) {
-    endPoint = "$endPoint?customer_id=${appStore.userId.validate()}&country=$country";
+    endPoint =
+        "$endPoint?customer_id=${appStore.userId.validate()}&country=$country";
   } else {
     endPoint = "$endPoint?country=$country";
   }
@@ -406,7 +410,8 @@ Future<DashboardResponse> userDashboard({
     log('- customer_id: ${appStore.isLoggedIn ? appStore.userId : "Not logged in"}');
 
     // Get response
-    final response = await buildHttpResponse(endPoint, method: HttpMethodType.GET);
+    final response =
+        await buildHttpResponse(endPoint, method: HttpMethodType.GET);
     final responseData = await handleResponse(response);
 
     // Print full raw response with formatted JSON
@@ -432,7 +437,8 @@ Future<DashboardResponse> userDashboard({
 
     if (responseData['featured_services'] != null) {
       log('\n=== FEATURED SERVICES ===');
-      log(JsonEncoder.withIndent('  ').convert(responseData['featured_services']));
+      log(JsonEncoder.withIndent('  ')
+          .convert(responseData['featured_services']));
     }
 
     if (responseData['upcoming_data'] != null) {
@@ -457,13 +463,13 @@ Future<DashboardResponse> userDashboard({
     appStore.setLoading(false);
     cachedDashboardResponse = dashboardResponse;
     setValue(IS_EMAIL_VERIFIED, dashboardResponse.isEmailVerified.getBoolInt());
-    appStore.setUnreadCount(dashboardResponse.notificationUnreadCount.validate());
+    appStore
+        .setUnreadCount(dashboardResponse.notificationUnreadCount.validate());
 
     // Update configurations
     getAppConfigurations();
 
     completer.complete(dashboardResponse);
-
   } catch (e) {
     log('\n================================================');
     log('DASHBOARD API ERROR');
