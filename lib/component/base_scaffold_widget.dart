@@ -1,8 +1,12 @@
 import 'package:booking_system_flutter/component/back_widget.dart';
 import 'package:booking_system_flutter/component/base_scaffold_body.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
 
+import '../main.dart';
+import '../utils/colors.dart';
 import '../utils/constant.dart';
 
 class AppScaffold extends StatelessWidget {
@@ -25,19 +29,32 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBarTitle != null
-          ? AppBar(
-              title: Text(appBarTitle.validate(), style: boldTextStyle(color: Colors.white, size: APP_BAR_TEXT_SIZE)),
-              elevation: 0.0,
-              backgroundColor: context.primaryColor,
-              leading: context.canPop ? BackWidget() : null,
-              actions: actions,
-            )
-          : null,
-      backgroundColor: scaffoldBackgroundColor,
-      body: Body(child: child, showLoader: showLoader),
-      bottomNavigationBar: bottomNavigationBar,
+    return Observer(
+      builder: (context) => Scaffold(
+        appBar: appBarTitle != null
+            ? AppBar(
+                title: Text(appBarTitle.validate(),
+                    style: boldTextStyle(
+                        color: Colors.white, size: APP_BAR_TEXT_SIZE)),
+                elevation: 0.0,
+                backgroundColor: appStore.isDarkMode
+                    ? bottomNavBarDarkBgColor
+                    : orangePrimaryColor,
+                leading:
+                    context.canPop ? BackWidget(iconColor: Colors.white) : null,
+                actions: actions,
+                systemOverlayStyle: SystemUiOverlayStyle(
+                  statusBarColor: appStore.isDarkMode
+                      ? bottomNavBarDarkBgColor
+                      : orangePrimaryColor,
+                  statusBarIconBrightness: Brightness.light,
+                ),
+              )
+            : null,
+        backgroundColor: scaffoldBackgroundColor,
+        body: Body(child: child, showLoader: showLoader),
+        bottomNavigationBar: bottomNavigationBar,
+      ),
     );
   }
 }

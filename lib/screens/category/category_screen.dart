@@ -36,7 +36,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
 
   void init() async {
-    future = getCategoryListWithPagination(page, categoryList: categoryList, lastPageCallBack: (val) {
+    future = getCategoryListWithPagination(page, categoryList: categoryList,
+        lastPageCallBack: (val) {
       isLastPage = val;
     });
     if (page == 1) {
@@ -61,8 +62,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
         language.category,
         textColor: Colors.white,
         textSize: APP_BAR_TEXT_SIZE,
-        color: primaryColor,
-        systemUiOverlayStyle: SystemUiOverlayStyle(statusBarIconBrightness: appStore.isDarkMode ? Brightness.light : Brightness.light, statusBarColor: context.primaryColor),
+        color:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
+        systemUiOverlayStyle: SystemUiOverlayStyle(
+            statusBarIconBrightness: Brightness.light,
+            statusBarColor: appStore.isDarkMode
+                ? bottomNavBarDarkBgColor
+                : orangePrimaryColor),
         showBack: Navigator.canPop(context),
         backWidget: BackWidget(),
       ),
@@ -109,16 +115,24 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     spacing: 16,
                     itemCount: snap.length,
                     listAnimationType: ListAnimationType.FadeIn,
-                    fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
-                    scaleConfiguration: ScaleConfiguration(duration: 300.milliseconds, delay: 50.milliseconds),
+                    fadeInConfiguration:
+                        FadeInConfiguration(duration: 2.seconds),
+                    scaleConfiguration: ScaleConfiguration(
+                        duration: 300.milliseconds, delay: 50.milliseconds),
                     itemBuilder: (_, index) {
                       CategoryData data = snap[index];
 
                       return GestureDetector(
                         onTap: () {
-                          ViewAllServiceScreen(categoryId: data.id.validate(), categoryName: data.name, isFromCategory: true).launch(context);
+                          ViewAllServiceScreen(
+                                  categoryId: data.id.validate(),
+                                  categoryName: data.name,
+                                  isFromCategory: true)
+                              .launch(context);
                         },
-                        child: CategoryWidget(categoryData: data, width: context.width() / 4 - 24),
+                        child: CategoryWidget(
+                            categoryData: data,
+                            width: context.width() / 4 - 24),
                       );
                     },
                   ).center(),
@@ -140,7 +154,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
               );
             },
           ),
-          Observer(builder: (BuildContext context) => LoaderWidget().visible(appStore.isLoading.validate())),
+          Observer(
+              builder: (BuildContext context) =>
+                  LoaderWidget().visible(appStore.isLoading.validate())),
         ],
       ),
     );

@@ -45,7 +45,8 @@ class ProfileFragmentState extends State<ProfileFragment> {
     init();
     afterBuildCreated(() {
       appStore.setLoading(false);
-      setStatusBarColor(context.primaryColor);
+      setStatusBarColor(
+          appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor);
     });
   }
 
@@ -57,7 +58,8 @@ class ProfileFragmentState extends State<ProfileFragment> {
   }
 
   Future<void> userDetailAPI() async {
-    await getUserDetail(appStore.userId, forceUpdate: false).then((value) async {
+    await getUserDetail(appStore.userId, forceUpdate: false)
+        .then((value) async {
       await saveUserData(value, forceSyncAppConfigurations: false);
       setState(() {});
     }).catchError((e) {
@@ -79,7 +81,8 @@ class ProfileFragmentState extends State<ProfileFragment> {
         textColor: white,
         textSize: APP_BAR_TEXT_SIZE,
         elevation: 0.0,
-        color: context.primaryColor,
+        color:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
         showBack: false,
         actions: [
           IconButton(
@@ -116,12 +119,15 @@ class ProfileFragmentState extends State<ProfileFragment> {
                           children: [
                             Container(
                               decoration: boxDecorationDefault(
-                                border: Border.all(color: primaryColor, width: 3),
+                                border:
+                                    Border.all(color: primaryColor, width: 3),
                                 shape: BoxShape.circle,
                               ),
                               child: Container(
                                 decoration: boxDecorationDefault(
-                                  border: Border.all(color: context.scaffoldBackgroundColor, width: 4),
+                                  border: Border.all(
+                                      color: context.scaffoldBackgroundColor,
+                                      width: 4),
                                   shape: BoxShape.circle,
                                 ),
                                 child: CachedImageWidget(
@@ -142,9 +148,11 @@ class ProfileFragmentState extends State<ProfileFragment> {
                                 decoration: boxDecorationDefault(
                                   shape: BoxShape.circle,
                                   color: primaryColor,
-                                  border: Border.all(color: context.cardColor, width: 2),
+                                  border: Border.all(
+                                      color: context.cardColor, width: 2),
                                 ),
-                                child: Icon(AntDesign.edit, color: white, size: 18),
+                                child: Icon(AntDesign.edit,
+                                    color: white, size: 18),
                               ).onTap(() {
                                 EditProfileScreen().launch(context);
                               }),
@@ -155,8 +163,11 @@ class ProfileFragmentState extends State<ProfileFragment> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(appStore.userFullName, style: boldTextStyle(color: primaryColor, size: 16)),
-                            Text(appStore.userEmail, style: secondaryTextStyle()),
+                            Text(appStore.userFullName,
+                                style: boldTextStyle(
+                                    color: primaryColor, size: 16)),
+                            Text(appStore.userEmail,
+                                style: secondaryTextStyle()),
                           ],
                         ),
                         24.height,
@@ -164,13 +175,17 @@ class ProfileFragmentState extends State<ProfileFragment> {
                     ).center(),
                   Observer(builder: (context) {
                     return SettingSection(
-                      title: Text(language.lblGENERAL, style: boldTextStyle(color: primaryColor)),
-                      headingDecoration: BoxDecoration(color: context.primaryColor.withOpacity(0.1)),
+                      title: Text(language.lblGENERAL,
+                          style: boldTextStyle(color: primaryColor)),
+                      headingDecoration: BoxDecoration(
+                          color: context.primaryColor.withOpacity(0.1)),
                       divider: Offstage(),
                       items: [
-                        if (appStore.isLoggedIn && appConfigurationStore.isEnableUserWallet)
+                        if (appStore.isLoggedIn &&
+                            appConfigurationStore.isEnableUserWallet)
                           SettingItemWidget(
-                            leading: ic_un_fill_wallet.iconImage(size: SETTING_ICON_SIZE),
+                            leading: ic_un_fill_wallet.iconImage(
+                                size: SETTING_ICON_SIZE),
                             title: language.walletBalance,
                             titleTextStyle: primaryTextStyle(),
                             onTap: () {
@@ -184,9 +199,11 @@ class ProfileFragmentState extends State<ProfileFragment> {
                             ),
                           ),
                         16.height,
-                        if (appStore.isLoggedIn && appConfigurationStore.isEnableUserWallet)
+                        if (appStore.isLoggedIn &&
+                            appConfigurationStore.isEnableUserWallet)
                           SettingItemWidget(
-                            leading: ic_document.iconImage(size: SETTING_ICON_SIZE),
+                            leading:
+                                ic_document.iconImage(size: SETTING_ICON_SIZE),
                             title: language.walletHistory,
                             titleTextStyle: primaryTextStyle(),
                             trailing: trailing,
@@ -196,7 +213,8 @@ class ProfileFragmentState extends State<ProfileFragment> {
                           ),
                         if (appStore.isLoggedIn)
                           SettingItemWidget(
-                            leading: ic_document.iconImage(size: SETTING_ICON_SIZE),
+                            leading:
+                                ic_document.iconImage(size: SETTING_ICON_SIZE),
                             title: language.lblBankDetails,
                             titleTextStyle: primaryTextStyle(),
                             trailing: trailing,
@@ -228,7 +246,8 @@ class ProfileFragmentState extends State<ProfileFragment> {
                         ),
                         if (appConfigurationStore.blogStatus)
                           SettingItemWidget(
-                            leading: ic_document.iconImage(size: SETTING_ICON_SIZE),
+                            leading:
+                                ic_document.iconImage(size: SETTING_ICON_SIZE),
                             title: language.blogs,
                             titleTextStyle: primaryTextStyle(),
                             trailing: trailing,
@@ -243,16 +262,25 @@ class ProfileFragmentState extends State<ProfileFragment> {
                           trailing: trailing,
                           onTap: () async {
                             if (isAndroid) {
-                              if (getStringAsync(CUSTOMER_PLAY_STORE_URL).isNotEmpty) {
-                                commonLaunchUrl(getStringAsync(CUSTOMER_PLAY_STORE_URL), launchMode: LaunchMode.externalApplication);
+                              if (getStringAsync(CUSTOMER_PLAY_STORE_URL)
+                                  .isNotEmpty) {
+                                commonLaunchUrl(
+                                    getStringAsync(CUSTOMER_PLAY_STORE_URL),
+                                    launchMode: LaunchMode.externalApplication);
                               } else {
-                                commonLaunchUrl('${getSocialMediaLink(LinkProvider.PLAY_STORE)}${await getPackageName()}', launchMode: LaunchMode.externalApplication);
+                                commonLaunchUrl(
+                                    '${getSocialMediaLink(LinkProvider.PLAY_STORE)}${await getPackageName()}',
+                                    launchMode: LaunchMode.externalApplication);
                               }
                             } else if (isIOS) {
-                              if (getStringAsync(CUSTOMER_APP_STORE_URL).isNotEmpty) {
-                                commonLaunchUrl(getStringAsync(CUSTOMER_APP_STORE_URL), launchMode: LaunchMode.externalApplication);
+                              if (getStringAsync(CUSTOMER_APP_STORE_URL)
+                                  .isNotEmpty) {
+                                commonLaunchUrl(
+                                    getStringAsync(CUSTOMER_APP_STORE_URL),
+                                    launchMode: LaunchMode.externalApplication);
                               } else {
-                                commonLaunchUrl(IOS_LINK_FOR_USER, launchMode: LaunchMode.externalApplication);
+                                commonLaunchUrl(IOS_LINK_FOR_USER,
+                                    launchMode: LaunchMode.externalApplication);
                               }
                             }
                           },
@@ -272,8 +300,10 @@ class ProfileFragmentState extends State<ProfileFragment> {
                     );
                   }),
                   SettingSection(
-                    title: Text(language.lblAboutApp.toUpperCase(), style: boldTextStyle(color: primaryColor)),
-                    headingDecoration: BoxDecoration(color: context.primaryColor.withOpacity(0.1)),
+                    title: Text(language.lblAboutApp.toUpperCase(),
+                        style: boldTextStyle(color: primaryColor)),
+                    headingDecoration: BoxDecoration(
+                        color: context.primaryColor.withOpacity(0.1)),
                     divider: Offstage(),
                     items: [
                       8.height,
@@ -286,11 +316,14 @@ class ProfileFragmentState extends State<ProfileFragment> {
                         },
                       ),
                       SettingItemWidget(
-                        leading: ic_shield_done.iconImage(size: SETTING_ICON_SIZE),
+                        leading:
+                            ic_shield_done.iconImage(size: SETTING_ICON_SIZE),
                         title: language.privacyPolicy,
                         titleTextStyle: primaryTextStyle(),
                         onTap: () {
-                          checkIfLink(context, appConfigurationStore.privacyPolicy, title: language.privacyPolicy);
+                          checkIfLink(
+                              context, appConfigurationStore.privacyPolicy,
+                              title: language.privacyPolicy);
                         },
                       ),
                       SettingItemWidget(
@@ -298,7 +331,9 @@ class ProfileFragmentState extends State<ProfileFragment> {
                         title: language.termsCondition,
                         titleTextStyle: primaryTextStyle(),
                         onTap: () {
-                          checkIfLink(context, appConfigurationStore.termConditions, title: language.termsCondition);
+                          checkIfLink(
+                              context, appConfigurationStore.termConditions,
+                              title: language.termsCondition);
                         },
                       ),
                       SettingItemWidget(
@@ -306,33 +341,44 @@ class ProfileFragmentState extends State<ProfileFragment> {
                         title: language.refundPolicy,
                         titleTextStyle: primaryTextStyle(),
                         onTap: () {
-                          checkIfLink(context, appConfigurationStore.refundPolicy, title: language.refundPolicy);
+                          checkIfLink(
+                              context, appConfigurationStore.refundPolicy,
+                              title: language.refundPolicy);
                         },
                       ),
                       if (appConfigurationStore.helpAndSupport.isNotEmpty)
                         SettingItemWidget(
-                          leading: ic_helpAndSupport.iconImage(size: SETTING_ICON_SIZE),
+                          leading: ic_helpAndSupport.iconImage(
+                              size: SETTING_ICON_SIZE),
                           title: language.helpSupport,
                           titleTextStyle: primaryTextStyle(),
                           onTap: () {
-                            if (appConfigurationStore.helpAndSupport.isNotEmpty){
-                            checkIfLink(context, appConfigurationStore.helpAndSupport, title: language.helpSupport);
-                            }else{
-                            checkIfLink(context, appConfigurationStore.inquiryEmail.validate(), title: language.helpSupport);
+                            if (appConfigurationStore
+                                .helpAndSupport.isNotEmpty) {
+                              checkIfLink(
+                                  context, appConfigurationStore.helpAndSupport,
+                                  title: language.helpSupport);
+                            } else {
+                              checkIfLink(context,
+                                  appConfigurationStore.inquiryEmail.validate(),
+                                  title: language.helpSupport);
                             }
                           },
                         ),
                       if (appConfigurationStore.helplineNumber.isNotEmpty)
                         SettingItemWidget(
-                          leading: ic_calling.iconImage(size: SETTING_ICON_SIZE),
+                          leading:
+                              ic_calling.iconImage(size: SETTING_ICON_SIZE),
                           title: language.lblHelplineNumber,
                           titleTextStyle: primaryTextStyle(),
                           onTap: () {
-                            launchCall(appConfigurationStore.helplineNumber.validate());
+                            launchCall(appConfigurationStore.helplineNumber
+                                .validate());
                           },
                         ),
                       SettingItemWidget(
-                        leading: Icon(MaterialCommunityIcons.logout, color: context.iconColor, size: SETTING_ICON_SIZE),
+                        leading: Icon(MaterialCommunityIcons.logout,
+                            color: context.iconColor, size: SETTING_ICON_SIZE),
                         title: language.signIn,
                         titleTextStyle: primaryTextStyle(),
                         onTap: () {
@@ -342,13 +388,16 @@ class ProfileFragmentState extends State<ProfileFragment> {
                     ],
                   ),
                   SettingSection(
-                    title: Text(language.lblDangerZone.toUpperCase(), style: boldTextStyle(color: redColor)),
-                    headingDecoration: BoxDecoration(color: redColor.withOpacity(0.08)),
+                    title: Text(language.lblDangerZone.toUpperCase(),
+                        style: boldTextStyle(color: redColor)),
+                    headingDecoration:
+                        BoxDecoration(color: redColor.withOpacity(0.08)),
                     divider: Offstage(),
                     items: [
                       8.height,
                       SettingItemWidget(
-                        leading: ic_delete_account.iconImage(size: SETTING_ICON_SIZE),
+                        leading: ic_delete_account.iconImage(
+                            size: SETTING_ICON_SIZE),
                         paddingBeforeTrailing: 4,
                         title: language.lblDeleteAccount,
                         titleTextStyle: primaryTextStyle(),
@@ -363,7 +412,8 @@ class ProfileFragmentState extends State<ProfileFragment> {
 
                                 deleteAccountCompletely().then((value) async {
                                   try {
-                                    await userService.removeDocument(appStore.uid);
+                                    await userService
+                                        .removeDocument(appStore.uid);
                                     await userService.deleteUser();
                                   } catch (e) {
                                     print(e);
@@ -374,7 +424,10 @@ class ProfileFragmentState extends State<ProfileFragment> {
                                   await clearPreferences();
                                   toast(value.message);
 
-                                  push(DashboardScreen(), isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+                                  push(DashboardScreen(),
+                                      isNewTask: true,
+                                      pageRouteAnimation:
+                                          PageRouteAnimation.Fade);
                                 }).catchError((e) {
                                   appStore.setLoading(false);
                                   toast(e.toString());
@@ -388,7 +441,9 @@ class ProfileFragmentState extends State<ProfileFragment> {
                       ).paddingOnly(left: 4),
                       64.height,
                       TextButton(
-                        child: Text(language.logout, style: boldTextStyle(color: primaryColor, size: 16)),
+                        child: Text(language.logout,
+                            style:
+                                boldTextStyle(color: primaryColor, size: 16)),
                         onPressed: () {
                           logout(context);
                         },
@@ -400,7 +455,8 @@ class ProfileFragmentState extends State<ProfileFragment> {
                     future: getPackageInfo(),
                     onSuccess: (data) {
                       return TextButton(
-                        child: VersionInfoWidget(prefixText: 'v', textStyle: secondaryTextStyle()),
+                        child: VersionInfoWidget(
+                            prefixText: 'v', textStyle: secondaryTextStyle()),
                         onPressed: () {
                           showAboutDialog(
                             context: context,
@@ -414,7 +470,9 @@ class ProfileFragmentState extends State<ProfileFragment> {
                   ),
                 ],
               ),
-              Observer(builder: (context) => LoaderWidget().visible(appStore.isLoading)),
+              Observer(
+                  builder: (context) =>
+                      LoaderWidget().visible(appStore.isLoading)),
             ],
           );
         },

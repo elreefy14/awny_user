@@ -149,23 +149,39 @@ class ServiceComponentState extends State<ServiceComponent> {
                     children: [
                       CachedImageWidget(
                         url: widget.isFavouriteService
-                            ? widget.serviceData.serviceAttachments.validate().isNotEmpty
-                                ? widget.serviceData.serviceAttachments!.first.validate()
+                            ? widget.serviceData.serviceAttachments
+                                    .validate()
+                                    .isNotEmpty
+                                ? widget.serviceData.serviceAttachments!.first
+                                    .validate()
                                 : ''
-                            : widget.serviceData.attachments.validate().isNotEmpty
-                                ? widget.serviceData.attachments!.first.validate()
-                                : '',
+                            : widget.serviceData.attachments
+                                    .validate()
+                                    .isNotEmpty
+                                ? widget.serviceData.attachments!.first
+                                    .validate()
+                                : widget.serviceData.attachmentsArray
+                                        .validate()
+                                        .isNotEmpty
+                                    ? widget
+                                        .serviceData.attachmentsArray!.first.url
+                                        .validate()
+                                    : '',
                         fit: BoxFit.cover,
                         height: 180,
                         width: widget.width ?? context.width(),
                         circle: false,
-                      ).cornerRadiusWithClipRRectOnly(topRight: defaultRadius.toInt(), topLeft: defaultRadius.toInt()),
+                      ).cornerRadiusWithClipRRectOnly(
+                          topRight: defaultRadius.toInt(),
+                          topLeft: defaultRadius.toInt()),
                       Positioned(
                         top: 12,
                         left: 12,
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-                          constraints: BoxConstraints(maxWidth: context.width() * 0.3),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                          constraints:
+                              BoxConstraints(maxWidth: context.width() * 0.3),
                           decoration: boxDecorationWithShadow(
                             backgroundColor: context.cardColor.withOpacity(0.9),
                             borderRadius: radius(24),
@@ -173,8 +189,13 @@ class ServiceComponentState extends State<ServiceComponent> {
                           child: Marquee(
                             directionMarguee: DirectionMarguee.oneDirection,
                             child: Text(
-                              "${widget.serviceData.subCategoryName.validate().isNotEmpty ? widget.serviceData.subCategoryName.validate() : widget.serviceData.categoryName.validate()}".toUpperCase(),
-                              style: boldTextStyle(color: appStore.isDarkMode ? white : primaryColor, size: 12),
+                              "${widget.serviceData.subCategoryName.validate().isNotEmpty ? widget.serviceData.subCategoryName.validate() : widget.serviceData.categoryName.validate()}"
+                                  .toUpperCase(),
+                              style: boldTextStyle(
+                                  color: appStore.isDarkMode
+                                      ? white
+                                      : primaryColor,
+                                  size: 12),
                             ).paddingSymmetric(horizontal: 8, vertical: 4),
                           ),
                         ),
@@ -183,7 +204,8 @@ class ServiceComponentState extends State<ServiceComponent> {
                         Positioned(
                           top: 20,
                           right: 12,
-                          child: Icon(Icons.circle, color: Colors.green, size: 12),
+                          child:
+                              Icon(Icons.circle, color: Colors.green, size: 12),
                         ),
                       if (widget.isFavouriteService)
                         Positioned(
@@ -192,14 +214,24 @@ class ServiceComponentState extends State<ServiceComponent> {
                           child: Container(
                             padding: EdgeInsets.all(8),
                             margin: EdgeInsets.only(right: 8),
-                            decoration: boxDecorationWithShadow(boxShape: BoxShape.circle, backgroundColor: context.cardColor),
-                            child: widget.serviceData.isFavourite == 1 ? ic_fill_heart.iconImage(color: favouriteColor, size: 18) : ic_heart.iconImage(color: unFavouriteColor, size: 18),
+                            decoration: boxDecorationWithShadow(
+                                boxShape: BoxShape.circle,
+                                backgroundColor: context.cardColor),
+                            child: widget.serviceData.isFavourite == 1
+                                ? ic_fill_heart.iconImage(
+                                    color: favouriteColor, size: 18)
+                                : ic_heart.iconImage(
+                                    color: unFavouriteColor, size: 18),
                           ).onTap(() async {
                             if (widget.serviceData.isFavourite != 0) {
                               widget.serviceData.isFavourite = 1;
                               setState(() {});
 
-                              await removeToWishList(serviceId: widget.serviceData.serviceId.validate().toInt()).then((value) {
+                              await removeToWishList(
+                                      serviceId: widget.serviceData.serviceId
+                                          .validate()
+                                          .toInt())
+                                  .then((value) {
                                 if (!value) {
                                   widget.serviceData.isFavourite = 1;
                                   setState(() {});
@@ -209,7 +241,11 @@ class ServiceComponentState extends State<ServiceComponent> {
                               widget.serviceData.isFavourite = 0;
                               setState(() {});
 
-                              await addToWishList(serviceId: widget.serviceData.serviceId.validate().toInt()).then((value) {
+                              await addToWishList(
+                                      serviceId: widget.serviceData.serviceId
+                                          .validate()
+                                          .toInt())
+                                  .then((value) {
                                 if (!value) {
                                   widget.serviceData.isFavourite = 1;
                                   setState(() {});
@@ -223,11 +259,13 @@ class ServiceComponentState extends State<ServiceComponent> {
                         bottom: 12,
                         right: 8,
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: boxDecorationWithShadow(
                             backgroundColor: primaryColor,
                             borderRadius: radius(24),
-                            border: Border.all(color: context.cardColor, width: 2),
+                            border:
+                                Border.all(color: context.cardColor, width: 2),
                           ),
                           child: PriceWidget(
                             price: widget.serviceData.price.validate(),
@@ -235,7 +273,8 @@ class ServiceComponentState extends State<ServiceComponent> {
                             color: Colors.white,
                             hourlyTextColor: Colors.white,
                             size: 14,
-                            isFreeService: widget.serviceData.type.validate() == SERVICE_TYPE_FREE,
+                            isFreeService: widget.serviceData.type.validate() ==
+                                SERVICE_TYPE_FREE,
                           ),
                         ),
                       ),
@@ -245,28 +284,45 @@ class ServiceComponentState extends State<ServiceComponent> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DisabledRatingBarWidget(rating: widget.serviceData.totalRating.validate(), size: 14).paddingSymmetric(horizontal: 16),
+                    DisabledRatingBarWidget(
+                            rating: widget.serviceData.totalRating.validate(),
+                            size: 14)
+                        .paddingSymmetric(horizontal: 16),
                     8.height,
                     Marquee(
                       directionMarguee: DirectionMarguee.oneDirection,
-                      child: Text(widget.serviceData.name.validate(), style: boldTextStyle()).paddingSymmetric(horizontal: 16),
+                      child: Text(widget.serviceData.name.validate(),
+                              style: boldTextStyle())
+                          .paddingSymmetric(horizontal: 16),
                     ),
                     8.height,
                     Row(
                       children: [
-                        ImageBorder(src: widget.serviceData.providerImage.validate(), height: 30),
+                        ImageBorder(
+                            src: widget.serviceData.providerImage.validate(),
+                            height: 30),
                         8.width,
-                        if (widget.serviceData.providerName.validate().isNotEmpty)
+                        if (widget.serviceData.providerName
+                            .validate()
+                            .isNotEmpty)
                           Text(
                             widget.serviceData.providerName.validate(),
-                            style: secondaryTextStyle(size: 12, color: appStore.isDarkMode ? Colors.white : appTextSecondaryColor),
+                            style: secondaryTextStyle(
+                                size: 12,
+                                color: appStore.isDarkMode
+                                    ? Colors.white
+                                    : appTextSecondaryColor),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ).expand()
                       ],
                     ).onTap(() async {
-                      if (widget.serviceData.providerId != appStore.userId.validate()) {
-                        await ProviderInfoScreen(providerId: widget.serviceData.providerId.validate()).launch(context);
+                      if (widget.serviceData.providerId !=
+                          appStore.userId.validate()) {
+                        await ProviderInfoScreen(
+                                providerId:
+                                    widget.serviceData.providerId.validate())
+                            .launch(context);
                         setStatusBarColor(Colors.transparent);
                       }
                     }).paddingSymmetric(horizontal: 16),
@@ -284,7 +340,9 @@ class ServiceComponentState extends State<ServiceComponent> {
       onTap: () {
         hideKeyboard(context);
         ServiceDetailScreen(
-          serviceId: widget.isFavouriteService ? widget.serviceData.serviceId.validate().toInt() : widget.serviceData.id.validate(),
+          serviceId: widget.isFavouriteService
+              ? widget.serviceData.serviceId.validate().toInt()
+              : widget.serviceData.id.validate(),
         ).launch(context).then((value) {
           setStatusBarColor(context.primaryColor);
           widget.onUpdate?.call();

@@ -1,0 +1,5 @@
+[33m8b679f0[m[33m ([m[1;36mHEAD[m[33m)[m feat: Enhanced dashboard with priority-based categories and improved service display - Added HomeResponse model and HomeService for API data handling - Created JSON utilities for data loading and parsing - Enhanced dashboard_fragment_3 with priority-based category sorting - Added AllCategoriesWithServicesComponent for horizontal service lists - Implemented category headers with priority badges and service counts - Added comprehensive service display with both category-specific and all services sections - Improved UI with gradients, proper spacing, and modern design - Fixed linter errors and added proper imports - Created utility components for better code organization
+[33madeacb3[m[33m ([m[1;31morigin/master[m[33m)[m Fix: Location toggle stuck in loading state issue - Properly handle loading state and update UI when location is toggled
+[33m57e11cd[m -appstore v 1.0.0
+[33mcde52a2[m -appstore v 1
+[33m617edd6[m Added support for slider direction and media_type with video handling, updated Google Maps API keys, and adjusted category grid layouts for better display

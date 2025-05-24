@@ -6,10 +6,12 @@ import 'package:booking_system_flutter/network/rest_apis.dart';
 import 'package:booking_system_flutter/screens/service/component/service_component.dart';
 import 'package:booking_system_flutter/screens/service/shimmer/favourite_service_shimmer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../../component/empty_error_state_widget.dart';
+import '../../utils/colors.dart';
 import '../../utils/constant.dart';
 
 class FavouriteServiceScreen extends StatefulWidget {
@@ -44,10 +46,17 @@ class _FavouriteServiceScreenState extends State<FavouriteServiceScreen> {
     return Scaffold(
       appBar: appBarWidget(
         language.lblFavorite,
-        color: context.primaryColor,
+        color:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
         textColor: white,
         backWidget: BackWidget(),
         textSize: APP_BAR_TEXT_SIZE,
+        systemUiOverlayStyle: SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.light,
+          statusBarColor: appStore.isDarkMode
+              ? bottomNavBarDarkBgColor
+              : orangePrimaryColor,
+        ),
       ),
       body: Stack(
         children: [
@@ -90,13 +99,18 @@ class _FavouriteServiceScreenState extends State<FavouriteServiceScreen> {
                       spacing: 16,
                       runSpacing: 16,
                       listAnimationType: ListAnimationType.FadeIn,
-                      fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
-                      scaleConfiguration: ScaleConfiguration(duration: 300.milliseconds, delay: 50.milliseconds),
+                      fadeInConfiguration:
+                          FadeInConfiguration(duration: 2.seconds),
+                      scaleConfiguration: ScaleConfiguration(
+                          duration: 300.milliseconds, delay: 50.milliseconds),
                       itemCount: snap.data!.length,
                       itemBuilder: (_, index) {
                         return ServiceComponent(
                           serviceData: snap.data![index],
-                          width: appConfigurationStore.userDashboardType == DEFAULT_USER_DASHBOARD ? context.width() / 2 - 24 : context.width(),
+                          width: appConfigurationStore.userDashboardType ==
+                                  DEFAULT_USER_DASHBOARD
+                              ? context.width() / 2 - 24
+                              : context.width(),
                           isFavouriteService: true,
                           onUpdate: () async {
                             page = 1;
@@ -130,7 +144,8 @@ class _FavouriteServiceScreenState extends State<FavouriteServiceScreen> {
               );
             },
           ),
-          Observer(builder: (context) => LoaderWidget().visible(appStore.isLoading)),
+          Observer(
+              builder: (context) => LoaderWidget().visible(appStore.isLoading)),
         ],
       ),
     );

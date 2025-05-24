@@ -1,22 +1,25 @@
 import 'package:booking_system_flutter/component/back_widget.dart';
+import 'package:booking_system_flutter/component/favourite_provider_component.dart';
 import 'package:booking_system_flutter/component/loader_widget.dart';
 import 'package:booking_system_flutter/main.dart';
 import 'package:booking_system_flutter/model/user_data_model.dart';
+import 'package:booking_system_flutter/network/rest_apis.dart';
+import 'package:booking_system_flutter/screens/shimmer/favourite_provider_shimmer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../component/empty_error_state_widget.dart';
-import '../component/favourite_provider_component.dart';
-import '../network/rest_apis.dart';
+import '../utils/colors.dart';
 import '../utils/constant.dart';
-import 'shimmer/favourite_provider_shimmer.dart';
 
 class FavouriteProviderScreen extends StatefulWidget {
   const FavouriteProviderScreen({Key? key}) : super(key: key);
 
   @override
-  _FavouriteProviderScreenState createState() => _FavouriteProviderScreenState();
+  _FavouriteProviderScreenState createState() =>
+      _FavouriteProviderScreenState();
 }
 
 class _FavouriteProviderScreenState extends State<FavouriteProviderScreen> {
@@ -35,7 +38,8 @@ class _FavouriteProviderScreenState extends State<FavouriteProviderScreen> {
   }
 
   Future<void> init() async {
-    future = getProviderWishlist(page, providers: providers, lastPageCallBack: (p0) {
+    future =
+        getProviderWishlist(page, providers: providers, lastPageCallBack: (p0) {
       isLastPage = p0;
     });
   }
@@ -46,9 +50,16 @@ class _FavouriteProviderScreenState extends State<FavouriteProviderScreen> {
       appBar: appBarWidget(
         language.favouriteProvider,
         textSize: APP_BAR_TEXT_SIZE,
-        color: context.primaryColor,
+        color:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
         textColor: white,
         backWidget: BackWidget(),
+        systemUiOverlayStyle: SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.light,
+          statusBarColor: appStore.isDarkMode
+              ? bottomNavBarDarkBgColor
+              : orangePrimaryColor,
+        ),
       ),
       body: Stack(
         children: [
@@ -90,8 +101,10 @@ class _FavouriteProviderScreenState extends State<FavouriteProviderScreen> {
                       spacing: 16,
                       runSpacing: 16,
                       listAnimationType: ListAnimationType.FadeIn,
-                      fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
-                      scaleConfiguration: ScaleConfiguration(duration: 300.milliseconds, delay: 50.milliseconds),
+                      fadeInConfiguration:
+                          FadeInConfiguration(duration: 2.seconds),
+                      scaleConfiguration: ScaleConfiguration(
+                          duration: 300.milliseconds, delay: 50.milliseconds),
                       itemCount: snap.data!.length,
                       itemBuilder: (_, index) {
                         return FavouriteProviderComponent(
@@ -129,7 +142,8 @@ class _FavouriteProviderScreenState extends State<FavouriteProviderScreen> {
               );
             },
           ),
-          Observer(builder: (context) => LoaderWidget().visible(appStore.isLoading)),
+          Observer(
+              builder: (context) => LoaderWidget().visible(appStore.isLoading)),
         ],
       ),
     );

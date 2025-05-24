@@ -36,15 +36,21 @@ class ServiceDashboardComponent4 extends StatefulWidget {
   });
 
   @override
-  State<ServiceDashboardComponent4> createState() => _ServiceDashboardComponent4State();
+  State<ServiceDashboardComponent4> createState() =>
+      _ServiceDashboardComponent4State();
 }
 
-class _ServiceDashboardComponent4State extends State<ServiceDashboardComponent4> {
+class _ServiceDashboardComponent4State
+    extends State<ServiceDashboardComponent4> {
   num get finalDiscountAmount => widget.serviceData.discount != 0
-      ? ((widget.serviceData.price.validate() / 100) * widget.serviceData.discount.validate()).toStringAsFixed(appConfigurationStore.priceDecimalPoint).toDouble()
+      ? ((widget.serviceData.price.validate() / 100) *
+              widget.serviceData.discount.validate())
+          .toStringAsFixed(appConfigurationStore.priceDecimalPoint)
+          .toDouble()
       : 0;
 
-  num get discountedAmount => widget.serviceData.price.validate() - finalDiscountAmount;
+  num get discountedAmount =>
+      widget.serviceData.price.validate() - finalDiscountAmount;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +58,9 @@ class _ServiceDashboardComponent4State extends State<ServiceDashboardComponent4>
       onTap: () {
         hideKeyboard(context);
         ServiceDetailScreen(
-          serviceId: widget.isFavouriteService ? widget.serviceData.serviceId.validate().toInt() : widget.serviceData.id.validate(),
+          serviceId: widget.isFavouriteService
+              ? widget.serviceData.serviceId.validate().toInt()
+              : widget.serviceData.id.validate(),
         ).launch(context).then((value) {
           setStatusBarColor(context.primaryColor);
         });
@@ -69,7 +77,12 @@ class _ServiceDashboardComponent4State extends State<ServiceDashboardComponent4>
                       : ''
                   : widget.serviceData.attachments.validate().isNotEmpty
                       ? widget.serviceData.attachments!.first.validate()
-                      : '',
+                      : widget.serviceData.attachmentsArray
+                              .validate()
+                              .isNotEmpty
+                          ? widget.serviceData.attachmentsArray!.first.url
+                              .validate()
+                          : '',
               fit: BoxFit.cover,
               height: 280,
               width: widget.width ?? context.width(),
@@ -105,8 +118,11 @@ class _ServiceDashboardComponent4State extends State<ServiceDashboardComponent4>
                 child: Marquee(
                   directionMarguee: DirectionMarguee.oneDirection,
                   child: Text(
-                    "${widget.serviceData.subCategoryName.validate().isNotEmpty ? widget.serviceData.subCategoryName.validate() : widget.serviceData.categoryName.validate()}".toUpperCase(),
-                    style: boldTextStyle(color: appStore.isDarkMode ? white : primaryColor, size: 12),
+                    "${widget.serviceData.subCategoryName.validate().isNotEmpty ? widget.serviceData.subCategoryName.validate() : widget.serviceData.categoryName.validate()}"
+                        .toUpperCase(),
+                    style: boldTextStyle(
+                        color: appStore.isDarkMode ? white : primaryColor,
+                        size: 12),
                   ).paddingSymmetric(horizontal: 8, vertical: 4),
                 ),
               ),
@@ -134,7 +150,9 @@ class _ServiceDashboardComponent4State extends State<ServiceDashboardComponent4>
               right: isRTL ? 16 : 0,
               child: Row(
                 children: [
-                  ImageBorder(src: widget.serviceData.providerImage.validate(), height: 30),
+                  ImageBorder(
+                      src: widget.serviceData.providerImage.validate(),
+                      height: 30),
                   8.width,
                   if (widget.serviceData.providerName.validate().isNotEmpty)
                     Text(
@@ -145,8 +163,11 @@ class _ServiceDashboardComponent4State extends State<ServiceDashboardComponent4>
                     ).expand()
                 ],
               ).onTap(() async {
-                if (widget.serviceData.providerId != appStore.userId.validate()) {
-                  await ProviderInfoScreen(providerId: widget.serviceData.providerId.validate()).launch(context);
+                if (widget.serviceData.providerId !=
+                    appStore.userId.validate()) {
+                  await ProviderInfoScreen(
+                          providerId: widget.serviceData.providerId.validate())
+                      .launch(context);
                   setStatusBarColor(Colors.transparent);
                 }
               }),
@@ -158,14 +179,21 @@ class _ServiceDashboardComponent4State extends State<ServiceDashboardComponent4>
                 child: Container(
                   padding: EdgeInsets.all(8),
                   margin: EdgeInsets.only(right: 8),
-                  decoration: boxDecorationWithShadow(boxShape: BoxShape.circle, backgroundColor: context.cardColor),
-                  child: widget.serviceData.isFavourite == 1 ? ic_fill_heart.iconImage(color: favouriteColor, size: 18) : ic_heart.iconImage(color: unFavouriteColor, size: 18),
+                  decoration: boxDecorationWithShadow(
+                      boxShape: BoxShape.circle,
+                      backgroundColor: context.cardColor),
+                  child: widget.serviceData.isFavourite == 1
+                      ? ic_fill_heart.iconImage(color: favouriteColor, size: 18)
+                      : ic_heart.iconImage(color: unFavouriteColor, size: 18),
                 ).onTap(() async {
                   if (widget.serviceData.isFavourite != 0) {
                     widget.serviceData.isFavourite = 1;
                     setState(() {});
 
-                    await removeToWishList(serviceId: widget.serviceData.serviceId.validate().toInt()).then((value) {
+                    await removeToWishList(
+                            serviceId:
+                                widget.serviceData.serviceId.validate().toInt())
+                        .then((value) {
                       if (!value) {
                         widget.serviceData.isFavourite = 1;
                         setState(() {});
@@ -175,7 +203,10 @@ class _ServiceDashboardComponent4State extends State<ServiceDashboardComponent4>
                     widget.serviceData.isFavourite = 0;
                     setState(() {});
 
-                    await addToWishList(serviceId: widget.serviceData.serviceId.validate().toInt()).then((value) {
+                    await addToWishList(
+                            serviceId:
+                                widget.serviceData.serviceId.validate().toInt())
+                        .then((value) {
                       if (!value) {
                         widget.serviceData.isFavourite = 1;
                         setState(() {});
@@ -207,16 +238,19 @@ class _ServiceDashboardComponent4State extends State<ServiceDashboardComponent4>
                           color: Colors.white,
                           hourlyTextColor: Colors.white,
                           size: 16,
-                          isFreeService: widget.serviceData.type.validate() == SERVICE_TYPE_FREE,
+                          isFreeService: widget.serviceData.type.validate() ==
+                              SERVICE_TYPE_FREE,
                         ).paddingRight(8),
                       PriceWidget(
                         price: widget.serviceData.price.validate(),
-                        isLineThroughEnabled: widget.serviceData.discount != 0 ? true : false,
+                        isLineThroughEnabled:
+                            widget.serviceData.discount != 0 ? true : false,
                         isHourlyService: widget.serviceData.isHourlyService,
                         color: Colors.white,
                         hourlyTextColor: Colors.white,
                         size: widget.serviceData.discount != 0 ? 12 : 16,
-                        isFreeService: widget.serviceData.type.validate() == SERVICE_TYPE_FREE,
+                        isFreeService: widget.serviceData.type.validate() ==
+                            SERVICE_TYPE_FREE,
                       ),
                     ],
                   ),

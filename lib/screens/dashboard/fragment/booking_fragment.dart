@@ -4,16 +4,18 @@ import 'package:booking_system_flutter/model/booking_data_model.dart';
 import 'package:booking_system_flutter/network/rest_apis.dart';
 import 'package:booking_system_flutter/screens/booking/booking_detail_screen.dart';
 import 'package:booking_system_flutter/screens/booking/component/booking_item_component.dart';
+import 'package:booking_system_flutter/screens/booking/component/booking_status_filter_bottom_sheet.dart';
 import 'package:booking_system_flutter/screens/booking/shimmer/booking_shimmer.dart';
+import 'package:booking_system_flutter/utils/colors.dart';
 import 'package:booking_system_flutter/utils/constant.dart';
 import 'package:booking_system_flutter/utils/images.dart';
 import 'package:booking_system_flutter/utils/string_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 import '../../../component/empty_error_state_widget.dart';
-import '../../booking/component/booking_status_filter_bottom_sheet.dart';
 
 class BookingFragment extends StatefulWidget {
   @override
@@ -56,7 +58,8 @@ class _BookingFragmentState extends State<BookingFragment> {
   }
 
   void init({String status = ''}) async {
-    future = getBookingList(page, status: status, bookings: bookings, lastPageCallback: (b) {
+    future = getBookingList(page, status: status, bookings: bookings,
+        lastPageCallback: (b) {
       isLastPage = b;
     });
   }
@@ -82,7 +85,14 @@ class _BookingFragmentState extends State<BookingFragment> {
         showBack: false,
         textSize: APP_BAR_TEXT_SIZE,
         elevation: 3.0,
-        color: context.primaryColor,
+        color:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
+        systemUiOverlayStyle: SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.light,
+          statusBarColor: appStore.isDarkMode
+              ? bottomNavBarDarkBgColor
+              : orangePrimaryColor,
+        ),
         actions: [
           IconButton(
             icon: ic_filter.iconImage(color: white, size: 20),
@@ -92,7 +102,9 @@ class _BookingFragmentState extends State<BookingFragment> {
                 context: context,
                 isScrollControlled: true,
                 isDismissible: true,
-                shape: RoundedRectangleBorder(borderRadius: radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: radiusOnly(
+                        topLeft: defaultRadius, topRight: defaultRadius)),
                 builder: (_) {
                   return BookingStatusFilterBottomSheet();
                 },
@@ -106,7 +118,8 @@ class _BookingFragmentState extends State<BookingFragment> {
                 init(status: res);
 
                 if (bookings.isNotEmpty) {
-                  scrollController.animateTo(0, duration: 1.seconds, curve: Curves.easeOutQuart);
+                  scrollController.animateTo(0,
+                      duration: 1.seconds, curve: Curves.easeOutQuart);
                 } else {
                   scrollController = ScrollController();
                   keyForList = UniqueKey();
@@ -146,7 +159,8 @@ class _BookingFragmentState extends State<BookingFragment> {
                   key: keyForList,
                   controller: scrollController,
                   physics: AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.only(bottom: 60, top: 16, right: 16, left: 16),
+                  padding:
+                      EdgeInsets.only(bottom: 60, top: 16, right: 16, left: 16),
                   itemCount: list.length,
                   shrinkWrap: true,
                   disposeScrollController: true,
@@ -163,7 +177,8 @@ class _BookingFragmentState extends State<BookingFragment> {
 
                     return GestureDetector(
                       onTap: () {
-                        BookingDetailScreen(bookingId: data.id.validate()).launch(context);
+                        BookingDetailScreen(bookingId: data.id.validate())
+                            .launch(context);
                       },
                       child: BookingItemComponent(bookingData: data),
                     );
@@ -189,7 +204,8 @@ class _BookingFragmentState extends State<BookingFragment> {
                 );
               },
             ),
-            Observer(builder: (_) => LoaderWidget().visible(appStore.isLoading)),
+            Observer(
+                builder: (_) => LoaderWidget().visible(appStore.isLoading)),
           ],
         ),
       ),

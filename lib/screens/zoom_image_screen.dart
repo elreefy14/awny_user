@@ -1,7 +1,10 @@
 import 'package:booking_system_flutter/component/back_widget.dart';
 import 'package:booking_system_flutter/component/loader_widget.dart';
 import 'package:booking_system_flutter/main.dart';
+import 'package:booking_system_flutter/utils/colors.dart';
+import 'package:booking_system_flutter/utils/common.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -42,8 +45,16 @@ class _ZoomImageScreenState extends State<ZoomImageScreen> {
             ? appBarWidget(
                 language.lblGallery,
                 textColor: Colors.white,
-                color: context.primaryColor,
+                color: appStore.isDarkMode
+                    ? bottomNavBarDarkBgColor
+                    : orangePrimaryColor,
                 backWidget: BackWidget(),
+                systemUiOverlayStyle: SystemUiOverlayStyle(
+                  statusBarIconBrightness: Brightness.light,
+                  statusBarColor: appStore.isDarkMode
+                      ? bottomNavBarDarkBgColor
+                      : orangePrimaryColor,
+                ),
               )
             : null,
         body: GestureDetector(
@@ -65,10 +76,13 @@ class _ZoomImageScreenState extends State<ZoomImageScreen> {
             pageController: PageController(initialPage: widget.index),
             builder: (BuildContext context, int index) {
               return PhotoViewGalleryPageOptions(
-                imageProvider: Image.network(widget.galleryImages![index], errorBuilder: (context, error, stackTrace) => PlaceHolderWidget()).image,
+                imageProvider: Image.network(widget.galleryImages![index],
+                    errorBuilder: (context, error, stackTrace) =>
+                        PlaceHolderWidget()).image,
                 initialScale: PhotoViewComputedScale.contained,
                 minScale: PhotoViewComputedScale.contained,
-                errorBuilder: (context, error, stackTrace) => PlaceHolderWidget(),
+                errorBuilder: (context, error, stackTrace) =>
+                    PlaceHolderWidget(),
                 heroAttributes: PhotoViewHeroAttributes(
                   tag: widget.galleryImages![index],
                 ),

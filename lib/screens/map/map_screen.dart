@@ -1,16 +1,18 @@
+import 'dart:async';
+
 import 'package:booking_system_flutter/component/back_widget.dart';
 import 'package:booking_system_flutter/component/loader_widget.dart';
 import 'package:booking_system_flutter/main.dart';
 import 'package:booking_system_flutter/services/location_service.dart';
 import 'package:booking_system_flutter/utils/colors.dart';
 import 'package:booking_system_flutter/utils/common.dart';
+import 'package:booking_system_flutter/utils/constant.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:nb_utils/nb_utils.dart';
-
-import '../../utils/constant.dart';
 
 class MapScreen extends StatefulWidget {
   final double? latLong;
@@ -54,7 +56,9 @@ class MapScreenState extends State<MapScreen> {
 
       mapController.animateCamera(
         CameraUpdate.newCameraPosition(
-          CameraPosition(target: LatLng(position.latitude, position.longitude), zoom: 18.0),
+          CameraPosition(
+              target: LatLng(position.latitude, position.longitude),
+              zoom: 18.0),
         ),
       );
 
@@ -62,7 +66,8 @@ class MapScreenState extends State<MapScreen> {
       markers.add(Marker(
         markerId: MarkerId(_currentAddress),
         position: LatLng(position.latitude, position.longitude),
-        infoWindow: InfoWindow(title: 'Start $_currentAddress', snippet: _destinationAddress),
+        infoWindow: InfoWindow(
+            title: 'Start $_currentAddress', snippet: _destinationAddress),
         icon: BitmapDescriptor.defaultMarker,
       ));
 
@@ -81,7 +86,9 @@ class MapScreenState extends State<MapScreen> {
         //
       });
 
-      _currentAddress = await buildFullAddressFromLatLong(position.latitude, position.longitude).catchError((e) {
+      _currentAddress = await buildFullAddressFromLatLong(
+              position.latitude, position.longitude)
+          .catchError((e) {
         log(e);
       });
       destinationAddressController.text = _currentAddress;
@@ -104,7 +111,9 @@ class MapScreenState extends State<MapScreen> {
       icon: BitmapDescriptor.defaultMarker,
     ));
 
-    destinationAddressController.text = await buildFullAddressFromLatLong(point.latitude, point.longitude).catchError((e) {
+    destinationAddressController.text =
+        await buildFullAddressFromLatLong(point.latitude, point.longitude)
+            .catchError((e) {
       log(e);
     });
 
@@ -121,10 +130,17 @@ class MapScreenState extends State<MapScreen> {
       appBar: appBarWidget(
         language.chooseYourLocation,
         backWidget: BackWidget(),
-        color: primaryColor,
+        color:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
         elevation: 0,
         textColor: white,
         textSize: APP_BAR_TEXT_SIZE,
+        systemUiOverlayStyle: SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.light,
+          statusBarColor: appStore.isDarkMode
+              ? bottomNavBarDarkBgColor
+              : orangePrimaryColor,
+        ),
       ),
       body: Stack(
         children: <Widget>[
@@ -150,7 +166,8 @@ class MapScreenState extends State<MapScreen> {
                     color: Colors.blue.shade100,
                     child: InkWell(
                       splashColor: context.primaryColor.withOpacity(0.8),
-                      child: SizedBox(width: 50, height: 50, child: Icon(Icons.add)),
+                      child: SizedBox(
+                          width: 50, height: 50, child: Icon(Icons.add)),
                       onTap: () {
                         mapController.animateCamera(CameraUpdate.zoomIn());
                       },
@@ -163,7 +180,8 @@ class MapScreenState extends State<MapScreen> {
                     color: Colors.blue.shade100,
                     child: InkWell(
                       splashColor: context.primaryColor.withOpacity(0.8),
-                      child: SizedBox(width: 50, height: 50, child: Icon(Icons.remove)),
+                      child: SizedBox(
+                          width: 50, height: 50, child: Icon(Icons.remove)),
                       onTap: () {
                         mapController.animateCamera(CameraUpdate.zoomOut());
                       },
@@ -191,7 +209,9 @@ class MapScreenState extends State<MapScreen> {
                   await getUserLocationPosition().then((value) {
                     mapController.animateCamera(
                       CameraUpdate.newCameraPosition(
-                        CameraPosition(target: LatLng(value.latitude, value.longitude), zoom: 18.0),
+                        CameraPosition(
+                            target: LatLng(value.latitude, value.longitude),
+                            zoom: 18.0),
                       ),
                     );
 
@@ -209,7 +229,9 @@ class MapScreenState extends State<MapScreen> {
                       controller: destinationAddressController,
                       focus: destinationAddressFocusNode,
                       textStyle: primaryTextStyle(),
-                      decoration: inputDecoration(context, labelText: language.hintAddress).copyWith(fillColor: Colors.white70),
+                      decoration: inputDecoration(context,
+                              labelText: language.hintAddress)
+                          .copyWith(fillColor: Colors.white70),
                     ),
                   ],
                 ),
@@ -232,7 +254,8 @@ class MapScreenState extends State<MapScreen> {
               ],
             ).paddingAll(16),
           ),
-          Observer(builder: (context) => LoaderWidget().visible(appStore.isLoading))
+          Observer(
+              builder: (context) => LoaderWidget().visible(appStore.isLoading))
         ],
       ),
     );

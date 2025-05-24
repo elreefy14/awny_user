@@ -93,25 +93,6 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
               videoControllers[i]?.setVolume(1.0);
               videoControllers[i]?.setLooping(false);
 
-              // Add a listener to handle video completion for each controller
-              videoControllers[i]?.addListener(() {
-                final controller = videoControllers[i];
-                if (controller == null) return;
-
-                // Check if video has reached the end
-                if (controller.value.isInitialized &&
-                    controller.value.position >=
-                        controller.value.duration -
-                            Duration(milliseconds: 300)) {
-                  print('Video at index $i completed playback');
-                  // Move to next slide logic...
-                  handleVideoCompletion(i);
-                }
-
-                // Update UI when video state changes
-                if (mounted) setState(() {});
-              });
-
               // Auto-play first video if it's the first slide
               if (mounted && i == 0) {
                 List<SliderModel> topSliders = getSlidersByDirection('up');
@@ -122,47 +103,13 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
                   videoControllers[i]?.setLooping(false);
                 }
               }
+            }).catchError((error) {
+              print('Error initializing video at index $i: $error');
             });
         } catch (e) {
-          print('Error initializing video at index $i: $e');
+          print('Error creating video controller at index $i: $e');
         }
       }
-    }
-  }
-
-  // Handle video completion event
-  void handleVideoCompletion(int videoIndex) {
-    // If this is the current slide, move to the next one
-    List<SliderModel> topSliders = getSlidersByDirection('up');
-    List<SliderModel> bottomSliders = getSlidersByDirection('down');
-
-    int topIndex = topSliders.indexOf(widget.sliderList[videoIndex]);
-    int bottomIndex = bottomSliders.indexOf(widget.sliderList[videoIndex]);
-
-    if (topIndex == _currentTopPage && topIndex != -1) {
-      // This video is in the top slider and is the current one
-      if (_currentTopPage < topSliders.length - 1) {
-        _currentTopPage++;
-      } else {
-        _currentTopPage = 0;
-      }
-
-      topSliderPageController.animateToPage(_currentTopPage,
-          duration: Duration(milliseconds: 800), curve: Curves.easeOutQuint);
-
-      _scheduleTopSliderTransition(topSliders);
-    } else if (bottomIndex == _currentBottomPage && bottomIndex != -1) {
-      // This video is in the bottom slider and is the current one
-      if (_currentBottomPage < bottomSliders.length - 1) {
-        _currentBottomPage++;
-      } else {
-        _currentBottomPage = 0;
-      }
-
-      bottomSliderPageController.animateToPage(_currentBottomPage,
-          duration: Duration(milliseconds: 800), curve: Curves.easeOutQuint);
-
-      _scheduleBottomSliderTransition(bottomSliders);
     }
   }
 
@@ -186,15 +133,16 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
             // Handle video playback when manually sliding
             videoControllers.forEach((index, controller) {
               controller.pause();
+              controller.seekTo(Duration.zero);
             });
 
             int sliderIndex =
                 widget.sliderList.indexOf(topSliders[_currentTopPage]);
             if (sliderIndex != -1 && topSliders[_currentTopPage].isVideo) {
+              videoControllers[sliderIndex]?.setLooping(false);
               videoControllers[sliderIndex]?.play();
-              videoControllers[sliderIndex]?.setLooping(true);
 
-              // If a video is now playing, cancel existing timer and schedule based on video duration
+              // Cancel existing timer and schedule based on new video
               _topTimer?.cancel();
               _scheduleTopSliderTransition(topSliders);
             }
@@ -218,16 +166,17 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
             // Handle video playback when manually sliding
             videoControllers.forEach((index, controller) {
               controller.pause();
+              controller.seekTo(Duration.zero);
             });
 
             int sliderIndex =
                 widget.sliderList.indexOf(bottomSliders[_currentBottomPage]);
             if (sliderIndex != -1 &&
                 bottomSliders[_currentBottomPage].isVideo) {
+              videoControllers[sliderIndex]?.setLooping(false);
               videoControllers[sliderIndex]?.play();
-              videoControllers[sliderIndex]?.setLooping(true);
 
-              // If a video is now playing, cancel existing timer and schedule based on video duration
+              // Cancel existing timer and schedule based on new video
               _bottomTimer?.cancel();
               _scheduleBottomSliderTransition(bottomSliders);
             }
@@ -253,8 +202,17 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
     if (isCurrentSlideVideo &&
         currentVideoController != null &&
         currentVideoController.value.isInitialized) {
-      // For video slides, listen for video completion to advance
-      _topTimer = Timer(currentVideoController.value.duration, () {
+      // For video slides, wait for video completion to advance
+      Duration videoDuration = currentVideoController.value.duration;
+
+      // Make sure the video is playing and not looping
+      currentVideoController.setLooping(false);
+      if (!currentVideoController.value.isPlaying) {
+        currentVideoController.play();
+      }
+
+      // Set timer for video duration
+      _topTimer = Timer(videoDuration, () {
         if (mounted) {
           // Video finished, move to next slide
           if (_currentTopPage < topSliders.length - 1) {
@@ -265,19 +223,17 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
 
           // Pause current video
           currentVideoController.pause();
+          currentVideoController.seekTo(Duration.zero);
 
           // Animate to next slide
           topSliderPageController.animateToPage(_currentTopPage,
               duration: Duration(milliseconds: 800),
               curve: Curves.easeOutQuint);
 
-          // This will trigger the listener which will schedule the next transition
+          // Schedule next transition
+          _scheduleTopSliderTransition(topSliders);
         }
       });
-
-      // Make sure the video is playing and not looping
-      currentVideoController.setLooping(false);
-      currentVideoController.play();
     } else {
       // For image slides, use the standard timer
       _topTimer = Timer.periodic(
@@ -333,8 +289,17 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
     if (isCurrentSlideVideo &&
         currentVideoController != null &&
         currentVideoController.value.isInitialized) {
-      // For video slides, listen for video completion to advance
-      _bottomTimer = Timer(currentVideoController.value.duration, () {
+      // For video slides, wait for video completion to advance
+      Duration videoDuration = currentVideoController.value.duration;
+
+      // Make sure the video is playing and not looping
+      currentVideoController.setLooping(false);
+      if (!currentVideoController.value.isPlaying) {
+        currentVideoController.play();
+      }
+
+      // Set timer for video duration
+      _bottomTimer = Timer(videoDuration, () {
         if (mounted) {
           // Video finished, move to next slide
           if (_currentBottomPage < bottomSliders.length - 1) {
@@ -345,19 +310,17 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
 
           // Pause current video
           currentVideoController.pause();
+          currentVideoController.seekTo(Duration.zero);
 
           // Animate to next slide
           bottomSliderPageController.animateToPage(_currentBottomPage,
               duration: Duration(milliseconds: 800),
               curve: Curves.easeOutQuint);
 
-          // This will trigger the listener which will schedule the next transition
+          // Schedule next transition
+          _scheduleBottomSliderTransition(bottomSliders);
         }
       });
-
-      // Make sure the video is playing and not looping
-      currentVideoController.setLooping(false);
-      currentVideoController.play();
     } else {
       // For image slides, use the standard timer
       _bottomTimer = Timer.periodic(
@@ -571,16 +534,21 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
             ? Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Video player
-                  SizedBox(
+                  // Video player - Fixed to show full screen properly
+                  Container(
                     height: height,
                     width: width,
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: SizedBox(
-                        width: controller.value.size.width,
-                        height: controller.value.size.height,
-                        child: VideoPlayer(controller),
+                    child: ClipRect(
+                      child: Transform.scale(
+                        scale: controller.value.aspectRatio > (width / height)
+                            ? height / (width / controller.value.aspectRatio)
+                            : width / (height * controller.value.aspectRatio),
+                        child: Center(
+                          child: AspectRatio(
+                            aspectRatio: controller.value.aspectRatio,
+                            child: VideoPlayer(controller),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -877,26 +845,26 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
       children: [
         // Section Title for Top Banner with improved styling
         if (topSliders.isNotEmpty)
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: primaryColor,
-                    borderRadius: radius(2),
-                  ),
-                ),
-                8.width,
-                Text(
-                  language.allServices,
-                  style: boldTextStyle(size: 18, letterSpacing: 0.3),
-                ),
-              ],
-            ),
-          ),
+          // Container(
+          //   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          //   child: Row(
+          //     children: [
+          //       Container(
+          //         width: 4,
+          //         height: 18,
+          //         decoration: BoxDecoration(
+          //           color: primaryColor,
+          //           borderRadius: radius(2),
+          //         ),
+          //       ),
+          //       8.width,
+          //       Text(
+          //         language.allServices,
+          //         style: boldTextStyle(size: 18, letterSpacing: 0.3),
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
         // Enhanced Full-Width Top Slider Banner
         if (topSliders.isNotEmpty)
@@ -938,26 +906,26 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
               30.height,
 
               // Section Title for Bottom Banner with improved styling
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: radius(2),
-                      ),
-                    ),
-                    8.width,
-                    Text(
-                      language.booking,
-                      style: boldTextStyle(size: 18, letterSpacing: 0.3),
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              //   child: Row(
+              //     children: [
+              //       Container(
+              //         width: 4,
+              //         height: 18,
+              //         decoration: BoxDecoration(
+              //           color: primaryColor,
+              //           borderRadius: radius(2),
+              //         ),
+              //       ),
+              //       8.width,
+              //       Text(
+              //         language.booking,
+              //         style: boldTextStyle(size: 18, letterSpacing: 0.3),
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
               12.height,
 

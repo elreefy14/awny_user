@@ -17,11 +17,11 @@ class AppTheme {
         scaffoldBackgroundColor: Colors.white,
         fontFamily: GoogleFonts.inter().fontFamily,
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: color ?? primaryColor,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white70,
-          selectedLabelStyle: TextStyle(color: Colors.white),
-          unselectedLabelStyle: TextStyle(color: Colors.white70),
+          backgroundColor: bottomNavBarLightBgColor,
+          selectedItemColor: orangePrimaryColor,
+          unselectedItemColor: unselectedNavItemLightColor,
+          selectedLabelStyle: TextStyle(color: orangePrimaryColor),
+          unselectedLabelStyle: TextStyle(color: unselectedNavItemLightColor),
         ),
         iconTheme: IconThemeData(color: appTextSecondaryColor),
         textTheme: GoogleFonts.interTextTheme(),
@@ -35,11 +35,11 @@ class AppTheme {
           backgroundColor: Colors.white,
         ),
         cardColor: cardColor,
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
-            backgroundColor: color ?? primaryColor),
+        floatingActionButtonTheme:
+            FloatingActionButtonThemeData(backgroundColor: orangePrimaryColor),
         appBarTheme: AppBarTheme(
             elevation: 0,
-            backgroundColor: color ?? primaryColor,
+            backgroundColor: orangePrimaryColor,
             iconTheme: IconThemeData(color: Colors.white),
             titleTextStyle: TextStyle(
               color: Colors.white,
@@ -48,14 +48,14 @@ class AppTheme {
             ),
             systemOverlayStyle: SystemUiOverlayStyle(
                 statusBarIconBrightness: Brightness.light,
-                statusBarColor: color ?? primaryColor)),
+                statusBarColor: orangePrimaryColor)),
         dialogTheme: DialogTheme(shape: dialogShape()),
         navigationBarTheme: NavigationBarThemeData(
           labelTextStyle: MaterialStateProperty.all(primaryTextStyle(size: 10)),
-          backgroundColor: color ?? primaryColor,
-          indicatorColor: Colors.white.withOpacity(0.1),
+          backgroundColor: bottomNavBarLightBgColor,
+          indicatorColor: orangePrimaryColor.withOpacity(0.2),
           iconTheme: MaterialStateProperty.all(
-            IconThemeData(color: Colors.white70),
+            IconThemeData(color: unselectedNavItemLightColor),
           ),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         ),
@@ -76,7 +76,7 @@ class AppTheme {
             seedColor: color ?? primaryColor, outlineVariant: borderColor),
         appBarTheme: AppBarTheme(
           elevation: 0,
-          backgroundColor: color ?? primaryColor,
+          backgroundColor: bottomNavBarDarkBgColor,
           iconTheme: IconThemeData(color: Colors.white),
           titleTextStyle: TextStyle(
             color: Colors.white,
@@ -85,16 +85,16 @@ class AppTheme {
           ),
           systemOverlayStyle: SystemUiOverlayStyle(
               statusBarIconBrightness: Brightness.light,
-              statusBarColor: color ?? primaryColor),
+              statusBarColor: bottomNavBarDarkBgColor),
         ),
         scaffoldBackgroundColor: scaffoldColorDark,
         fontFamily: GoogleFonts.inter().fontFamily,
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: color ?? primaryColor,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white70,
-          selectedLabelStyle: TextStyle(color: Colors.white),
-          unselectedLabelStyle: TextStyle(color: Colors.white70),
+          backgroundColor: bottomNavBarDarkBgColor,
+          selectedItemColor: orangePrimaryDarkColor,
+          unselectedItemColor: unselectedNavItemDarkColor,
+          selectedLabelStyle: TextStyle(color: orangePrimaryDarkColor),
+          unselectedLabelStyle: TextStyle(color: unselectedNavItemDarkColor),
         ),
         iconTheme: IconThemeData(color: Colors.white),
         textTheme: GoogleFonts.interTextTheme(),
@@ -108,18 +108,18 @@ class AppTheme {
         ),
         dividerColor: dividerDarkColor,
         floatingActionButtonTheme: FloatingActionButtonThemeData(
-            backgroundColor: color ?? primaryColor),
+            backgroundColor: orangePrimaryDarkColor),
         cardColor: scaffoldSecondaryDark,
         dialogTheme: DialogTheme(shape: dialogShape()),
         navigationBarTheme: NavigationBarThemeData(
-            backgroundColor: color ?? primaryColor,
-            indicatorColor: Colors.white.withOpacity(0.1),
+            backgroundColor: bottomNavBarDarkBgColor,
+            indicatorColor: orangePrimaryDarkColor.withOpacity(0.2),
             iconTheme: MaterialStateProperty.all(
-              IconThemeData(color: Colors.white70),
+              IconThemeData(color: unselectedNavItemDarkColor),
             ),
             labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
             labelTextStyle: MaterialStateProperty.all(
-                primaryTextStyle(size: 10, color: Colors.white))),
+                primaryTextStyle(size: 10, color: orangePrimaryDarkColor))),
       ).copyWith(
         pageTransitionsTheme: PageTransitionsTheme(
           builders: <TargetPlatform, PageTransitionsBuilder>{

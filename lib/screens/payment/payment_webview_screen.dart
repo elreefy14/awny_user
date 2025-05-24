@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:convert';
 
 import 'package:booking_system_flutter/component/back_widget.dart';
@@ -6,13 +8,14 @@ import 'package:booking_system_flutter/main.dart';
 import 'package:booking_system_flutter/network/network_utils.dart';
 import 'package:booking_system_flutter/utils/common.dart';
 import 'package:booking_system_flutter/utils/configs.dart';
+import 'package:booking_system_flutter/utils/colors.dart';
+import 'package:booking_system_flutter/utils/constant.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:http/http.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
-import '../../utils/constant.dart';
 
 class PaymentWebViewScreen extends StatefulWidget {
   final String? url;
@@ -61,7 +64,10 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     get(Uri.parse(url)).then((value) {
       log(value.body);
 
-      String txnId = parseHtmlString(value.body).removeAllWhiteSpace().splitBetween('TransactionNo:', 'InvoiceInformation').trim();
+      String txnId = parseHtmlString(value.body)
+          .removeAllWhiteSpace()
+          .splitBetween('TransactionNo:', 'InvoiceInformation')
+          .trim();
 
       if (txnId.isNotEmpty && txnId.startsWith('#SD')) {
         isInvoiceNumberFound = true;
@@ -77,7 +83,8 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     var request = Request(
       'GET',
       Uri.parse('$SADAD_API_URL/api/transactions/getTransaction'),
-    )..headers.addAll(buildHeaderForSadad(sadadToken: widget.accessToken.validate()));
+    )..headers
+        .addAll(buildHeaderForSadad(sadadToken: widget.accessToken.validate()));
     var params = {
       "transactionno": txnId,
     };
@@ -116,10 +123,17 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     return Scaffold(
       appBar: appBarWidget(
         language.payment,
-        color: context.primaryColor,
+        color:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
         textColor: Colors.white,
         backWidget: BackWidget(),
         textSize: APP_BAR_TEXT_SIZE,
+        systemUiOverlayStyle: SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.light,
+          statusBarColor: appStore.isDarkMode
+              ? bottomNavBarDarkBgColor
+              : orangePrimaryColor,
+        ),
       ),
       body: SizedBox(
         height: context.height(),
@@ -129,7 +143,9 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
             WebViewWidget(
               controller: controller,
             ),
-            Observer(builder: (context) => LoaderWidget().visible(appStore.isLoading)),
+            Observer(
+                builder: (context) =>
+                    LoaderWidget().visible(appStore.isLoading)),
           ],
         ),
       ),

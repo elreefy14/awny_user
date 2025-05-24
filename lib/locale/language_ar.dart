@@ -211,7 +211,7 @@ class LanguageAr extends BaseLanguage {
   String get category => 'فئة';
 
   @override
-  String get booking => 'عروض';
+  String get booking => 'حجوزات';
 
   @override
   String get profile => 'الملف الشخصي';

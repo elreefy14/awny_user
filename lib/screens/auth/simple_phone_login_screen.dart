@@ -552,7 +552,8 @@ class _SimplePhoneLoginScreenState extends State<SimplePhoneLoginScreen>
     return Scaffold(
       backgroundColor: context.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: primaryColor,
+        backgroundColor:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
         elevation: 0,
         leading: BackWidget(iconColor: Colors.white),
         centerTitle: true,
@@ -561,7 +562,9 @@ class _SimplePhoneLoginScreenState extends State<SimplePhoneLoginScreen>
           style: boldTextStyle(color: Colors.white),
         ),
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: primaryColor,
+          statusBarColor: appStore.isDarkMode
+              ? bottomNavBarDarkBgColor
+              : orangePrimaryColor,
           statusBarIconBrightness: Brightness.light,
         ),
       ),
@@ -1125,7 +1128,8 @@ class _SimplePhoneLoginScreenState extends State<SimplePhoneLoginScreen>
         ),
       ),
       bottomNavigationBar: Container(
-        color: primaryColor,
+        color:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         height: kBottomNavigationBarHeight,
         child: Row(

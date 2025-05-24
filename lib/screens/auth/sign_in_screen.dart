@@ -3,6 +3,7 @@ import 'package:booking_system_flutter/component/base_scaffold_body.dart';
 import 'package:booking_system_flutter/main.dart';
 import 'package:booking_system_flutter/screens/auth/firebase_otp_login_screen.dart';
 import 'package:booking_system_flutter/screens/auth/forgot_password_screen.dart';
+import 'package:booking_system_flutter/screens/auth/google_phone_verification_screen.dart';
 import 'package:booking_system_flutter/screens/auth/otp_login_screen.dart';
 import 'package:booking_system_flutter/screens/auth/sign_up_screen.dart';
 import 'package:booking_system_flutter/screens/auth/simple_phone_login_screen.dart';
@@ -243,11 +244,9 @@ class SignInScreen extends StatefulWidget {
   final bool returnExpected;
 
   SignInScreen(
-      {
-      this.isFromDashboard,
+      {this.isFromDashboard,
       this.isFromServiceBooking,
-      this.returnExpected = false}
-      );
+      this.returnExpected = false});
 
   @override
   _SignInScreenState createState() => _SignInScreenState();
@@ -465,55 +464,55 @@ class _SignInScreenState extends State<SignInScreen> {
 
       if (user == null) throw 'No user found';
 
+      // Check if user already exists with phone number
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .where('email', isEqualTo: user.email)
           .get();
 
-      if (userDoc.docs.isEmpty) {
-        final nextId = await userService.getNextUserId();
+      bool userExists = userDoc.docs.isNotEmpty;
+      bool hasPhoneNumber = false;
 
-        await userService.createUserInFirestore(
-          uid: user.uid,
-          email: user.email ?? '',
-          firstName: user.displayName?.split(' ').first ?? '',
-          lastName: user.displayName?.split(' ').last ?? '',
-          profileImage:
-              user.photoURL ?? 'https://awnyapp.com/images/user/user.png',
-          id: nextId,
-        );
-      }
+      if (userExists) {
+        // Check if user has phone number in the backend
+        try {
+          Map<String, dynamic> checkRequest = {
+            'email': user.email,
+            'login_type': LOGIN_TYPE_GOOGLE,
+            'uid': user.uid,
+          };
 
-      Map<String, dynamic> request = {
-        'email': user.email,
-        'login_type': LOGIN_TYPE_GOOGLE,
-        'first_name': user.displayName?.split(' ').first ?? '',
-        'last_name': user.displayName?.split(' ').last ?? '',
-        'username':
-            user.email?.split('@').first.replaceAll('.', '').toLowerCase(),
-        'user_type': 'user',
-        'display_name': user.displayName,
-        'uid': user.uid,
-        'social_image': user.photoURL,
-      };
+          var response = await loginUser(checkRequest, isSocialLogin: true);
 
-      try {
-        var loginResponse = await loginUser(request, isSocialLogin: true);
-        await saveUserData(loginResponse.userData!);
-        await appStore.setLoginType(LOGIN_TYPE_GOOGLE);
+          if (response.userData != null &&
+              response.userData!.contactNumber != null &&
+              response.userData!.contactNumber!.isNotEmpty) {
+            hasPhoneNumber = true;
 
-        // Use onLoginSuccessRedirection instead of direct navigation
-        onLoginSuccessRedirection();
-      } catch (e) {
-        if (e.toString().contains('User not found')) {
-          var signupResponse = await createUser(request);
-          await saveUserData(signupResponse.userData!);
-          await appStore.setLoginType(LOGIN_TYPE_GOOGLE);
-          onLoginSuccessRedirection();
-        } else {
-          throw e;
+            // User exists with phone number - complete login
+            await saveUserData(response.userData!);
+            await appStore.setLoginType(LOGIN_TYPE_GOOGLE);
+            onLoginSuccessRedirection();
+            return;
+          }
+        } catch (e) {
+          debugPrint('Error checking user phone number: $e');
         }
       }
+
+      // If user doesn't exist or doesn't have phone number, redirect to phone verification
+      appStore.setLoading(false);
+      _isGoogleSignInProgress = false;
+
+      // Navigate to phone verification screen
+      final result = await GooglePhoneVerificationScreen(
+        googleUser: user,
+        firstName: user.displayName?.split(' ').first ?? '',
+        lastName: user.displayName?.split(' ').last ?? '',
+        email: user.email ?? '',
+      ).launch(context);
+
+      // If verification was successful, the GooglePhoneVerificationScreen handles navigation
     } catch (e) {
       appStore.setLoading(false);
       _isGoogleSignInProgress = false;
@@ -787,7 +786,7 @@ class _SignInScreenState extends State<SignInScreen> {
             //   ),
             //   onTap: otpSignIn,
             // ),
-          if (appConfigurationStore.otpLoginStatus) 16.height,
+            if (appConfigurationStore.otpLoginStatus) 16.height,
           if (isIOS)
             if (appConfigurationStore.appleLoginStatus)
               AppButton(

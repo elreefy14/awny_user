@@ -1,10 +1,12 @@
 import 'package:booking_system_flutter/component/back_widget.dart';
 import 'package:booking_system_flutter/main.dart';
+import 'package:booking_system_flutter/model/service_data_model.dart';
 import 'package:booking_system_flutter/screens/gallery/gallery_component.dart';
+import 'package:booking_system_flutter/utils/colors.dart';
+import 'package:booking_system_flutter/utils/constant.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nb_utils/nb_utils.dart';
-
-import '../../utils/constant.dart';
 
 class GalleryScreen extends StatefulWidget {
   final String serviceName;
@@ -37,16 +39,24 @@ class _GalleryScreenState extends State<GalleryScreen> {
       appBar: appBarWidget(
         "${language.lblGallery} ${'- ${widget.serviceName}'}",
         textColor: Colors.white,
-        color: context.primaryColor,
+        color:
+            appStore.isDarkMode ? bottomNavBarDarkBgColor : orangePrimaryColor,
         backWidget: BackWidget(),
         textSize: APP_BAR_TEXT_SIZE,
+        systemUiOverlayStyle: SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.light,
+          statusBarColor: appStore.isDarkMode
+              ? bottomNavBarDarkBgColor
+              : orangePrimaryColor,
+        ),
       ),
       body: AnimatedWrap(
         spacing: 16,
         runSpacing: 16,
         listAnimationType: ListAnimationType.FadeIn,
         fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
-        scaleConfiguration: ScaleConfiguration(duration: 300.milliseconds, delay: 50.milliseconds),
+        scaleConfiguration: ScaleConfiguration(
+            duration: 300.milliseconds, delay: 50.milliseconds),
         itemCount: widget.attachments.length,
         itemBuilder: (context, i) {
           return GalleryComponent(images: widget.attachments, index: i);

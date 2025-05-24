@@ -137,12 +137,12 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
                 }
               }
 
-              // Sort categories by priority (higher priority first, null values last)
+              // Sort categories by priority (lower priority first, null values last)
               List<CategoryData> sortedCategories = snap.category.validate()
                 ..sort((a, b) {
                   int priorityA = a.priority ?? 0;
                   int priorityB = b.priority ?? 0;
-                  return priorityB.compareTo(priorityA); // Descending order
+                  return priorityA.compareTo(priorityB); // Ascending order
                 });
 
               return Observer(builder: (context) {
@@ -272,7 +272,7 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
                       isFeatured: false,
                     ),
 
-                    24.height,
+                    20.height,
 
                     // Featured Services Section
                     ServiceListDashboardComponent3(
@@ -281,7 +281,7 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
                       isFeatured: true,
                     ),
 
-                    24.height,
+                    20.height,
 
                     // BOTTOM BANNER - Promotional Sliders
                     if (bottomSliders.isNotEmpty)
@@ -409,21 +409,21 @@ class AllCategoriesWithServicesComponent extends StatelessWidget {
                               ).expand(),
 
                               // Priority Badge
-                              if (category.priority != null &&
-                                  category.priority! > 0)
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: primaryColor,
-                                    borderRadius: radius(12),
-                                  ),
-                                  child: Text(
-                                    'Priority ${category.priority}',
-                                    style: boldTextStyle(
-                                        color: Colors.white, size: 10),
-                                  ),
-                                ),
+                              // if (category.priority != null &&
+                              //     category.priority! > 0)
+                              // Container(
+                              //   padding: EdgeInsets.symmetric(
+                              //       horizontal: 8, vertical: 4),
+                              //   decoration: BoxDecoration(
+                              //     color: primaryColor,
+                              //     borderRadius: radius(12),
+                              //   ),
+                              //   child: Text(
+                              //     'Priority ${category.priority}',
+                              //     style: boldTextStyle(
+                              //         color: Colors.white, size: 10),
+                              //   ),
+                              // ),
                             ],
                           ),
                           if (category.description != null)

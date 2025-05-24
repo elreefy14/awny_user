@@ -121,7 +121,10 @@ class ServiceItemWidget extends StatelessWidget {
                     child: CachedImageWidget(
                       url: serviceData.attachments.validate().isNotEmpty
                           ? serviceData.attachments!.first.validate()
-                          : '',
+                          : serviceData.attachmentsArray.validate().isNotEmpty
+                              ? serviceData.attachmentsArray!.first.url
+                                  .validate()
+                              : '',
                       fit: BoxFit.cover,
                       height: 140,
                       width: 180,
