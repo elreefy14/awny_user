@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/appbar_dashboard_component_3.dart';
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/category_list_dashboard_component_3.dart';
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/category_services_component.dart';
@@ -11,7 +10,6 @@ import 'package:booking_system_flutter/utils/string_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
-
 import '../../../component/empty_error_state_widget.dart';
 import '../../../component/loader_widget.dart';
 import '../../../component/cached_image_widget.dart';
