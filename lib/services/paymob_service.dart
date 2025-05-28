@@ -175,17 +175,24 @@ class PayMobService {
       debugPrint('PayMob Order ID created: $orderId');
 
       // 2. Get Payment Key
+      // Convert integration_id to integer as PayMob expects it
+      final int integrationIdInt = int.tryParse(integrationId) ?? 0;
+      if (integrationIdInt == 0) {
+        throw 'Integration ID must be a valid integer: $integrationId';
+      }
+
       final paymentKeyRequestBody = {
         'amount_cents': amountInCents,
         'expiration': 3600,
         'order_id': orderId,
         'billing_data': billingData,
         'currency': currency,
-        'integration_id': integrationId,
+        'integration_id': integrationIdInt, // Send as integer
         'lock_order_when_paid': false
       };
 
       debugPrint('Requesting PayMob payment key for order ID: $orderId');
+      debugPrint('Using integration ID as integer: $integrationIdInt');
 
       final paymentKeyResponse = await http.post(
         Uri.parse('$_baseUrl/acceptance/payment_keys'),
@@ -268,5 +275,133 @@ class PayMobService {
       'source_data': callbackData['source_data'],
       'raw_data': callbackData
     };
+  }
+
+  // Create payment URL with both card and wallet support
+  Future<String> createPaymentUrlWithWallets({
+    required double amount,
+    required String currency,
+    List<String>?
+        integrationIds, // Optional - will use config.getAllIntegrationIds() if not provided
+    required Map<String, dynamic> billingData,
+    String? primaryIframeId, // Primary iframe ID to use for the URL
+  }) async {
+    try {
+      // Use provided integration IDs or get them from config
+      final List<String> idsToUse =
+          integrationIds ?? config.getAllIntegrationIds();
+
+      // Ensure amount is in cents as per PayMob requirements
+      final int amountInCents = (amount).round();
+
+      debugPrint('Creating PayMob payment with wallet support');
+      debugPrint('Integration IDs: $idsToUse');
+      debugPrint('Amount in cents: $amountInCents');
+
+      // 1. Create Order
+      final orderRequestBody = {
+        'amount_cents': amountInCents,
+        'currency': currency,
+        'delivery_needed': false,
+      };
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken',
+      };
+
+      final orderResponse = await http.post(
+        Uri.parse('$_baseUrl/ecommerce/orders'),
+        headers: headers,
+        body: json.encode(orderRequestBody),
+      );
+
+      _logApiCall(
+          endpoint: 'ecommerce/orders',
+          response: orderResponse,
+          requestBody: orderRequestBody,
+          headers: headers);
+
+      if (orderResponse.statusCode != 200 && orderResponse.statusCode != 201) {
+        throw 'خطأ في إنشاء الطلب: [${orderResponse.statusCode}] ${orderResponse.body}';
+      }
+
+      final orderData = json.decode(orderResponse.body);
+      orderId = orderData['id'].toString();
+      debugPrint('PayMob Order ID created: $orderId');
+
+      // 2. Create payment keys for all integration IDs
+      List<String> paymentTokens = [];
+
+      for (String integrationId in idsToUse) {
+        // Convert integration_id to integer as PayMob expects it
+        final int integrationIdInt = int.tryParse(integrationId) ?? 0;
+        if (integrationIdInt == 0) {
+          debugPrint('Invalid integration ID: $integrationId, skipping...');
+          continue; // Skip invalid integration IDs
+        }
+
+        final paymentKeyRequestBody = {
+          'amount_cents': amountInCents,
+          'expiration': 3600,
+          'order_id': orderId,
+          'billing_data': billingData,
+          'currency': currency,
+          'integration_id': integrationIdInt, // Send as integer
+          'lock_order_when_paid': false
+        };
+
+        debugPrint(
+            'Creating payment key for integration ID: $integrationId (as integer: $integrationIdInt)');
+
+        final paymentKeyResponse = await http.post(
+          Uri.parse('$_baseUrl/acceptance/payment_keys'),
+          headers: headers,
+          body: json.encode(paymentKeyRequestBody),
+        );
+
+        _logApiCall(
+            endpoint: 'acceptance/payment_keys',
+            response: paymentKeyResponse,
+            requestBody: paymentKeyRequestBody,
+            headers: headers);
+
+        if (paymentKeyResponse.statusCode != 200 &&
+            paymentKeyResponse.statusCode != 201) {
+          debugPrint(
+              'Failed to create payment key for integration ID: $integrationId');
+          continue; // Skip this integration ID and continue with others
+        }
+
+        final paymentKeyData = json.decode(paymentKeyResponse.body);
+        final token = paymentKeyData['token'];
+        if (token != null) {
+          paymentTokens.add(token);
+          debugPrint(
+              'Payment key created for integration ID $integrationId: $token');
+        }
+      }
+
+      if (paymentTokens.isEmpty) {
+        throw 'فشل في إنشاء أي مفتاح دفع للطرق المطلوبة';
+      }
+
+      // Use the first payment token and primary iframe ID
+      final primaryToken = paymentTokens.first;
+      final iframeId = primaryIframeId ?? config.iframeId;
+
+      // Create the payment URL with the primary iframe
+      final paymentUrl =
+          'https://accept.paymob.com/api/acceptance/iframes/$iframeId?payment_token=$primaryToken';
+
+      debugPrint('PayMob payment URL created: $paymentUrl');
+      debugPrint(
+          'This URL will show both card and wallet options based on your PayMob dashboard configuration');
+      debugPrint('Integration IDs used: $idsToUse');
+
+      return paymentUrl;
+    } catch (e) {
+      throw 'خطأ في إنشاء رابط الدفع مع المحافظ الإلكترونية: $e';
+    }
   }
 }

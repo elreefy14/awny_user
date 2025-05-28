@@ -11,6 +11,7 @@ import 'package:nb_utils/nb_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:math';
 import 'dart:async';
+import 'dart:convert';
 
 import '../../component/app_common_dialog.dart';
 import '../../component/base_scaffold_widget.dart';
@@ -82,40 +83,171 @@ class _PaymentScreenState extends State<PaymentScreen> {
     log("ISaDVANCE${widget.isForAdvancePayment}");
     future = getPaymentGateways(requireCOD: !widget.isForAdvancePayment);
 
-    // Add debug logging for payment gateways
+    // Add comprehensive debug logging for payment gateways
     future!.then((paymentSettings) {
-      debugPrint('===== PAYMENT GATEWAYS RECEIVED =====');
-      debugPrint('Total payment gateways: ${paymentSettings.length}');
+      debugPrint('');
+      debugPrint(
+          '═══════════════════════════════════════════════════════════════');
+      debugPrint(
+          '                    PAYMENT GATEWAYS DEBUG                     ');
+      debugPrint(
+          '═══════════════════════════════════════════════════════════════');
+      debugPrint('Total payment gateways received: ${paymentSettings.length}');
+      debugPrint('');
 
       for (var i = 0; i < paymentSettings.length; i++) {
         final setting = paymentSettings[i];
-        debugPrint('Payment Gateway #$i:');
-        debugPrint('  ID: ${setting.id}');
-        debugPrint('  Title: ${setting.title}');
-        debugPrint('  Type: ${setting.type}');
-        debugPrint('  Status: ${setting.status}');
-        debugPrint('  Is Test: ${setting.isTest}');
+        debugPrint(
+            '┌─────────────────────────────────────────────────────────────');
+        debugPrint('│ Payment Gateway #${i + 1}');
+        debugPrint(
+            '├─────────────────────────────────────────────────────────────');
+        debugPrint('│ ID: ${setting.id}');
+        debugPrint('│ Title: ${setting.title}');
+        debugPrint('│ Type: ${setting.type}');
+        debugPrint('│ Status: ${setting.status}');
+        debugPrint('│ Is Test: ${setting.isTest}');
+        debugPrint(
+            '└─────────────────────────────────────────────────────────────');
 
-        // Check if it's PayMob
+        // Special handling for PayMob gateway
         if (setting.type == 'paymob') {
-          debugPrint('  ** FOUND PAYMOB GATEWAY **');
+          debugPrint('');
+          debugPrint('🔥🔥🔥 PAYMOB GATEWAY FOUND - DETAILED ANALYSIS 🔥🔥🔥');
+          debugPrint('');
+
+          // Full JSON representation
           var settingJson = setting.toJson();
-          debugPrint('  Full PayMob setting: $settingJson');
+          debugPrint('📋 FULL PAYMOB SETTING JSON:');
+          debugPrint('${jsonEncode(settingJson)}');
+          debugPrint('');
 
-          // Try different ways to access values
+          // Test Value Analysis
+          if (setting.testValue != null) {
+            debugPrint('🧪 TEST VALUE ANALYSIS:');
+            debugPrint('  testValue exists: ✅');
+            var testJson = setting.testValue!.toJson();
+            debugPrint('  Full testValue JSON: ${jsonEncode(testJson)}');
+            debugPrint(
+                '  PayMob API Key: ${setting.testValue!.paymobApiKey ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob Integration ID: ${setting.testValue!.paymobIntegrationId ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob iFrame ID: ${setting.testValue!.paymobIframeId ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob Wallet Integration ID: ${setting.testValue!.paymobWalletIntegrationId ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob Wallet iFrame ID: ${setting.testValue!.paymobWalletIframeId ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob HMAC: ${setting.testValue!.paymobHmac ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob Callback URL: ${setting.testValue!.paymobCallbackUrl ?? "❌ NULL"}');
+          } else {
+            debugPrint('🧪 TEST VALUE: ❌ NULL');
+          }
+          debugPrint('');
+
+          // Live Value Analysis
+          if (setting.liveValue != null) {
+            debugPrint('🚀 LIVE VALUE ANALYSIS:');
+            debugPrint('  liveValue exists: ✅');
+            var liveJson = setting.liveValue!.toJson();
+            debugPrint('  Full liveValue JSON: ${jsonEncode(liveJson)}');
+            debugPrint(
+                '  PayMob API Key: ${setting.liveValue!.paymobApiKey ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob Integration ID: ${setting.liveValue!.paymobIntegrationId ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob iFrame ID: ${setting.liveValue!.paymobIframeId ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob Wallet Integration ID: ${setting.liveValue!.paymobWalletIntegrationId ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob Wallet iFrame ID: ${setting.liveValue!.paymobWalletIframeId ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob HMAC: ${setting.liveValue!.paymobHmac ?? "❌ NULL"}');
+            debugPrint(
+                '  PayMob Callback URL: ${setting.liveValue!.paymobCallbackUrl ?? "❌ NULL"}');
+          } else {
+            debugPrint('🚀 LIVE VALUE: ❌ NULL');
+          }
+          debugPrint('');
+
+          // Raw JSON Value Analysis
           if (settingJson.containsKey('value')) {
+            debugPrint('📦 RAW VALUE FIELD ANALYSIS:');
             final valueData = settingJson['value'];
-            debugPrint('  Value data: $valueData');
-          }
+            debugPrint('  Raw value type: ${valueData.runtimeType}');
+            debugPrint('  Raw value content: ${jsonEncode(valueData)}');
 
-          if (settingJson.containsKey('live_value')) {
-            final liveValueData = settingJson['live_value'];
-            debugPrint('  Live value data: $liveValueData');
+            if (valueData is Map) {
+              final valueMap = Map<String, dynamic>.from(valueData);
+              debugPrint('  PayMob fields in raw value:');
+              valueMap.forEach((key, value) {
+                if (key.toLowerCase().contains('paymob')) {
+                  debugPrint('    $key: $value');
+                }
+              });
+            }
+          } else {
+            debugPrint('📦 RAW VALUE FIELD: ❌ NOT FOUND');
           }
+          debugPrint('');
+
+          // Raw Live Value Analysis
+          if (settingJson.containsKey('live_value')) {
+            debugPrint('📦 RAW LIVE_VALUE FIELD ANALYSIS:');
+            final liveValueData = settingJson['live_value'];
+            debugPrint('  Raw live_value type: ${liveValueData.runtimeType}');
+            debugPrint(
+                '  Raw live_value content: ${jsonEncode(liveValueData)}');
+
+            if (liveValueData is Map) {
+              final liveValueMap = Map<String, dynamic>.from(liveValueData);
+              debugPrint('  PayMob fields in raw live_value:');
+              liveValueMap.forEach((key, value) {
+                if (key.toLowerCase().contains('paymob')) {
+                  debugPrint('    $key: $value');
+                }
+              });
+            }
+          } else {
+            debugPrint('📦 RAW LIVE_VALUE FIELD: ❌ NOT FOUND');
+          }
+          debugPrint('');
+
+          // Configuration Extraction Test
+          debugPrint('🔧 CONFIGURATION EXTRACTION TEST:');
+          final extractedConfig = extractPayMobConfig(setting);
+          debugPrint('  Extracted config: ${jsonEncode(extractedConfig)}');
+          debugPrint('  Config keys found: ${extractedConfig.keys.toList()}');
+          debugPrint(
+              '  Has paymob_api_key: ${extractedConfig.containsKey('paymob_api_key') ? "✅" : "❌"}');
+          debugPrint(
+              '  Has paymob_integration_id: ${extractedConfig.containsKey('paymob_integration_id') ? "✅" : "❌"}');
+          debugPrint(
+              '  Has paymob_iframe_id: ${extractedConfig.containsKey('paymob_iframe_id') ? "✅" : "❌"}');
+          debugPrint(
+              '  Has paymob_wallet_integration_id: ${extractedConfig.containsKey('paymob_wallet_integration_id') ? "✅" : "❌"}');
+          debugPrint(
+              '  Has paymob_wallet_iframe_id: ${extractedConfig.containsKey('paymob_wallet_iframe_id') ? "✅" : "❌"}');
+
+          debugPrint('');
+          debugPrint('🔥🔥🔥 END PAYMOB ANALYSIS 🔥🔥🔥');
+          debugPrint('');
         }
+        debugPrint('');
       }
+
+      debugPrint(
+          '═══════════════════════════════════════════════════════════════');
+      debugPrint(
+          '                   END PAYMENT GATEWAYS DEBUG                  ');
+      debugPrint(
+          '═══════════════════════════════════════════════════════════════');
+      debugPrint('');
     }).catchError((e) {
-      debugPrint('Error loading payment gateways: $e');
+      debugPrint('❌ ERROR LOADING PAYMENT GATEWAYS: $e');
+      debugPrint('Stack trace: ${StackTrace.current}');
     });
 
     setState(() {});
@@ -415,7 +547,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Map<String, dynamic> extractPayMobConfig(PaymentSetting paymentSetting) {
     try {
       // For direct debugging
-      debugPrint('Extracting PayMob config from: ${paymentSetting.toJson()}');
+      debugPrint('=== EXTRACTING PAYMOB CONFIG ===');
+      debugPrint('PaymentSetting ID: ${paymentSetting.id}');
+      debugPrint('PaymentSetting Title: ${paymentSetting.title}');
+      debugPrint('PaymentSetting Type: ${paymentSetting.type}');
+      debugPrint('PaymentSetting Status: ${paymentSetting.status}');
+      debugPrint('PaymentSetting isTest: ${paymentSetting.isTest}');
+      debugPrint('Full PaymentSetting JSON: ${paymentSetting.toJson()}');
 
       // Try to access the raw data in different ways
       Map<String, dynamic> config = {};
@@ -426,6 +564,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       // First method - try to get directly from the full JSON
       if (paymentSetting.isTest == 1) {
         // Test mode
+        debugPrint('Using TEST mode configuration');
         if (json.containsKey('value') && json['value'] != null) {
           var value = json['value'];
           if (value is Map) {
@@ -435,6 +574,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         }
       } else {
         // Live mode
+        debugPrint('Using LIVE mode configuration');
         if (json.containsKey('live_value') && json['live_value'] != null) {
           var liveValue = json['live_value'];
           if (liveValue is Map) {
@@ -447,7 +587,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       // If we're here, we didn't find the data in the expected place
       // Try an alternative approach - check the nested maps directly from the testValue and liveValue
       if (paymentSetting.isTest == 1 && paymentSetting.testValue != null) {
-        debugPrint('Trying to get from testValue directly');
+        debugPrint('Trying to get from testValue object directly');
         // Try to access raw map data in the LiveValue object
         final mapper = paymentSetting.testValue!.toJson();
         debugPrint('testValue mapper: $mapper');
@@ -457,7 +597,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         return mapper;
       } else if (paymentSetting.isTest != 1 &&
           paymentSetting.liveValue != null) {
-        debugPrint('Trying to get from liveValue directly');
+        debugPrint('Trying to get from liveValue object directly');
         // Try to access raw map data in the LiveValue object
         final mapper = paymentSetting.liveValue!.toJson();
         debugPrint('liveValue mapper: $mapper');
@@ -467,6 +607,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         return mapper;
       }
 
+      debugPrint('No PayMob configuration found in any expected location');
       return config;
     } catch (e) {
       debugPrint('Error extracting PayMob config: $e');
@@ -478,12 +619,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
     try {
       appStore.setLoading(true);
 
+      debugPrint('');
+      debugPrint('🚀🚀🚀 STARTING PAYMOB PAYMENT PROCESS 🚀🚀🚀');
+      debugPrint('');
+
       // Find PayMob payment method from the list of available payment methods
       PaymentSetting? payMobPaymentMethod;
 
       if (currentPaymentMethod != null &&
           currentPaymentMethod!.type == 'paymob') {
         payMobPaymentMethod = currentPaymentMethod;
+        debugPrint('✅ Using current selected PayMob payment method');
       } else {
         // Try to find PayMob in the list of payment methods
         final List<PaymentSetting> paymentMethods = await future!;
@@ -491,74 +637,175 @@ class _PaymentScreenState extends State<PaymentScreen> {
           (element) => element.type == 'paymob',
           orElse: () => throw 'PayMob payment method not found',
         );
+        debugPrint('✅ Found PayMob payment method from list');
       }
 
+      debugPrint('');
+      debugPrint('📊 PAYMOB PAYMENT METHOD DETAILS:');
+      debugPrint('  ID: ${payMobPaymentMethod!.id}');
+      debugPrint('  Title: ${payMobPaymentMethod.title}');
+      debugPrint('  Type: ${payMobPaymentMethod.type}');
+      debugPrint('  Status: ${payMobPaymentMethod.status}');
+      debugPrint('  Is Test: ${payMobPaymentMethod.isTest}');
+      debugPrint('');
+
       // Extract PayMob configuration
-      debugPrint('isTest value: ${payMobPaymentMethod!.isTest}');
+      debugPrint('🔧 EXTRACTING PAYMOB CONFIGURATION...');
+      debugPrint('  Test mode check: isTest = ${payMobPaymentMethod.isTest}');
 
       // Try to access PayMob configuration in multiple ways
       String apiKey = '';
-      String integrationId = '';
+      List<String> integrationIds = [];
       String iframeId = '';
 
+      debugPrint('');
+      debugPrint('🔍 METHOD 1: EXTRACTING FROM RAW JSON...');
       // First try to get data from our helper method (raw JSON)
       final configRaw = extractPayMobConfig(payMobPaymentMethod);
+      debugPrint('  Raw config extracted: ${jsonEncode(configRaw)}');
+      debugPrint('  Raw config keys: ${configRaw.keys.toList()}');
 
       if (configRaw.containsKey('paymob_api_key')) {
         apiKey = configRaw['paymob_api_key'] ?? '';
-        integrationId = configRaw['paymob_integration_id'] ?? '';
-        iframeId = configRaw['paymob_iframe_id'] ?? '';
+        debugPrint(
+            '  ✅ API Key found in raw config: ${apiKey.isNotEmpty ? "${apiKey.substring(0, min(10, apiKey.length))}..." : "EMPTY"}');
 
-        debugPrint('Got PayMob config from raw JSON extraction');
+        // Handle integration_id - it's an array containing both card and wallet IDs
+        var integrationIdRaw = configRaw['paymob_integration_id'];
+        debugPrint(
+            '  🔍 Integration ID raw value: $integrationIdRaw (type: ${integrationIdRaw.runtimeType})');
+
+        // Parse the integration IDs array
+        integrationIds = _parseIntegrationIds(integrationIdRaw);
+        debugPrint('  ✅ Parsed Integration IDs: $integrationIds');
+
+        iframeId = configRaw['paymob_iframe_id'] ?? '';
+        debugPrint(
+            '  ✅ iFrame ID: ${iframeId.isNotEmpty ? iframeId : "EMPTY"}');
+        debugPrint('  ✅ Got PayMob config from raw JSON extraction');
       }
       // If raw method failed, try to get from LiveValue object directly
       else if (payMobPaymentMethod.isTest == 1 &&
           payMobPaymentMethod.testValue != null) {
+        debugPrint('');
+        debugPrint('🔍 METHOD 2: EXTRACTING FROM TEST VALUE OBJECT...');
+
         apiKey = payMobPaymentMethod.testValue!.paymobApiKey ?? '';
-        integrationId =
-            payMobPaymentMethod.testValue!.paymobIntegrationId ?? '';
+        debugPrint(
+            '  ✅ API Key from testValue: ${apiKey.isNotEmpty ? "${apiKey.substring(0, min(10, apiKey.length))}..." : "EMPTY"}');
+
+        // Handle integration_id array from testValue
+        var integrationIdRaw =
+            payMobPaymentMethod.testValue!.paymobIntegrationId;
+        debugPrint('  🔍 Integration ID raw from testValue: $integrationIdRaw');
+
+        // Parse the integration IDs array
+        integrationIds = _parseIntegrationIds(integrationIdRaw);
+        debugPrint(
+            '  ✅ Parsed Integration IDs from testValue: $integrationIds');
+
         iframeId = payMobPaymentMethod.testValue!.paymobIframeId ?? '';
-
-        debugPrint('Got PayMob config from testValue object');
+        debugPrint(
+            '  ✅ iFrame ID from testValue: ${iframeId.isNotEmpty ? iframeId : "EMPTY"}');
+        debugPrint('  ✅ Got PayMob config from testValue object');
       } else if (payMobPaymentMethod.liveValue != null) {
-        apiKey = payMobPaymentMethod.liveValue!.paymobApiKey ?? '';
-        integrationId =
-            payMobPaymentMethod.liveValue!.paymobIntegrationId ?? '';
-        iframeId = payMobPaymentMethod.liveValue!.paymobIframeId ?? '';
+        debugPrint('');
+        debugPrint('🔍 METHOD 3: EXTRACTING FROM LIVE VALUE OBJECT...');
 
-        debugPrint('Got PayMob config from liveValue object');
+        apiKey = payMobPaymentMethod.liveValue!.paymobApiKey ?? '';
+        debugPrint(
+            '  ✅ API Key from liveValue: ${apiKey.isNotEmpty ? "${apiKey.substring(0, min(10, apiKey.length))}..." : "EMPTY"}');
+
+        // Handle integration_id array from liveValue
+        var integrationIdRaw =
+            payMobPaymentMethod.liveValue!.paymobIntegrationId;
+        debugPrint('  🔍 Integration ID raw from liveValue: $integrationIdRaw');
+
+        // Parse the integration IDs array
+        integrationIds = _parseIntegrationIds(integrationIdRaw);
+        debugPrint(
+            '  ✅ Parsed Integration IDs from liveValue: $integrationIds');
+
+        iframeId = payMobPaymentMethod.liveValue!.paymobIframeId ?? '';
+        debugPrint(
+            '  ✅ iFrame ID from liveValue: ${iframeId.isNotEmpty ? iframeId : "EMPTY"}');
+        debugPrint('  ✅ Got PayMob config from liveValue object');
       }
 
-      // Log the values we've extracted
+      debugPrint('');
+      debugPrint('📋 FINAL EXTRACTED CONFIGURATION SUMMARY:');
       debugPrint(
-          'Extracted API Key: ${apiKey.isEmpty ? "EMPTY" : (apiKey.length > 10 ? apiKey.substring(0, 10) + '...' : apiKey)}');
+          '  API Key: ${apiKey.isEmpty ? "❌ EMPTY" : "✅ ${apiKey.substring(0, min(10, apiKey.length))}..."}');
       debugPrint(
-          'Extracted Integration ID: ${integrationId.isEmpty ? "EMPTY" : integrationId}');
+          '  Integration IDs Array: ${integrationIds.isEmpty ? "❌ EMPTY" : "✅ $integrationIds"}');
+      debugPrint('  Total Integration IDs: ${integrationIds.length}');
       debugPrint(
-          'Extracted iFrame ID: ${iframeId.isEmpty ? "EMPTY" : iframeId}');
+          '  iFrame ID: ${iframeId.isEmpty ? "❌ EMPTY" : "✅ $iframeId"}');
+      debugPrint('');
 
-      if (apiKey.isEmpty || integrationId.isEmpty || iframeId.isEmpty) {
+      if (apiKey.isEmpty || integrationIds.isEmpty || iframeId.isEmpty) {
+        debugPrint('❌ CONFIGURATION VALIDATION FAILED:');
+        debugPrint('  API Key empty: ${apiKey.isEmpty}');
+        debugPrint('  Integration IDs empty: ${integrationIds.isEmpty}');
+        debugPrint('  iFrame ID empty: ${iframeId.isEmpty}');
         throw 'PayMob configuration is incomplete';
       }
 
-      debugPrint('===== PayMob Payment Debug Info =====');
-      debugPrint('Using dynamic config from API response');
-      debugPrint('API Key: ${apiKey.substring(0, min(apiKey.length, 10))}...');
-      debugPrint('Integration ID: $integrationId');
-      debugPrint('iFrame ID: $iframeId');
-      debugPrint('Total amount: $totalAmount');
-      debugPrint('Total amount in cents: ${totalAmount * 100}');
+      debugPrint('✅ CONFIGURATION VALIDATION PASSED');
+      debugPrint('');
+
+      // Validate integration IDs are valid integers
+      debugPrint('🔢 VALIDATING INTEGRATION IDS AS INTEGERS...');
+      List<String> validIntegrationIds = [];
+
+      for (String id in integrationIds) {
+        final int? integrationIdInt = int.tryParse(id.trim());
+        if (integrationIdInt != null) {
+          validIntegrationIds.add(id.trim());
+          debugPrint('  ✅ Integration ID "$id" -> Valid: $integrationIdInt');
+        } else {
+          debugPrint('  ❌ Integration ID "$id" -> Invalid (not a number)');
+        }
+      }
+
+      if (validIntegrationIds.isEmpty) {
+        debugPrint('❌ VALIDATION FAILED: No valid integration IDs found');
+        throw 'No valid integration IDs found in: $integrationIds';
+      }
+
+      debugPrint('✅ INTEGER VALIDATION PASSED');
+      debugPrint('  Valid Integration IDs: $validIntegrationIds');
+      debugPrint('');
+
+      // Log the values we've extracted
+      debugPrint('💰 PAYMENT DETAILS:');
+      debugPrint('  Total amount: $totalAmount');
+      debugPrint('  Amount in cents: ${totalAmount * 100}');
+      debugPrint('  Currency: EGP');
+      debugPrint('  Test mode: ${payMobPaymentMethod.isTest == 1}');
+      debugPrint('');
+
+      debugPrint('👤 USER BILLING INFO:');
+      debugPrint('  First Name: ${appStore.userFirstName}');
+      debugPrint('  Last Name: ${appStore.userLastName}');
+      debugPrint('  Email: ${appStore.userEmail}');
+      debugPrint('  Phone: ${appStore.userContactNumber}');
+      debugPrint('');
 
       final payMobService = PayMobService(
         config: PayMobConfig(
           apiKey: apiKey,
-          integrationId: integrationId,
+          integrationId: validIntegrationIds.first, // Use first ID as primary
           iframeId: iframeId,
-          isTest: payMobPaymentMethod!.isTest == 1,
+          allIntegrationIds: validIntegrationIds, // Pass the full array
+          isTest: payMobPaymentMethod.isTest == 1,
         ),
       );
 
+      debugPrint('🔧 INITIALIZING PAYMOB SERVICE...');
       await payMobService.initialize();
+      debugPrint('✅ PayMob service initialized successfully');
+      debugPrint('');
 
       final billingData = {
         'first_name': appStore.userFirstName,
@@ -576,44 +823,132 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'state': 'NA'
       };
 
-      debugPrint(
-          'User info: ${appStore.userFirstName} ${appStore.userLastName}, ${appStore.userEmail}, ${appStore.userContactNumber}');
+      debugPrint('📦 BILLING DATA PREPARED:');
+      debugPrint('  ${jsonEncode(billingData)}');
+      debugPrint('');
 
-      // Note: PayMob expects amount in cents - we multiply by 100 to convert from decimal to cents
-      final paymentKey = await payMobService.createPaymentKey(
+      // Create payment URL with all integration IDs (cards + wallets)
+      debugPrint(
+          '🏦 CREATING PAYMENT WITH ALL INTEGRATION IDS (CARDS + WALLETS)...');
+      debugPrint('  Integration IDs array: $validIntegrationIds');
+      debugPrint('  Primary iFrame ID: $iframeId');
+
+      // Use the wallet-enabled method with all integration IDs
+      final paymentUrl = await payMobService.createPaymentUrlWithWallets(
         amount: totalAmount * 100, // Amount in cents
         currency: 'EGP',
-        integrationId: integrationId,
         billingData: billingData,
+        primaryIframeId: iframeId,
       );
+
+      debugPrint('✅ PayMob payment URL with all payment methods created');
 
       // Save this PayMob service instance for later use
       await setValue('paymob_order_id', payMobService.orderId);
+      debugPrint('💾 Saved PayMob order ID: ${payMobService.orderId}');
+      debugPrint('');
 
-      // Launch PayMob payment page
-      final url =
-          'https://accept.paymob.com/api/acceptance/iframes/$iframeId?payment_token=$paymentKey';
-
-      debugPrint('Launching PayMob URL: $url');
+      debugPrint('🌐 LAUNCHING PAYMOB PAYMENT PAGE...');
+      debugPrint('  Payment URL: $paymentUrl');
+      debugPrint('');
 
       // Use your preferred way to launch the URL (webview or external browser)
       final bool launchResult = await launchUrl(
-        Uri.parse(url),
+        Uri.parse(paymentUrl),
         mode: LaunchMode.externalApplication,
       );
 
       if (!launchResult) {
+        debugPrint('❌ FAILED TO LAUNCH PAYMOB PAYMENT PAGE');
         throw 'Could not launch PayMob payment page';
       }
 
+      debugPrint('✅ PayMob payment page launched successfully');
+      debugPrint('🎯 Starting payment status listener...');
+
       // Start listening for payment result
       startPayMobPaymentListener();
+
+      debugPrint('');
+      debugPrint('🚀🚀🚀 PAYMOB PAYMENT PROCESS COMPLETED 🚀🚀🚀');
+      debugPrint('');
     } catch (e) {
+      debugPrint('');
+      debugPrint('❌❌❌ PAYMOB PAYMENT ERROR ❌❌❌');
+      debugPrint('Error: $e');
+      debugPrint('Stack trace: ${StackTrace.current}');
+      debugPrint('');
       toast(e.toString());
-      debugPrint('PayMob payment error: $e');
     } finally {
       appStore.setLoading(false);
     }
+  }
+
+  // Helper method to parse integration IDs from various formats
+  List<String> _parseIntegrationIds(dynamic integrationIdRaw) {
+    debugPrint(
+        '🔍 Parsing integration IDs from: $integrationIdRaw (type: ${integrationIdRaw.runtimeType})');
+
+    List<String> integrationIds = [];
+
+    if (integrationIdRaw == null) {
+      debugPrint('  ⚠️ Integration ID is null');
+      return integrationIds;
+    }
+
+    if (integrationIdRaw is List) {
+      // If it's already a list, convert each item to string
+      for (var item in integrationIdRaw) {
+        String id = item.toString().trim();
+        if (id.isNotEmpty) {
+          integrationIds.add(id);
+        }
+      }
+      debugPrint('  ✅ Parsed from List: $integrationIds');
+    } else if (integrationIdRaw is String) {
+      String rawString = integrationIdRaw.trim();
+
+      // Check if it's a JSON array format like "[5005804 , 5005899 , 5005900]"
+      if (rawString.startsWith('[') && rawString.endsWith(']')) {
+        // Remove brackets and split by comma
+        String cleanString = rawString.substring(1, rawString.length - 1);
+        List<String> parts = cleanString.split(',');
+
+        for (String part in parts) {
+          String id = part.trim();
+          if (id.isNotEmpty) {
+            integrationIds.add(id);
+          }
+        }
+        debugPrint('  ✅ Parsed from JSON array string: $integrationIds');
+      } else if (rawString.contains(',')) {
+        // If it contains commas but no brackets, split by comma
+        List<String> parts = rawString.split(',');
+        for (String part in parts) {
+          String id = part.trim();
+          if (id.isNotEmpty) {
+            integrationIds.add(id);
+          }
+        }
+        debugPrint('  ✅ Parsed from comma-separated string: $integrationIds');
+      } else {
+        // Single ID
+        if (rawString.isNotEmpty) {
+          integrationIds.add(rawString);
+        }
+        debugPrint('  ✅ Parsed as single ID: $integrationIds');
+      }
+    } else {
+      // Try to convert to string and parse
+      String stringValue = integrationIdRaw.toString();
+      if (stringValue.isNotEmpty && stringValue != 'null') {
+        integrationIds = _parseIntegrationIds(stringValue);
+        debugPrint('  ✅ Converted to string and parsed: $integrationIds');
+      }
+    }
+
+    debugPrint('  📋 Final parsed integration IDs: $integrationIds');
+    return integrationIds;
   }
 
   // Listen for PayMob payment result
@@ -638,7 +973,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
         // Extract PayMob configuration in multiple ways
         String apiKey = '';
-        String integrationId = '';
+        List<String> integrationIds = [];
         String iframeId = '';
 
         // First try to get data from our helper method (raw JSON)
@@ -646,24 +981,35 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
         if (configRaw.containsKey('paymob_api_key')) {
           apiKey = configRaw['paymob_api_key'] ?? '';
-          integrationId = configRaw['paymob_integration_id'] ?? '';
+          integrationIds =
+              _parseIntegrationIds(configRaw['paymob_integration_id']);
           iframeId = configRaw['paymob_iframe_id'] ?? '';
         }
         // If raw method failed, try to get from LiveValue object directly
         else if (payMobPaymentMethod.isTest == 1 &&
             payMobPaymentMethod.testValue != null) {
           apiKey = payMobPaymentMethod.testValue!.paymobApiKey ?? '';
-          integrationId =
-              payMobPaymentMethod.testValue!.paymobIntegrationId ?? '';
+
+          // Handle integration_id array from testValue
+          var integrationIdRaw =
+              payMobPaymentMethod.testValue!.paymobIntegrationId;
+          integrationIds = _parseIntegrationIds(integrationIdRaw);
+
           iframeId = payMobPaymentMethod.testValue!.paymobIframeId ?? '';
+          debugPrint('Got PayMob config from testValue object');
         } else if (payMobPaymentMethod.liveValue != null) {
           apiKey = payMobPaymentMethod.liveValue!.paymobApiKey ?? '';
-          integrationId =
-              payMobPaymentMethod.liveValue!.paymobIntegrationId ?? '';
+
+          // Handle integration_id array from liveValue
+          var integrationIdRaw =
+              payMobPaymentMethod.liveValue!.paymobIntegrationId;
+          integrationIds = _parseIntegrationIds(integrationIdRaw);
+
           iframeId = payMobPaymentMethod.liveValue!.paymobIframeId ?? '';
+          debugPrint('Got PayMob config from liveValue object');
         }
 
-        if (apiKey.isEmpty || integrationId.isEmpty || iframeId.isEmpty) {
+        if (apiKey.isEmpty || integrationIds.isEmpty || iframeId.isEmpty) {
           debugPrint('PayMob configuration is incomplete');
           timer.cancel();
           return;
@@ -673,8 +1019,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         final payMobService = PayMobService(
           config: PayMobConfig(
             apiKey: apiKey,
-            integrationId: integrationId,
+            integrationId: integrationIds.first, // Use first ID as primary
             iframeId: iframeId,
+            allIntegrationIds: integrationIds, // Pass the full array
             isTest: payMobPaymentMethod.isTest == 1,
           ),
         );

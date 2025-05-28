@@ -110,6 +110,8 @@ class LiveValue {
   String? paymobApiKey;
   String? paymobIntegrationId;
   String? paymobIframeId;
+  String? paymobWalletIntegrationId;
+  String? paymobWalletIframeId;
   String? paymobHmac;
   String? paymobCallbackUrl;
 
@@ -142,6 +144,8 @@ class LiveValue {
     this.paymobApiKey,
     this.paymobIntegrationId,
     this.paymobIframeId,
+    this.paymobWalletIntegrationId,
+    this.paymobWalletIframeId,
     this.paymobHmac,
     this.paymobCallbackUrl,
   });
@@ -178,6 +182,8 @@ class LiveValue {
       paymobApiKey: json['paymob_api_key'] ?? '',
       paymobIntegrationId: json['paymob_integration_id'] ?? '',
       paymobIframeId: json['paymob_iframe_id'] ?? '',
+      paymobWalletIntegrationId: json['paymob_wallet_integration_id'] ?? '',
+      paymobWalletIframeId: json['paymob_wallet_iframe_id'] ?? '',
       paymobHmac: json['paymob_Hmac'] ?? '',
       paymobCallbackUrl: json['paymob_callback_url'] ?? '',
     );
@@ -216,6 +222,8 @@ class LiveValue {
     data['paymob_api_key'] = this.paymobApiKey;
     data['paymob_integration_id'] = this.paymobIntegrationId;
     data['paymob_iframe_id'] = this.paymobIframeId;
+    data['paymob_wallet_integration_id'] = this.paymobWalletIntegrationId;
+    data['paymob_wallet_iframe_id'] = this.paymobWalletIframeId;
     data['paymob_Hmac'] = this.paymobHmac;
     data['paymob_callback_url'] = this.paymobCallbackUrl;
 

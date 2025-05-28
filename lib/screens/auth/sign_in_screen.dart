@@ -1,10 +1,8 @@
 import 'package:booking_system_flutter/component/back_widget.dart';
 import 'package:booking_system_flutter/component/base_scaffold_body.dart';
 import 'package:booking_system_flutter/main.dart';
-import 'package:booking_system_flutter/screens/auth/firebase_otp_login_screen.dart';
 import 'package:booking_system_flutter/screens/auth/forgot_password_screen.dart';
-import 'package:booking_system_flutter/screens/auth/google_phone_verification_screen.dart';
-import 'package:booking_system_flutter/screens/auth/otp_login_screen.dart';
+import 'package:booking_system_flutter/screens/auth/google_phone_collection_screen.dart';
 import 'package:booking_system_flutter/screens/auth/sign_up_screen.dart';
 import 'package:booking_system_flutter/screens/auth/simple_phone_login_screen.dart';
 import 'package:booking_system_flutter/screens/dashboard/dashboard_screen.dart';
@@ -23,220 +21,6 @@ import 'package:nb_utils/nb_utils.dart';
 
 import '../../component/loader_widget.dart';
 import '../../network/rest_apis.dart';
-
-import '../../services/google_auth_service.dart';
-// In lib/widgets/phone_collection_dialog.dart
-
-import 'package:booking_system_flutter/main.dart';
-import 'package:booking_system_flutter/utils/colors.dart';
-import 'package:booking_system_flutter/utils/constant.dart';
-import 'package:country_picker/country_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:nb_utils/nb_utils.dart';
-
-class PhoneCollectionDialog extends StatefulWidget {
-  @override
-  _PhoneCollectionDialogState createState() => _PhoneCollectionDialogState();
-}
-
-class _PhoneCollectionDialogState extends State<PhoneCollectionDialog> {
-  TextEditingController phoneController = TextEditingController();
-  late Country selectedCountry;
-  String? errorText;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedCountry = getEgyptCountry();
-  }
-
-  Country getEgyptCountry() {
-    return Country(
-      phoneCode: '20',
-      countryCode: 'EG',
-      e164Sc: 20,
-      geographic: true,
-      level: 1,
-      name: 'Egypt',
-      example: '1001234567',
-      displayName: 'Egypt',
-      displayNameNoCountryCode: 'EG',
-      e164Key: '20-EG-0',
-    );
-  }
-
-  Country getSaudiArabiaCountry() {
-    return Country(
-      phoneCode: '966',
-      countryCode: 'SA',
-      e164Sc: 966,
-      geographic: true,
-      level: 1,
-      name: 'Saudi Arabia',
-      example: '501234567',
-      displayName: 'Saudi Arabia',
-      displayNameNoCountryCode: 'SA',
-      e164Key: '966-SA-0',
-    );
-  }
-
-  bool isValidPhoneNumber(String phoneNumber, String countryCode) {
-    String cleaned = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
-
-    if (countryCode == 'EG') {
-      if (cleaned.length > 0 && cleaned[0] == '0') {
-        cleaned = cleaned.substring(1);
-      }
-      if (cleaned.length != 10) return false;
-      return RegExp(r'^(10|11|12|15)').hasMatch(cleaned);
-    } else if (countryCode == 'SA') {
-      if (cleaned.length > 0 && cleaned[0] == '0') {
-        cleaned = cleaned.substring(1);
-      }
-      if (cleaned.length != 9) return false;
-      return cleaned.startsWith('5');
-    }
-    return false;
-  }
-
-  String formatPhoneNumber(String phoneNumber, String countryCode) {
-    String cleaned = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
-    if (cleaned.length > 0 && cleaned[0] == '0') {
-      cleaned = cleaned.substring(1);
-    }
-    return '+${selectedCountry.phoneCode}$cleaned';
-  }
-
-  void changeCountry() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: context.scaffoldBackgroundColor,
-          title: Text(language.selectCountry, style: boldTextStyle()),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text('Egypt (+20)', style: primaryTextStyle()),
-                onTap: () {
-                  selectedCountry = getEgyptCountry();
-                  setState(() {});
-                  finish(context);
-                },
-                selected: selectedCountry.countryCode == 'EG',
-                selectedColor: context.primaryColor,
-              ),
-              ListTile(
-                title: Text('Saudi Arabia (+966)', style: primaryTextStyle()),
-                onTap: () {
-                  selectedCountry = getSaudiArabiaCountry();
-                  setState(() {});
-                  finish(context);
-                },
-                selected: selectedCountry.countryCode == 'SA',
-                selectedColor: context.primaryColor,
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              language.addPhoneNumber,
-              style: boldTextStyle(size: 20),
-            ),
-            16.height,
-            Text(
-              language.pleaseAddPhoneNumber,
-              style: secondaryTextStyle(),
-              textAlign: TextAlign.center,
-            ),
-            20.height,
-            Row(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: context.dividerColor),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Text('+${selectedCountry.phoneCode}',
-                              style: boldTextStyle())
-                          .paddingSymmetric(horizontal: 8),
-                      Icon(Icons.arrow_drop_down),
-                    ],
-                  ),
-                ).onTap(() => changeCountry()),
-                16.width,
-                AppTextField(
-                  controller: phoneController,
-                  textFieldType: TextFieldType.PHONE,
-                  decoration: InputDecoration(
-                    hintText: selectedCountry.example,
-                    errorText: errorText,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ).expand(),
-              ],
-            ),
-            20.height,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => finish(context),
-                  child:
-                      Text('الغاء', style: boldTextStyle(color: primaryColor)),
-                ),
-                8.width,
-                AppButton(
-                  text: 'حفظ',
-                  textColor: Colors.white,
-                  color: primaryColor,
-                  onTap: () {
-                    if (phoneController.text.isEmpty) {
-                      setState(() => errorText = language.phoneNumberRequired);
-                      return;
-                    }
-
-                    if (!isValidPhoneNumber(
-                        phoneController.text, selectedCountry.countryCode)) {
-                      setState(() => errorText =
-                          selectedCountry.countryCode == 'EG'
-                              ? language.invalidEgyptianPhoneNumber
-                              : language.invalidSaudiPhoneNumber);
-                      return;
-                    }
-
-                    finish(context, {
-                      'phoneNumber': formatPhoneNumber(
-                          phoneController.text, selectedCountry.countryCode)
-                    });
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class SignInScreen extends StatefulWidget {
   final bool? isFromDashboard;
@@ -464,55 +248,96 @@ class _SignInScreenState extends State<SignInScreen> {
 
       if (user == null) throw 'No user found';
 
-      // Check if user already exists with phone number
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .where('email', isEqualTo: user.email)
-          .get();
-
-      bool userExists = userDoc.docs.isNotEmpty;
+      // Check if user exists in Firestore and has phone number
       bool hasPhoneNumber = false;
+      try {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: user.email)
+            .get();
 
-      if (userExists) {
-        // Check if user has phone number in the backend
-        try {
-          Map<String, dynamic> checkRequest = {
-            'email': user.email,
-            'login_type': LOGIN_TYPE_GOOGLE,
-            'uid': user.uid,
-          };
-
-          var response = await loginUser(checkRequest, isSocialLogin: true);
-
-          if (response.userData != null &&
-              response.userData!.contactNumber != null &&
-              response.userData!.contactNumber!.isNotEmpty) {
-            hasPhoneNumber = true;
-
-            // User exists with phone number - complete login
-            await saveUserData(response.userData!);
-            await appStore.setLoginType(LOGIN_TYPE_GOOGLE);
-            onLoginSuccessRedirection();
-            return;
-          }
-        } catch (e) {
-          debugPrint('Error checking user phone number: $e');
+        if (userDoc.docs.isNotEmpty) {
+          final userData = userDoc.docs.first.data();
+          hasPhoneNumber = userData['phone_number'] != null &&
+              userData['phone_number'].toString().isNotEmpty &&
+              userData['phone_verified'] == true;
         }
+      } catch (firestoreError) {
+        print('⚠️ Firestore query error: $firestoreError');
+        // If Firestore query fails, assume user doesn't have phone number
+        hasPhoneNumber = false;
       }
 
-      // If user doesn't exist or doesn't have phone number, redirect to phone verification
-      appStore.setLoading(false);
-      _isGoogleSignInProgress = false;
+      // If user doesn't have a verified phone number, redirect to phone collection screen
+      if (!hasPhoneNumber) {
+        appStore.setLoading(false);
+        _isGoogleSignInProgress = false;
 
-      // Navigate to phone verification screen
-      final result = await GooglePhoneVerificationScreen(
-        googleUser: user,
-        firstName: user.displayName?.split(' ').first ?? '',
-        lastName: user.displayName?.split(' ').last ?? '',
-        email: user.email ?? '',
-      ).launch(context);
+        GooglePhoneCollectionScreen(
+          googleUser: user,
+          isFromDashboard: widget.isFromDashboard.validate(),
+          isFromServiceBooking: widget.isFromServiceBooking.validate(),
+          returnExpected: widget.returnExpected,
+        ).launch(context);
+        return;
+      }
 
-      // If verification was successful, the GooglePhoneVerificationScreen handles navigation
+      // User has phone number, proceed with normal login
+      // Create user in Firestore if doesn't exist
+      try {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: user.email)
+            .get();
+
+        if (userDoc.docs.isEmpty) {
+          final nextId = await userService.getNextUserId();
+
+          await userService.createUserInFirestore(
+            uid: user.uid,
+            email: user.email ?? '',
+            firstName: user.displayName?.split(' ').first ?? '',
+            lastName: user.displayName?.split(' ').last ?? '',
+            profileImage:
+                user.photoURL ?? 'https://awnyapp.com/images/user/user.png',
+            id: nextId,
+          );
+        }
+      } catch (firestoreError) {
+        print('⚠️ Firestore user creation error: $firestoreError');
+        // Continue with login even if Firestore creation fails
+      }
+
+      Map<String, dynamic> request = {
+        'email': user.email,
+        'login_type': LOGIN_TYPE_GOOGLE,
+        'first_name': user.displayName?.split(' ').first ?? '',
+        'last_name': user.displayName?.split(' ').last ?? '',
+        'username':
+            user.email?.split('@').first.replaceAll('.', '').toLowerCase(),
+        'user_type': 'user',
+        'display_name': user.displayName,
+        'uid': user.uid,
+        'social_image': user.photoURL,
+      };
+
+      try {
+        var loginResponse = await loginUser(request, isSocialLogin: true);
+        await saveUserData(loginResponse.userData!);
+        await appStore.setLoginType(LOGIN_TYPE_GOOGLE);
+
+        // Use onLoginSuccessRedirection instead of direct navigation
+        onLoginSuccessRedirection();
+      } catch (e) {
+        if (e.toString().contains('User not found')) {
+          var signupResponse = await createUser(request);
+          await saveUserData(signupResponse.userData!);
+          await appStore.setLoginType(LOGIN_TYPE_GOOGLE);
+          onLoginSuccessRedirection();
+        } else {
+          throw e;
+        }
+      }
     } catch (e) {
       appStore.setLoading(false);
       _isGoogleSignInProgress = false;

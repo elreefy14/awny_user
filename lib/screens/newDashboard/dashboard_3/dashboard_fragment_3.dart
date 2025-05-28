@@ -6,6 +6,7 @@ import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/componen
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/service_list_dashboard_component_3.dart';
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/component/slider_dashboard_component_3.dart';
 import 'package:booking_system_flutter/screens/newDashboard/dashboard_3/shimmer/dashboard_shimmer_3.dart';
+import 'package:booking_system_flutter/screens/service/service_detail_screen.dart';
 import 'package:booking_system_flutter/utils/string_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -29,13 +30,26 @@ class DashboardFragment3 extends StatefulWidget {
   _DashboardFragment3State createState() => _DashboardFragment3State();
 }
 
-class _DashboardFragment3State extends State<DashboardFragment3> {
+class _DashboardFragment3State extends State<DashboardFragment3>
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   Future<DashboardResponse>? future;
+
+  // Keys to access slider components for video control
+  final GlobalKey<SliderDashboardComponent3State> _topSliderKey =
+      GlobalKey<SliderDashboardComponent3State>();
+  final GlobalKey<SliderDashboardComponent3State> _bottomSliderKey =
+      GlobalKey<SliderDashboardComponent3State>();
+
+  @override
+  bool get wantKeepAlive => true; // Keep state alive for better performance
 
   @override
   void initState() {
     super.initState();
     init();
+
+    // Add observer for app lifecycle changes
+    WidgetsBinding.instance.addObserver(this);
 
     afterBuildCreated(() {
       setStatusBarColor(
@@ -50,6 +64,66 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
 
       setState(() {});
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        // App is going to background or being closed
+        _pauseAllVideos();
+        break;
+      case AppLifecycleState.resumed:
+        // App is coming back to foreground
+        // Videos will auto-resume based on their current slide position
+        break;
+      case AppLifecycleState.hidden:
+        // App is hidden
+        _pauseAllVideos();
+        break;
+    }
+  }
+
+  @override
+  void deactivate() {
+    // Called when the widget is removed from the tree temporarily
+    _pauseAllVideos();
+    super.deactivate();
+  }
+
+  /// Pause all videos in both top and bottom sliders
+  void _pauseAllVideos() {
+    try {
+      // Pause videos in top slider
+      _topSliderKey.currentState?.pauseAllVideos();
+
+      // Pause videos in bottom slider
+      _bottomSliderKey.currentState?.pauseAllVideos();
+
+      print(
+          'Dashboard Fragment 3: All videos paused due to navigation/lifecycle change');
+    } catch (e) {
+      print('Error pausing videos: $e');
+    }
+  }
+
+  /// Resume videos that should be playing based on current slide
+  void _resumeCurrentVideos() {
+    try {
+      // Resume current video in top slider
+      _topSliderKey.currentState?.resumeCurrentVideo();
+
+      // Resume current video in bottom slider
+      _bottomSliderKey.currentState?.resumeCurrentVideo();
+
+      print('Dashboard Fragment 3: Current videos resumed');
+    } catch (e) {
+      print('Error resuming videos: $e');
+    }
   }
 
   void init() async {
@@ -76,12 +150,20 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
 
   @override
   void dispose() {
+    // Remove lifecycle observer
+    WidgetsBinding.instance.removeObserver(this);
+
+    // Pause all videos before disposing
+    _pauseAllVideos();
+
     super.dispose();
     LiveStream().dispose(LIVESTREAM_UPDATE_DASHBOARD);
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
     return Scaffold(
       body: Stack(
         children: [
@@ -233,9 +315,12 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
 
                     16.height,
 
-                    // TOP BANNER - Featured Sliders
+                    // TOP BANNER - Featured Sliders with video control
                     if (topSliders.isNotEmpty)
-                      SliderDashboardComponent3(sliderList: topSliders),
+                      SliderDashboardComponent3(
+                        key: _topSliderKey,
+                        sliderList: topSliders,
+                      ),
 
                     24.height,
 
@@ -281,9 +366,12 @@ class _DashboardFragment3State extends State<DashboardFragment3> {
 
                     20.height,
 
-                    // BOTTOM BANNER - Promotional Sliders
+                    // BOTTOM BANNER - Promotional Sliders with video control
                     if (bottomSliders.isNotEmpty)
-                      SliderDashboardComponent3(sliderList: bottomSliders),
+                      SliderDashboardComponent3(
+                        key: _bottomSliderKey,
+                        sliderList: bottomSliders,
+                      ),
 
                     16.height,
 
@@ -323,18 +411,59 @@ class AllCategoriesWithServicesComponent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Title
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            language.category + " & " + language.services,
-            style: boldTextStyle(size: 18),
+        // Section Title with enhanced styling
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                primaryColor.withOpacity(0.15),
+                primaryColor.withOpacity(0.05),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: radius(25),
+            boxShadow: [
+              BoxShadow(
+                color: primaryColor.withOpacity(0.1),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.category_outlined,
+                  color: primaryColor,
+                  size: 20,
+                ),
+              ),
+              12.width,
+              Text(
+                language.category + " & " + language.services,
+                style: boldTextStyle(size: 18, color: primaryColor),
+              ),
+            ],
           ),
         ),
-        16.height,
+        24.height,
 
-        // Categories with their services
-        ...categories.map((category) {
+        // Categories with their services and modern dividers
+        ...categories.asMap().entries.map((entry) {
+          int index = entry.key;
+          CategoryData category = entry.value;
+          bool isLast = index == categories.length - 1;
+
           // Get services for this category (including from totalServices if available)
           List<ServiceData> categoryServices = [];
 
@@ -360,121 +489,503 @@ class AllCategoriesWithServicesComponent extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Category Header with priority indicator
+              // Category Section with enhanced design
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                padding: EdgeInsets.all(16),
+                margin: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      primaryColor.withOpacity(0.1),
-                      primaryColor.withOpacity(0.05),
-                    ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  borderRadius: radius(12),
-                  border: Border.all(
-                    color: primaryColor.withOpacity(0.2),
-                    width: 1,
-                  ),
+                  color: context.cardColor,
+                  borderRadius: radius(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                      spreadRadius: 0,
+                    ),
+                  ],
                 ),
-                child: Row(
+                child: Column(
                   children: [
-                    // Category Image
-                    if (category.categoryImage != null)
-                      ClipRRect(
-                        borderRadius: radius(8),
-                        child: CachedImageWidget(
-                          url: category.categoryImage!,
-                          height: 40,
-                          width: 40,
-                          fit: BoxFit.cover,
+                    // Category Header with enhanced styling
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            primaryColor.withOpacity(0.12),
+                            primaryColor.withOpacity(0.06),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
+                        border: Border(
+                          bottom: BorderSide(
+                            color: primaryColor.withOpacity(0.15),
+                            width: 1,
+                          ),
                         ),
                       ),
-                    12.width,
-
-                    // Category Info
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                category.name.validate(),
-                                style: boldTextStyle(size: 16),
-                              ).expand(),
-
-                              // Priority Badge
-                              // if (category.priority != null &&
-                              //     category.priority! > 0)
-                              // Container(
-                              //   padding: EdgeInsets.symmetric(
-                              //       horizontal: 8, vertical: 4),
-                              //   decoration: BoxDecoration(
-                              //     color: primaryColor,
-                              //     borderRadius: radius(12),
-                              //   ),
-                              //   child: Text(
-                              //     'Priority ${category.priority}',
-                              //     style: boldTextStyle(
-                              //         color: Colors.white, size: 10),
-                              //   ),
-                              // ),
-                            ],
-                          ),
-                          if (category.description != null)
-                            Text(
-                              category.description!,
-                              style: secondaryTextStyle(size: 12),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                          // Category Image with enhanced styling
+                          if (category.categoryImage != null)
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: radius(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: radius(12),
+                                child: CachedImageWidget(
+                                  url: category.categoryImage!,
+                                  height: 50,
+                                  width: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
+                          16.width,
+
+                          // Category Info
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      category.name.validate(),
+                                      style: boldTextStyle(size: 18),
+                                    ).expand(),
+                                  ],
+                                ),
+                                if (category.description != null) ...[
+                                  6.height,
+                                  Text(
+                                    category.description!,
+                                    style: secondaryTextStyle(size: 13),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+
+                          // Services count with enhanced design
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  primaryColor,
+                                  primaryColor.withOpacity(0.8),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: radius(25),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: primaryColor.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.design_services,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                6.width,
+                                Text(
+                                  '${categoryServices.length}',
+                                  style: boldTextStyle(
+                                      color: Colors.white, size: 14),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
 
-                    // Services count
+                    // Horizontal Services List with padding
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.1),
-                        borderRadius: radius(20),
-                      ),
-                      child: Text(
-                        '${categoryServices.length} ${language.services}',
-                        style: boldTextStyle(color: primaryColor, size: 12),
+                      height: 200, // Further reduced from 220 to 200
+                      padding: EdgeInsets.symmetric(
+                          vertical: 8), // Further reduced padding
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: categoryServices.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            width: (context.width() - 64) /
+                                2, // Calculate width to fit 2 services with margins
+                            margin: EdgeInsets.only(right: 12),
+                            child: CompactServiceItemWidget(
+                                serviceData: categoryServices[index]),
+                          );
+                        },
                       ),
                     ),
                   ],
                 ),
               ),
 
-              // Horizontal Services List
-              Container(
-                height: 280,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: categoryServices.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      width: 200,
-                      margin: EdgeInsets.only(right: 12),
-                      child: ServiceItemWidget(
-                          serviceData: categoryServices[index]),
-                    );
-                  },
-                ),
-              ),
-
-              24.height,
+              // Modern Professional Divider (only if not the last category)
+              if (!isLast) ...[
+                32.height,
+                _buildModernDivider(context),
+                32.height,
+              ] else ...[
+                24.height,
+              ],
             ],
           );
         }).toList(),
       ],
     );
+  }
+
+  // Modern divider widget with professional design
+  Widget _buildModernDivider(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          // Main divider line with gradient
+          Container(
+            height: 2,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  primaryColor.withOpacity(0.3),
+                  primaryColor.withOpacity(0.6),
+                  primaryColor.withOpacity(0.3),
+                  Colors.transparent,
+                ],
+                stops: [0.0, 0.2, 0.5, 0.8, 1.0],
+              ),
+            ),
+          ),
+
+          // Center decorative element
+          Transform.translate(
+            offset: Offset(0, -8),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              decoration: BoxDecoration(
+                color: context.cardColor,
+                borderRadius: radius(20),
+                border: Border.all(
+                  color: primaryColor.withOpacity(0.2),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.6),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  8.width,
+                  Container(
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.4),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  8.width,
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.6),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Compact Service Item Widget for better space utilization
+class CompactServiceItemWidget extends StatelessWidget {
+  final ServiceData serviceData;
+
+  CompactServiceItemWidget({required this.serviceData});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        ServiceDetailScreen(serviceId: serviceData.id.validate())
+            .launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
+      },
+      child: Container(
+        height: 184, // Fixed height to prevent overflow
+        decoration: BoxDecoration(
+          color: context.cardColor,
+          borderRadius: radius(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 8,
+              spreadRadius: 0,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Compact Service Image
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: radiusOnly(
+                    topLeft: 12,
+                    topRight: 12,
+                  ),
+                  child: Container(
+                    height: 80, // Further reduced from 100 to 80
+                    width: double.infinity,
+                    child: CachedImageWidget(
+                      url: serviceData.attachments.validate().isNotEmpty
+                          ? serviceData.attachments!.first.validate()
+                          : serviceData.attachmentsArray.validate().isNotEmpty
+                              ? serviceData.attachmentsArray!.first.url
+                                  .validate()
+                              : '',
+                      fit: BoxFit.cover,
+                      height: 80,
+                      width: double.infinity,
+                    ),
+                  ),
+                ),
+
+                // Compact discount badge
+                if (serviceData.discount != 0)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.red.shade600, Colors.red.shade800],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: radius(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.withOpacity(0.25),
+                            blurRadius: 3,
+                            spreadRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        '${serviceData.discount.validate()}%',
+                        style: boldTextStyle(color: Colors.white, size: 9),
+                      ),
+                    ),
+                  ),
+
+                // Featured badge (compact version)
+                if (serviceData.isFeatured != null &&
+                    serviceData.isFeatured == 1)
+                  Positioned(
+                    top: 6,
+                    left: 6,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [primaryColor.withOpacity(0.9), primaryColor],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: radius(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primaryColor.withOpacity(0.25),
+                            blurRadius: 3,
+                            spreadRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.star, color: Colors.white, size: 8),
+                          1.width,
+                          Text(
+                            'Featured',
+                            style: boldTextStyle(color: Colors.white, size: 7),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+
+            // Compact Service Details - Fixed height container
+            Container(
+              height: 104, // Fixed height for content area
+              padding: EdgeInsets.all(8), // Reduced padding
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Service name - Fixed height
+                  Container(
+                    height: 32, // Fixed height for title
+                    child: Text(
+                      serviceData.name.validate(),
+                      style:
+                          boldTextStyle(size: 12), // Further reduced font size
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+
+                  // Price section - Compact layout
+                  Container(
+                    height: 36, // Fixed height for price section
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Current price
+                        Text(
+                          _formatPrice(serviceData),
+                          style: boldTextStyle(color: primaryColor, size: 12),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        // Original price if discounted
+                        if (serviceData.discount.validate() != 0) ...[
+                          2.height,
+                          Text(
+                            appConfigurationStore.currencySymbol +
+                                serviceData.price.toString(),
+                            style: secondaryTextStyle(
+                              decoration: TextDecoration.lineThrough,
+                              color: Colors.grey,
+                              size: 9,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                  // Provider info - Compact and fixed height
+                  Container(
+                    height: 20, // Fixed height for provider section
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 16, // Further reduced size
+                          width: 16,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 0.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 2,
+                                spreadRadius: 0,
+                              ),
+                            ],
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                  serviceData.providerImage.validate()),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        4.width, // Reduced spacing
+                        Expanded(
+                          child: Text(
+                            serviceData.providerName.validate(),
+                            style: secondaryTextStyle(
+                                size: 10), // Further reduced font size
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatPrice(ServiceData serviceData) {
+    double finalPrice = serviceData.price.validate().toDouble();
+    if (serviceData.discount.validate() != 0) {
+      finalPrice =
+          finalPrice - (finalPrice * serviceData.discount.validate()) / 100;
+    }
+
+    String priceText = appConfigurationStore.currencySymbol +
+        finalPrice.toStringAsFixed(appConfigurationStore.priceDecimalPoint);
+
+    if (serviceData.type.validate() == SERVICE_TYPE_HOURLY) {
+      priceText += '/hr';
+    }
+
+    return priceText;
   }
 }

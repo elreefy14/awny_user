@@ -15,14 +15,15 @@ import '../../../service/service_detail_screen.dart';
 class SliderDashboardComponent3 extends StatefulWidget {
   final List<SliderModel> sliderList;
 
-  SliderDashboardComponent3({required this.sliderList});
+  SliderDashboardComponent3({Key? key, required this.sliderList})
+      : super(key: key);
 
   @override
-  _SliderDashboardComponent3State createState() =>
-      _SliderDashboardComponent3State();
+  SliderDashboardComponent3State createState() =>
+      SliderDashboardComponent3State();
 }
 
-class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
+class SliderDashboardComponent3State extends State<SliderDashboardComponent3>
     with TickerProviderStateMixin {
   // Full-width page controllers
   PageController topSliderPageController = PageController(initialPage: 0);
@@ -373,6 +374,65 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
     });
 
     super.dispose();
+  }
+
+  /// Public method to pause all videos - called from parent widget
+  void pauseAllVideos() {
+    try {
+      videoControllers.forEach((index, controller) {
+        if (controller.value.isPlaying) {
+          controller.pause();
+          print('Paused video at index $index');
+        }
+      });
+    } catch (e) {
+      print('Error pausing videos in slider: $e');
+    }
+  }
+
+  /// Public method to resume current video if it should be playing
+  void resumeCurrentVideo() {
+    try {
+      List<SliderModel> topSliders = getSlidersByDirection('up');
+      List<SliderModel> bottomSliders = getSlidersByDirection('down');
+
+      // Resume current top video if it's a video slide
+      if (topSliders.isNotEmpty && _currentTopPage < topSliders.length) {
+        SliderModel currentTopSlider = topSliders[_currentTopPage];
+        if (currentTopSlider.isVideo) {
+          int sliderIndex = widget.sliderList.indexOf(currentTopSlider);
+          if (sliderIndex != -1 && videoControllers.containsKey(sliderIndex)) {
+            VideoPlayerController? controller = videoControllers[sliderIndex];
+            if (controller != null &&
+                controller.value.isInitialized &&
+                !controller.value.isPlaying) {
+              controller.play();
+              print('Resumed top video at index $sliderIndex');
+            }
+          }
+        }
+      }
+
+      // Resume current bottom video if it's a video slide
+      if (bottomSliders.isNotEmpty &&
+          _currentBottomPage < bottomSliders.length) {
+        SliderModel currentBottomSlider = bottomSliders[_currentBottomPage];
+        if (currentBottomSlider.isVideo) {
+          int sliderIndex = widget.sliderList.indexOf(currentBottomSlider);
+          if (sliderIndex != -1 && videoControllers.containsKey(sliderIndex)) {
+            VideoPlayerController? controller = videoControllers[sliderIndex];
+            if (controller != null &&
+                controller.value.isInitialized &&
+                !controller.value.isPlaying) {
+              controller.play();
+              print('Resumed bottom video at index $sliderIndex');
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print('Error resuming current videos in slider: $e');
+    }
   }
 
   // Get sliders for a specific direction
@@ -866,37 +926,38 @@ class _SliderDashboardComponent3State extends State<SliderDashboardComponent3>
           //   ),
           // ),
 
-        // Enhanced Full-Width Top Slider Banner
-        if (topSliders.isNotEmpty)
-          Container(
-            height: context.height() * 0.22, // 22% of screen height
-            width: context.width(),
-            child: Stack(
-              children: [
-                // Full-width page view
-                PageView.builder(
-                  controller: topSliderPageController,
-                  itemCount: topSliders.length,
-                  itemBuilder: (context, index) {
-                    SliderModel data = topSliders[index];
-                    return getMediaWidget(data, widget.sliderList.indexOf(data),
-                        isTop: true);
-                  },
-                ),
-
-                // Enhanced custom indicators (centered at bottom)
-                if (topSliders.length > 1)
-                  Positioned(
-                    bottom: 16,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                        child:
-                            buildIndicator(topSliders.length, _currentTopPage)),
+          // Enhanced Full-Width Top Slider Banner
+          if (topSliders.isNotEmpty)
+            Container(
+              height: context.height() * 0.22, // 22% of screen height
+              width: context.width(),
+              child: Stack(
+                children: [
+                  // Full-width page view
+                  PageView.builder(
+                    controller: topSliderPageController,
+                    itemCount: topSliders.length,
+                    itemBuilder: (context, index) {
+                      SliderModel data = topSliders[index];
+                      return getMediaWidget(
+                          data, widget.sliderList.indexOf(data),
+                          isTop: true);
+                    },
                   ),
-              ],
+
+                  // Enhanced custom indicators (centered at bottom)
+                  if (topSliders.length > 1)
+                    Positioned(
+                      bottom: 16,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                          child: buildIndicator(
+                              topSliders.length, _currentTopPage)),
+                    ),
+                ],
+              ),
             ),
-          ),
 
         // Bottom Banner Section (if available) with improved styling
         if (bottomSliders.isNotEmpty)

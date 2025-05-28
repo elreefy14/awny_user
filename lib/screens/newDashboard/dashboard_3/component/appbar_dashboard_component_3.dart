@@ -62,37 +62,50 @@ class _AppbarDashboardComponent3State extends State<AppbarDashboardComponent3> {
               width: 50,
               fit: BoxFit.cover,
             ).cornerRadiusWithClipRRect(100).paddingRight(16),
-          Row(
-            children: [
-              Text(
-                appStore.isLoggedIn
-                    ? appStore.userFullName
-                    : language.helloGuest,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: boldTextStyle(color: Colors.white, size: 18),
-              ),
-              appStore.isLoggedIn
-                  ? Offstage()
-                  : Image.asset(ic_hi, height: 24, fit: BoxFit.cover),
-            ],
-          ).expand(),
-          16.width,
+          Expanded(
+            flex: 3,
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    appStore.isLoggedIn
+                        ? appStore.userFullName
+                        : language.helloGuest,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: boldTextStyle(color: Colors.white, size: 18),
+                  ),
+                ),
+                if (!appStore.isLoggedIn)
+                  Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: Image.asset(ic_hi, height: 24, fit: BoxFit.cover),
+                  ),
+              ],
+            ),
+          ),
+          8.width,
           Container(
+            constraints: BoxConstraints(
+              maxWidth: context.width() * 0.25,
+              minWidth: 80,
+            ),
             padding: EdgeInsets.symmetric(
-                horizontal: 16, vertical: appStore.unreadCount > 0 ? 12 : 10),
+                horizontal: 12, vertical: appStore.unreadCount > 0 ? 10 : 8),
             decoration: boxDecorationDefault(
               color: Colors.white.withOpacity(0.2),
               borderRadius: radius(28),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ic_search.iconImage(size: 22, color: Colors.white).onTap(() {
                   SearchServiceScreen(featuredList: widget.featuredList)
                       .launch(context);
                 }),
-                if (appStore.isLoggedIn)
+                if (appStore.isLoggedIn) ...[
+                  SizedBox(width: 16),
                   Container(
                     child: Stack(
                       clipBehavior: Clip.none,
@@ -114,9 +127,10 @@ class _AppbarDashboardComponent3State extends State<AppbarDashboardComponent3> {
                           })
                       ],
                     ),
-                  ).paddingLeft(40).onTap(() {
+                  ).onTap(() {
                     NotificationScreen().launch(context);
-                  })
+                  }),
+                ],
               ],
             ),
           )
