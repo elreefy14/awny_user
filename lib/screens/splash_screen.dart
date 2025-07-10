@@ -28,7 +28,8 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   bool appNotSynced = false;
   final String LANGUAGE_SELECTED_KEY = 'language_selected';
   final String USER_LANGUAGE_CODE_KEY = 'user_language_code';
@@ -41,14 +42,16 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Country? selectedCountry;
   List<Country> allowedCountries = [];
 
-  void showCustomCountryPicker(BuildContext parentContext, StateSetter parentSetState) {
+  void showCustomCountryPicker(
+      BuildContext parentContext, StateSetter parentSetState) {
     showDialog(
       context: parentContext,
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setDialogState) {
             return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               child: Container(
                 padding: EdgeInsets.all(24),
                 child: Column(
@@ -57,20 +60,26 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   children: [
                     Text(
                       language.selectCountry,
-                      style: boldTextStyle(size: 20, color: context.primaryColor),
+                      style:
+                          boldTextStyle(size: 20, color: context.primaryColor),
                     ),
                     16.height,
                     ...allowedCountries.map((country) {
-                      bool isSelected = selectedCountry?.countryCode == country.countryCode;
+                      bool isSelected =
+                          selectedCountry?.countryCode == country.countryCode;
                       return Container(
                         margin: EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? context.primaryColor : Colors.grey.withOpacity(0.2),
+                            color: isSelected
+                                ? context.primaryColor
+                                : Colors.grey.withOpacity(0.2),
                             width: isSelected ? 2 : 1,
                           ),
-                          color: isSelected ? context.primaryColor.withOpacity(0.1) : null,
+                          color: isSelected
+                              ? context.primaryColor.withOpacity(0.1)
+                              : null,
                         ),
                         child: Material(
                           color: Colors.transparent,
@@ -86,7 +95,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                               setState(() {});
 
                               // Save to preferences
-                              await setValue(USER_COUNTRY_CODE_KEY, country.countryCode);
+                              await setValue(
+                                  USER_COUNTRY_CODE_KEY, country.countryCode);
                               await setValue(COUNTRY_SELECTED_KEY, true);
 
                               // Close dialog after a short delay
@@ -98,25 +108,31 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                               child: Row(
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         country.displayName,
                                         style: boldTextStyle(
-                                          color: isSelected ? context.primaryColor : null,
+                                          color: isSelected
+                                              ? context.primaryColor
+                                              : null,
                                         ),
                                       ),
                                       4.height,
                                       Text(
                                         '+${country.phoneCode}',
                                         style: secondaryTextStyle(
-                                          color: isSelected ? context.primaryColor : null,
+                                          color: isSelected
+                                              ? context.primaryColor
+                                              : null,
                                         ),
                                       ),
                                     ],
                                   ).expand(),
                                   if (isSelected)
-                                    Icon(Icons.check_circle, color: context.primaryColor),
+                                    Icon(Icons.check_circle,
+                                        color: context.primaryColor),
                                 ],
                               ),
                             ),
@@ -133,6 +149,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       },
     );
   }
+
   @override
   void initState() {
     super.initState();
@@ -143,13 +160,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
+    _fadeAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
     _fadeController.forward();
 
     afterBuildCreated(() {
       setStatusBarColor(Colors.transparent,
           statusBarBrightness: Brightness.dark,
-          statusBarIconBrightness: appStore.isDarkMode ? Brightness.light : Brightness.dark);
+          statusBarIconBrightness:
+              appStore.isDarkMode ? Brightness.light : Brightness.dark);
       init();
     });
   }
@@ -197,8 +216,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     }
   }
 
-
-
   Future<void> showLanguageCountryDialog() async {
     await initializeDefaultSettings();
 
@@ -209,7 +226,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter dialogSetState) {
             return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               child: Container(
                 padding: EdgeInsets.all(24),
                 child: SingleChildScrollView(
@@ -219,7 +237,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     children: [
                       Text(
                         language.selectPreferences,
-                        style: boldTextStyle(size: 24, color: context.primaryColor),
+                        style: boldTextStyle(
+                            size: 24, color: context.primaryColor),
                       ),
                       24.height,
 
@@ -228,7 +247,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                         decoration: BoxDecoration(
                           color: context.cardColor,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                          border:
+                              Border.all(color: Colors.grey.withOpacity(0.2)),
                         ),
                         padding: EdgeInsets.all(16),
                         child: Column(
@@ -242,7 +262,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                             LanguageListWidget(
                               widgetType: WidgetType.LIST,
                               onLanguageChange: (v) async {
-                                await setValue(USER_LANGUAGE_CODE_KEY, v.languageCode);
+                                await setValue(
+                                    USER_LANGUAGE_CODE_KEY, v.languageCode);
                                 await appStore.setLanguage(v.languageCode!);
                                 await setValue(LANGUAGE_SELECTED_KEY, true);
                                 dialogSetState(() {});
@@ -261,7 +282,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                             decoration: BoxDecoration(
                               color: context.cardColor,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                              border: Border.all(
+                                  color: Colors.grey.withOpacity(0.2)),
                             ),
                             padding: EdgeInsets.all(16),
                             child: Column(
@@ -269,20 +291,23 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                               children: [
                                 Text(
                                   language.selectCountry,
-                                  style: boldTextStyle(color: context.primaryColor),
+                                  style: boldTextStyle(
+                                      color: context.primaryColor),
                                 ),
                                 16.height,
                                 Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                                    border: Border.all(
+                                        color: Colors.grey.withOpacity(0.2)),
                                   ),
                                   child: Material(
                                     color: Colors.transparent,
                                     child: InkWell(
                                       borderRadius: BorderRadius.circular(12),
                                       onTap: () {
-                                        showCustomCountryPicker(context, (value) {
+                                        showCustomCountryPicker(context,
+                                            (value) {
                                           dialogSetState(() {});
                                           countrySetState(() {});
                                           setState(() {});
@@ -293,10 +318,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                                         child: Row(
                                           children: [
                                             Text(
-                                              selectedCountry?.displayName ?? language.selectCountry,
+                                              selectedCountry?.displayName ??
+                                                  language.selectCountry,
                                               style: primaryTextStyle(),
                                             ).expand(),
-                                            Icon(Icons.arrow_drop_down, color: context.iconColor),
+                                            Icon(Icons.arrow_drop_down,
+                                                color: context.iconColor),
                                           ],
                                         ),
                                       ),
@@ -315,7 +342,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                         width: context.width(),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [context.primaryColor, context.primaryColor.withOpacity(0.8)],
+                            colors: [
+                              context.primaryColor,
+                              context.primaryColor.withOpacity(0.8)
+                            ],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           ),
@@ -347,6 +377,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -482,7 +513,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   Future<void> init() async {
-    String cachedLanguageCode = getStringAsync(USER_LANGUAGE_CODE_KEY, defaultValue: 'ar');
+    String cachedLanguageCode =
+        getStringAsync(USER_LANGUAGE_CODE_KEY, defaultValue: 'ar');
     await appStore.setLanguage(cachedLanguageCode);
 
     try {
@@ -493,31 +525,28 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         appNotSynced = true;
         setState(() {});
       } else {
-        int themeModeIndex = getIntAsync(THEME_MODE_INDEX, defaultValue: THEME_MODE_SYSTEM);
+        int themeModeIndex =
+            getIntAsync(THEME_MODE_INDEX, defaultValue: THEME_MODE_DARK);
         if (themeModeIndex == THEME_MODE_SYSTEM) {
-          appStore.setDarkMode(MediaQuery.of(context).platformBrightness == Brightness.dark);
+          appStore.setDarkMode(
+              MediaQuery.of(context).platformBrightness == Brightness.dark);
         }
 
         if (appConfigurationStore.maintenanceModeStatus) {
           MaintenanceModeScreen().launch(context,
-              isNewTask: true,
-              pageRouteAnimation: PageRouteAnimation.Fade
-          );
+              isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
         } else {
-          if (!getBoolAsync(LANGUAGE_SELECTED_KEY) || !getBoolAsync(COUNTRY_SELECTED_KEY)) {
+          if (!getBoolAsync(LANGUAGE_SELECTED_KEY) ||
+              !getBoolAsync(COUNTRY_SELECTED_KEY)) {
             await showLanguageCountryDialog();
           }
 
           if (getBoolAsync(IS_FIRST_TIME, defaultValue: true)) {
             WalkThroughScreen().launch(context,
-                isNewTask: true,
-                pageRouteAnimation: PageRouteAnimation.Fade
-            );
+                isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
           } else {
             DashboardScreen().launch(context,
-                isNewTask: true,
-                pageRouteAnimation: PageRouteAnimation.Fade
-            );
+                isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
           }
         }
       }
@@ -535,4 +564,3 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.dispose();
   }
 }
-

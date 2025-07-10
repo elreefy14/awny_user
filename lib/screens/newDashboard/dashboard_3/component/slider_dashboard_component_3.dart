@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:video_player/video_player.dart';
-
+  
 import '../../../../component/cached_image_widget.dart';
 import '../../../../model/dashboard_model.dart';
 import '../../../../utils/colors.dart';

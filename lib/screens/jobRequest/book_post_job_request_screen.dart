@@ -18,6 +18,7 @@ import 'package:booking_system_flutter/utils/string_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
+import '../../component/phone_number_collection_dialog.dart';
 
 class BookPostJobRequestScreen extends StatefulWidget {
   final PostJobDetailResponse postJobDetailResponse;
@@ -207,7 +208,34 @@ class _BookPostJobRequestScreenState extends State<BookPostJobRequestScreen> {
     );
   }
 
-  void bookServices() {
+  void bookServices() async {
+    // Check if user has phone number before booking
+    if (appStore.userContactNumber.isEmpty ||
+        appStore.userContactNumber == 'null') {
+      // Show phone number collection dialog
+      final result = await showInDialog(
+        context,
+        builder: (BuildContext context) => PhoneNumberCollectionDialog(
+          currentPhoneNumber: appStore.userContactNumber,
+        ),
+        backgroundColor: transparentColor,
+        contentPadding: EdgeInsets.zero,
+      );
+
+      // Check if phone number was saved (dialog returns the phone number)
+      if (result != null && result.toString().isNotEmpty) {
+        // Phone number was saved, proceed with booking
+        _proceedWithJobBooking();
+      }
+      // If result is null, user cancelled - do nothing
+      return;
+    }
+
+    // If phone number exists, proceed with booking
+    _proceedWithJobBooking();
+  }
+
+  void _proceedWithJobBooking() {
     if (widget.postJobDetailResponse.postRequestDetail != null &&
         widget.postJobDetailResponse.postRequestDetail!.service
             .validate()
@@ -237,6 +265,12 @@ class _BookPostJobRequestScreenState extends State<BookPostJobRequestScreen> {
       BookingServiceKeys.couponId: '',
       BookingServiceKeys.description: '',
     };
+
+    // Add phone number to booking request (without changing API structure)
+    if (appStore.userContactNumber.isNotEmpty &&
+        appStore.userContactNumber != 'null') {
+      request['customer_contact_number'] = appStore.userContactNumber;
+    }
 
     appStore.setLoading(true);
 

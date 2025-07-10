@@ -158,7 +158,7 @@ void main() async {
   localeLanguageList = languageList();
 
   int themeModeIndex =
-      getIntAsync(THEME_MODE_INDEX, defaultValue: THEME_MODE_SYSTEM);
+      getIntAsync(THEME_MODE_INDEX, defaultValue: THEME_MODE_DARK);
   if (themeModeIndex == THEME_MODE_LIGHT) {
     appStore.setDarkMode(false);
   } else if (themeModeIndex == THEME_MODE_DARK) {
