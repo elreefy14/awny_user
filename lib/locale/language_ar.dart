@@ -205,10 +205,10 @@ class LanguageAr extends BaseLanguage {
   String get priceDetail => 'تفاصيل السعر';
 
   @override
-  String get home => 'الصفحة الرئيسية';
+  String get home => 'الرئيسية';
 
   @override
-  String get category => 'فئة';
+  String get category => 'مبيعات';
 
   @override
   String get booking => 'حجوزات';
@@ -505,7 +505,7 @@ class LanguageAr extends BaseLanguage {
   String get lblNoBookingsFound => "لا توجد حجوزات";
 
   @override
-  String get lblCategory => "فئة";
+  String get lblCategory => "مبيعات";
 
   @override
   String get lblYourComment => "تعليقك";
@@ -1368,13 +1368,13 @@ class LanguageAr extends BaseLanguage {
   String get myWallet => 'محفظتى';
 
   @override
-  String get balance => 'توازن';
+  String get balance => 'رصيد';
 
   @override
-  String get topUpWallet => 'محفظة أعلى';
+  String get topUpWallet => 'اضافة نقود';
 
   @override
-  String get topUpAmountQuestion => 'ما هو المبلغ الذي تفضل أن تتفوق عليه؟';
+  String get topUpAmountQuestion => 'ما هو المبلغ الذي تريد اضافته؟';
 
   @override
   String get paymentMethod => 'طريقة الدفع او السداد';
@@ -1384,7 +1384,7 @@ class LanguageAr extends BaseLanguage {
       'حدد طريقة الدفع الخاصة بك لإضافة رصيد';
 
   @override
-  String get proceedToTopUp => 'انتقل إلى أعلى';
+  String get proceedToTopUp => 'المتابعة لإضافة رصيد';
 
   @override
   String get serviceAddedToFavourite => 'تمت إضافة الخدمة إلى القائمة المفضلة';
@@ -1914,7 +1914,7 @@ class LanguageAr extends BaseLanguage {
   String get availableBalance => "الرصيد المتوفر";
 
   @override
-  String get withdraw => "ينسحب";
+  String get withdraw => "سحب";
 
   @override
   String get chooseBank => "اختر البنك";
@@ -1942,7 +1942,7 @@ class LanguageAr extends BaseLanguage {
   String get pleaseAddLessThanOrEqualTo => "الرجاء إضافة أقل من أو يساوي";
 
   @override
-  String get topUp => "فوق حتى";
+  String get topUp => "ايداع";
 
   @override
   String get btnSave => 'حفظ';

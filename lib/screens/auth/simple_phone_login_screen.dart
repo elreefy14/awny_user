@@ -221,6 +221,22 @@ class _SimplePhoneLoginScreenState extends State<SimplePhoneLoginScreen>
     );
   }
 
+  // Get Emirates country details
+  Country getEmiratesCountry() {
+    return Country(
+      phoneCode: '971',
+      countryCode: 'AE',
+      e164Sc: 971,
+      geographic: true,
+      level: 1,
+      name: 'United Arab Emirates',
+      example: '501234567',
+      displayName: 'United Arab Emirates',
+      displayNameNoCountryCode: 'AE',
+      e164Key: '971-AE-0',
+    );
+  }
+
   // Send OTP
   void sendOTP() async {
     if (!_formKey.currentState!.validate()) {
@@ -488,6 +504,10 @@ class _SimplePhoneLoginScreenState extends State<SimplePhoneLoginScreen>
               ListTile(
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                leading: Text(
+                  '🇪🇬',
+                  style: TextStyle(fontSize: 24),
+                ),
                 title: Row(
                   children: [
                     Text('Egypt', style: primaryTextStyle()),
@@ -512,6 +532,10 @@ class _SimplePhoneLoginScreenState extends State<SimplePhoneLoginScreen>
               ListTile(
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                leading: Text(
+                  '🇸🇦',
+                  style: TextStyle(fontSize: 24),
+                ),
                 title: Row(
                   children: [
                     Text('Saudi Arabia', style: primaryTextStyle()),
@@ -530,6 +554,34 @@ class _SimplePhoneLoginScreenState extends State<SimplePhoneLoginScreen>
                   finish(context);
                 },
                 selected: selectedCountry.countryCode == 'SA',
+                selectedColor: context.primaryColor,
+              ),
+              Divider(height: 0),
+              ListTile(
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                leading: Text(
+                  '🇦🇪',
+                  style: TextStyle(fontSize: 24),
+                ),
+                title: Row(
+                  children: [
+                    Text('United Arab Emirates', style: primaryTextStyle()),
+                    8.width,
+                    Text('(+971)', style: secondaryTextStyle()),
+                  ],
+                ),
+                subtitle: Text('Example: 501234567',
+                    style: secondaryTextStyle(size: 12)),
+                trailing: selectedCountry.countryCode == 'AE'
+                    ? Icon(Icons.check_circle, color: primaryColor)
+                    : null,
+                onTap: () {
+                  selectedCountry = getEmiratesCountry();
+                  setState(() {});
+                  finish(context);
+                },
+                selected: selectedCountry.countryCode == 'AE',
                 selectedColor: context.primaryColor,
               ),
             ],
@@ -688,16 +740,48 @@ class _SimplePhoneLoginScreenState extends State<SimplePhoneLoginScreen>
                                       topLeft: 12,
                                       bottomLeft: 12,
                                     ),
+                                    border: Border.all(
+                                        color: primaryColor.withOpacity(0.3)),
                                   ),
                                   child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
+                                      // Country flag emoji
                                       Text(
-                                        '+${selectedCountry.phoneCode}',
-                                        style: boldTextStyle(),
+                                        selectedCountry.countryCode == 'EG'
+                                            ? '🇪🇬'
+                                            : selectedCountry.countryCode ==
+                                                    'SA'
+                                                ? '🇸🇦'
+                                                : selectedCountry.countryCode ==
+                                                        'AE'
+                                                    ? '🇦🇪'
+                                                    : '🌍',
+                                        style: TextStyle(fontSize: 18),
+                                      ),
+                                      SizedBox(width: 6),
+                                      // Country code and name
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '+${selectedCountry.phoneCode}',
+                                            style: boldTextStyle(
+                                                size: 14, color: primaryColor),
+                                          ),
+                                          Text(
+                                            selectedCountry.countryCode,
+                                            style: secondaryTextStyle(
+                                                size: 10, color: primaryColor),
+                                          ),
+                                        ],
                                       ),
                                       SizedBox(width: 4),
                                       Icon(Icons.arrow_drop_down,
-                                          color: primaryColor)
+                                          color: primaryColor, size: 18)
                                     ],
                                   ),
                                 ).onTap(() => changeCountry()),

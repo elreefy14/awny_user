@@ -197,6 +197,7 @@ const PAYMENT_METHOD_AIRTEL = 'airtel';
 const PAYMENT_METHOD_PHONEPE = 'phonepe';
 const PAYMENT_METHOD_PIX = 'PIX';
 const PAYMENT_METHOD_MIDTRANS = 'midtrans';
+const PAYMENT_METHOD_PAYMOB = 'paymob';
 
 const List<String> onlinePaymentGateways = [
   PAYMENT_METHOD_STRIPE,
@@ -210,6 +211,7 @@ const List<String> onlinePaymentGateways = [
   PAYMENT_METHOD_PHONEPE,
   PAYMENT_METHOD_PIX,
   PAYMENT_METHOD_MIDTRANS,
+  PAYMENT_METHOD_PAYMOB,
 ];
 //endregion
 

@@ -19,51 +19,6 @@ class HorizontalCategoriesComponent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Category section header
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                child: Text(
-                  language.category,
-                  style: boldTextStyle(size: 18, letterSpacing: 0.5),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: primaryColor.withOpacity(0.5),
-                      width: 2.0,
-                    ),
-                  ),
-                ),
-                padding: EdgeInsets.only(bottom: 4),
-              ).expand(),
-              if (categoryList.length > 8)
-                TextButton.icon(
-                  onPressed: () {
-                    CategoryScreen().launch(context);
-                  },
-                  icon:
-                      Icon(Icons.arrow_forward, size: 16, color: primaryColor),
-                  label: Text(
-                    "View All",
-                    style: boldTextStyle(color: primaryColor, size: 14),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                    minimumSize: Size(10, 30),
-                  ),
-                ),
-            ],
-          ),
-        ),
-
-        12.height,
-
         // Grid layout for categories - fixed item size approach
         Container(
           padding: EdgeInsets.symmetric(horizontal: 8),
@@ -73,8 +28,8 @@ class HorizontalCategoriesComponent extends StatelessWidget {
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
               childAspectRatio: 0.56, // Further adjusted for even larger icons
-              crossAxisSpacing: 4, // Maintain small spacing
-              mainAxisSpacing: 6, // Slightly increase vertical spacing
+              crossAxisSpacing: 2, // Reduced spacing between columns
+              mainAxisSpacing: 3, // Reduced spacing between rows
             ),
             itemCount: categoryList.length,
             itemBuilder: (context, index) {

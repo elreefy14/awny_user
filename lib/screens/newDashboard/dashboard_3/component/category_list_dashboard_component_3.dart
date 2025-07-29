@@ -21,7 +21,7 @@ class CategoryListDashboardComponent3 extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        12.height,
+        0.height, // Keep no spacing at top
         ViewAllLabel(
           label: listTiTle,
           list: categoryList,
@@ -40,15 +40,14 @@ class CategoryListDashboardComponent3 extends StatelessWidget {
               shrinkWrap: true,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
-                childAspectRatio:
-                    0.56, // Further adjusted for even larger icons
-                crossAxisSpacing: 4, // Maintain small spacing
-                mainAxisSpacing: 6, // Slightly increase vertical spacing
+                childAspectRatio: 0.75, // Better ratio for compact layout
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 0, // Very minimal vertical spacing
               ),
               itemCount: categoryList.length,
               itemBuilder: (context, index) {
                 return Container(
-                  height: 130, // Increased container height for larger images
+                  height: 100, // Reasonable height for icons and text
                   child: CategoryDashboardComponent3(
                     categoryData: categoryList[index],
                     width: context.width() / 4 - 6,
