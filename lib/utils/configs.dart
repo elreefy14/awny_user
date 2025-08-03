@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 const APP_NAME = 'Awny';
 const APP_NAME_TAG_LINE = 'On-Demand Home Services App';
-//F4550F
-var defaultPrimaryColor = Color(0xFFF4550F);
+//عونني براند الجديد - اللون البرتقالي الأساسي
+var defaultPrimaryColor = Color(0xFFe25729);
 
 // Don't add slash at the end of the url
 //https://awnyapp.com

@@ -13,52 +13,72 @@ class AppTheme {
         primarySwatch: createMaterialColor(color ?? primaryColor),
         primaryColor: color ?? primaryColor,
         colorScheme: ColorScheme.fromSeed(
-            seedColor: color ?? primaryColor, outlineVariant: borderColor),
-        scaffoldBackgroundColor: Colors.white,
+            seedColor: color ?? primaryColor,
+            outlineVariant: borderColor,
+            background: primaryLightColor, // خلفية دافئة
+            surface: cardColor),
+        scaffoldBackgroundColor:
+            primaryLightColor, // خلفية دافئة بدلاً من الأبيض الصارخ
         fontFamily: GoogleFonts.inter().fontFamily,
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: Colors.white,
+          backgroundColor: cardColor, // لون دافئ للشريط السفلي
           selectedItemColor: color ?? primaryColor,
-          unselectedItemColor: appTextSecondaryColor.withOpacity(0.6),
-          selectedLabelStyle: TextStyle(color: color ?? primaryColor),
-          unselectedLabelStyle:
-              TextStyle(color: appTextSecondaryColor.withOpacity(0.6)),
-          elevation: 8.0,
+          unselectedItemColor: appTextSecondaryColor.withOpacity(0.7),
+          selectedLabelStyle: TextStyle(
+            color: color ?? primaryColor,
+            fontWeight: FontWeight.w600,
+          ),
+          unselectedLabelStyle: TextStyle(
+            color: appTextSecondaryColor.withOpacity(0.7),
+            fontWeight: FontWeight.w500,
+          ),
+          elevation: 12.0, // ظل أقوى لمظهر أكثر عمقاً
           type: BottomNavigationBarType.fixed,
         ),
         iconTheme: IconThemeData(color: appTextSecondaryColor),
-        textTheme: GoogleFonts.interTextTheme(),
-        dialogBackgroundColor: Colors.white,
-        unselectedWidgetColor: Colors.black,
+        textTheme: GoogleFonts.interTextTheme().apply(
+          bodyColor: appTextPrimaryColor, // تطبيق لون النص الجديد
+          displayColor: appTextPrimaryColor,
+        ),
+        dialogBackgroundColor: cardColor, // حوارات بخلفية دافئة
+        unselectedWidgetColor: appTextSecondaryColor,
         dividerColor: borderColor,
         bottomSheetTheme: BottomSheetThemeData(
           shape: RoundedRectangleBorder(
               borderRadius:
                   radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
-          backgroundColor: Colors.white,
+          backgroundColor: cardColor, // خلفية دافئة للـ bottom sheet
         ),
         cardColor: cardColor,
         floatingActionButtonTheme: FloatingActionButtonThemeData(
-            backgroundColor: color ?? primaryColor),
+            backgroundColor: color ?? primaryColor,
+            foregroundColor: Colors.white),
         appBarTheme: AppBarTheme(
             elevation: 0,
-            backgroundColor: Colors.white,
+            backgroundColor: cardColor, // خلفية دافئة للـ AppBar
+            surfaceTintColor: Colors.transparent,
             iconTheme: IconThemeData(color: appTextPrimaryColor),
             titleTextStyle: TextStyle(
               color: appTextPrimaryColor,
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              fontFamily: GoogleFonts.inter().fontFamily,
             ),
             systemOverlayStyle: SystemUiOverlayStyle(
                 statusBarIconBrightness: Brightness.dark,
-                statusBarColor: Colors.white)),
-        dialogTheme: DialogTheme(shape: dialogShape()),
+                statusBarColor: primaryLightColor)), // شريط الحالة بلون دافئ
+        dialogTheme: DialogTheme(
+          shape: dialogShape(),
+          backgroundColor: cardColor,
+        ),
         navigationBarTheme: NavigationBarThemeData(
-          labelTextStyle: MaterialStateProperty.all(primaryTextStyle(size: 10)),
-          backgroundColor: Colors.white,
-          indicatorColor: (color ?? primaryColor).withOpacity(0.1),
+          labelTextStyle: MaterialStateProperty.all(
+              primaryTextStyle(size: 10, color: appTextPrimaryColor)),
+          backgroundColor: cardColor,
+          indicatorColor:
+              awnyBrandLightOrange.withOpacity(0.3), // مؤشر بلون البراند
           iconTheme: MaterialStateProperty.all(
-            IconThemeData(color: appTextSecondaryColor.withOpacity(0.6)),
+            IconThemeData(color: appTextSecondaryColor.withOpacity(0.7)),
           ),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         ),
@@ -111,7 +131,7 @@ class AppTheme {
                   radiusOnly(topLeft: defaultRadius, topRight: defaultRadius)),
           backgroundColor: scaffoldSecondaryDark,
         ),
-        dividerColor: dividerDarkColor,
+        dividerColor: awnyDividerDarkColor,
         floatingActionButtonTheme: FloatingActionButtonThemeData(
             backgroundColor: color ?? primaryColor),
         cardColor: scaffoldSecondaryDark,
