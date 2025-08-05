@@ -19,43 +19,59 @@ class HorizontalCategoriesComponent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Grid layout for categories - fixed item size approach
+        // Manual layout for categories to reduce vertical spacing
         Container(
           padding: EdgeInsets.symmetric(horizontal: 8),
-          child: GridView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 0.56, // Further adjusted for even larger icons
-              crossAxisSpacing: 2, // Reduced spacing between columns
-              mainAxisSpacing: 3, // Reduced spacing between rows
-            ),
-            itemCount: categoryList.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  ViewAllServiceScreen(
-                    categoryId: categoryList[index].id,
-                    categoryName: categoryList[index].name,
-                    isFromCategory: true,
-                  ).launch(context);
-                },
-                child: Container(
-                  height: 130, // Increased container height for larger images
+          child: Column(
+            children: _buildCategoryRows(context),
+          ),
+        ),
+        8.height, // Reduced from 16 to 8
+      ],
+    );
+  }
+
+  List<Widget> _buildCategoryRows(BuildContext context) {
+    List<Widget> rows = [];
+    int itemsPerRow = 4;
+
+    for (int i = 0; i < categoryList.length; i += itemsPerRow) {
+      List<CategoryData> rowItems =
+          categoryList.skip(i).take(itemsPerRow).toList();
+
+      rows.add(
+        Row(
+          children: rowItems.map((category) {
+            return Expanded(
+              child: Container(
+                margin: EdgeInsets.symmetric(
+                    horizontal: 2, vertical: 2), // Minimal margins
+                child: GestureDetector(
+                  onTap: () {
+                    ViewAllServiceScreen(
+                      categoryId: category.id,
+                      categoryName: category.name,
+                      isFromCategory: true,
+                    ).launch(context);
+                  },
                   child: CategoryWidget(
-                    categoryData: categoryList[index],
-                    width: context.width() / 4 - 6,
+                    categoryData: category,
+                    width: (context.width() - 32) / 4, // Account for padding
                     isFromCategory: true,
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          }).toList(),
         ),
+      );
 
-        16.height,
-      ],
-    );
+      // Add minimal spacing between rows (only if not the last row)
+      if (i + itemsPerRow < categoryList.length) {
+        rows.add(SizedBox(height: 4)); // Minimal spacing between rows
+      }
+    }
+
+    return rows;
   }
 }

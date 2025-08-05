@@ -13,23 +13,11 @@ import 'package:booking_system_flutter/utils/string_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../../model/service_data_model.dart';
 import '../../../utils/common.dart';
 import '../../service/search_service_screen.dart';
-
-import 'package:booking_system_flutter/model/dashboard_model.dart';
-import 'package:booking_system_flutter/model/service_data_model.dart';
-import 'package:booking_system_flutter/screens/notification/notification_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:nb_utils/nb_utils.dart';
-
-import 'package:booking_system_flutter/main.dart';
-import 'package:booking_system_flutter/screens/service/service_detail_screen.dart';
-import 'package:booking_system_flutter/utils/constant.dart';
-import 'package:booking_system_flutter/utils/string_extensions.dart';
-import 'package:geolocator/geolocator.dart';
 
 class SliderLocationComponent extends StatefulWidget {
   final List<SliderModel> sliderList;
@@ -81,7 +69,7 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
 
   Widget getSliderWidget() {
     return Container(
-      height: context.height() * 0.4, // جعل البانر يملأ 40% من ارتفاع الشاشة
+      height: context.height() * 0.35, // Reduced from 0.4 to 0.35
       width: context.width(),
       margin: EdgeInsets.zero, // إزالة جميع الهوامش
       child: Stack(
@@ -94,7 +82,8 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
                     (index) {
                       SliderModel data = widget.sliderList[index];
                       return Container(
-                        height: context.height() * 0.4,
+                        height:
+                            context.height() * 0.35, // Reduced from 0.4 to 0.35
                         width: context.width(),
                         margin: EdgeInsets.zero, // إزالة الهوامش
                         decoration: BoxDecoration(
@@ -104,7 +93,8 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
                           children: [
                             CachedImageWidget(
                               url: data.sliderImage.validate(),
-                              height: context.height() * 0.4,
+                              height: context.height() *
+                                  0.35, // Reduced from 0.4 to 0.35
                               width: context.width(),
                               fit: BoxFit
                                   .cover, // استخدام BoxFit.cover لضمان ظهور الصورة كاملة
@@ -138,12 +128,12 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
                 )
               : CachedImageWidget(
                   url: '',
-                  height: context.height() * 0.4,
+                  height: context.height() * 0.35, // Reduced from 0.4 to 0.35
                   width: context.width(),
                   fit: BoxFit.cover),
           if (widget.sliderList.length.validate() > 1)
             Positioned(
-              bottom: 34,
+              bottom: 28, // Reduced from 34 to 28
               left: 0,
               right: 0,
               child: DotIndicator(
@@ -155,38 +145,38 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
                 boxShape: BoxShape.rectangle,
                 borderRadius: radius(2),
                 currentBorderRadius: radius(3),
-                currentDotSize: 18,
-                currentDotWidth: 6,
-                dotSize: 6,
+                currentDotSize: 16, // Reduced from 18 to 16
+                currentDotWidth: 5, // Reduced from 6 to 5
+                dotSize: 5, // Reduced from 6 to 5
               ),
             ),
           if (appStore.isLoggedIn)
             Positioned(
-              top: context.statusBarHeight + 16,
-              right: 16,
+              top: context.statusBarHeight + 12, // Reduced from 16 to 12
+              right: 12, // Reduced from 16 to 12
               child: Container(
                 decoration: boxDecorationDefault(
                     color: context.cardColor, shape: BoxShape.circle),
-                height: 36,
-                padding: EdgeInsets.all(8),
-                width: 36,
+                height: 32, // Reduced from 36 to 32
+                padding: EdgeInsets.all(6), // Reduced from 8 to 6
+                width: 32, // Reduced from 36 to 32
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
                     ic_notification
-                        .iconImage(size: 24, color: primaryColor)
+                        .iconImage(size: 20, color: primaryColor) // Reduced from 24 to 20
                         .center(),
                     Observer(builder: (context) {
                       return Positioned(
-                        top: -20,
-                        right: -10,
+                        top: -18, // Reduced from -20 to -18
+                        right: -8, // Reduced from -10 to -8
                         child: appStore.unreadCount.validate() > 0
                             ? Container(
-                                padding: EdgeInsets.all(4),
+                                padding: EdgeInsets.all(3), // Reduced from 4 to 3
                                 child: FittedBox(
                                   child: Text(appStore.unreadCount.toString(),
                                       style: primaryTextStyle(
-                                          size: 12, color: Colors.white)),
+                                          size: 10, color: Colors.white)), // Reduced from 12 to 10
                                 ),
                                 decoration: boxDecorationDefault(
                                     color: Colors.red, shape: BoxShape.circle),
@@ -223,15 +213,15 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
       children: [
         getSliderWidget(),
         Positioned(
-          bottom: -24,
-          right: 16,
-          left: 16,
+          bottom: -20, // Reduced from -24 to -20
+          right: 12, // Reduced from 16 to 12
+          left: 12, // Reduced from 16 to 12
           child: Row(
             children: [
               Observer(
                 builder: (context) {
                   return Container(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.all(12), // Reduced from 16 to 12
                     decoration: commonDecoration,
                     width: context.width() - 80,
                     child: Row(
@@ -241,7 +231,7 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
                             color: appStore.isDarkMode
                                 ? Colors.white
                                 : Colors.black),
-                        8.width,
+                        6.width, // Reduced from 8 to 6
                         Text(
                           appStore.isCurrentLocation
                               ? getStringAsync(CURRENT_ADDRESS)
@@ -250,9 +240,9 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ).expand(),
-                        8.width,
+                        6.width, // Reduced from 8 to 6
                         ic_active_location.iconImage(
-                            size: 24,
+                            size: 20, // Reduced from 24 to 20
                             color: appStore.isCurrentLocation
                                 ? primaryColor
                                 : grey),
@@ -261,14 +251,14 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
                   ).expand();
                 },
               ),
-              16.width,
+              12.width, // Reduced from 16 to 12
               GestureDetector(
                 onTap: () {
                   SearchServiceScreen(featuredList: widget.featuredList)
                       .launch(context);
                 },
                 child: Container(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(12), // Reduced from 16 to 12
                   decoration: commonDecoration,
                   child: ic_search.iconImage(color: primaryColor),
                 ),

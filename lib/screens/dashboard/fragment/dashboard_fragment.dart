@@ -171,19 +171,19 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                         setState(() {});
                       },
                     ),
-                    30.height,
+                    20.height, // Reduced from 30 to 20
 
                     // Horizontal Categories
                     HorizontalCategoriesComponent(
                         categoryList: snap.category.validate()),
 
-                    16.height,
+                    12.height, // Reduced from 16 to 12
 
                     // Pending Booking Section
                     PendingBookingComponent(
                         upcomingConfirmedBooking: snap.upcomingData),
 
-                    16.height,
+                    12.height, // Reduced from 16 to 12
 
                     // Categories with their services section
                     ModernCategoryServicesComponent(
@@ -192,14 +192,14 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                       serviceList: snap.service.validate(),
                     ),
 
-                    24.height,
+                    16.height, // Reduced from 24 to 16
 
                     // Featured Services Section
                     if (snap.featuredServices.validate().isNotEmpty)
                       FeaturedServiceListComponent(
                           serviceList: snap.featuredServices.validate()),
 
-                    24.height,
+                    16.height, // Reduced from 24 to 16
 
                     // Bottom Banner Slider
                     if (bottomSliders.isNotEmpty)
@@ -210,7 +210,8 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                           children: [
                             Container(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
+                                  horizontal: 16,
+                                  vertical: 6), // Reduced from 8 to 6
                               child: Container(
                                 child: Text(
                                   "Promotions",
@@ -230,10 +231,10 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                                 padding: EdgeInsets.only(bottom: 4),
                               ),
                             ),
-                            16.height,
+                            12.height, // Reduced from 16 to 12
                             Container(
                               height: context.height() *
-                                  0.25, // جعل البانر السفلي يملأ 25% من ارتفاع الشاشة
+                                  0.22, // Reduced from 0.25 to 0.22
                               margin: EdgeInsets.zero, // إزالة الهوامش
                               child: SliderWidget(
                                 sliderList: bottomSliders,
@@ -244,7 +245,7 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                         ),
                       ),
 
-                    16.height,
+                    12.height, // Reduced from 16 to 12
 
                     // Job Request Section
                     if (appConfigurationStore.jobRequestStatus)
@@ -372,7 +373,8 @@ class _SliderWidgetState extends State<SliderWidget> {
                           right: 0,
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 16),
+                                vertical: 6,
+                                horizontal: 16), // Reduced from 8 to 6
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
@@ -385,7 +387,9 @@ class _SliderWidgetState extends State<SliderWidget> {
                             ),
                             child: Text(
                               data.title.validate(),
-                              style: boldTextStyle(color: Colors.white),
+                              style: boldTextStyle(
+                                  color: Colors.white,
+                                  size: 14), // Reduced from default to 14
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -400,7 +404,7 @@ class _SliderWidgetState extends State<SliderWidget> {
           // Slide Indicators
           if (widget.sliderList.length > 1)
             Positioned(
-              bottom: 8,
+              bottom: 6, // Reduced from 8 to 6
               left: 0,
               right: 0,
               child: Row(
@@ -408,13 +412,16 @@ class _SliderWidgetState extends State<SliderWidget> {
                 children: List.generate(
                   widget.sliderList.length,
                   (index) => Container(
-                    margin: EdgeInsets.symmetric(horizontal: 4),
-                    height: 8,
-                    width: _currentPage == index ? 16 : 8,
+                    margin: EdgeInsets.symmetric(
+                        horizontal: 3), // Reduced from 4 to 3
+                    height: 6, // Reduced from 8 to 6
+                    width: _currentPage == index
+                        ? 12
+                        : 6, // Reduced from 16:8 to 12:6
                     decoration: BoxDecoration(
                       color:
                           _currentPage == index ? primaryColor : Colors.white,
-                      borderRadius: radius(4),
+                      borderRadius: radius(3), // Reduced from 4 to 3
                     ),
                   ),
                 ),
@@ -459,25 +466,25 @@ class CompactServiceCard extends StatelessWidget {
           children: [
             // Image Section
             Container(
-              height: 100, // Reduced height
+              height: 85, // Reduced from 100 to 85
               width: double.infinity,
               child: Stack(
                 children: [
                   // Service Image
                   Container(
-                    height: 100,
+                    height: 85, // Reduced from 100 to 85
                     width: double.infinity,
                     child: imageUrl.isNotEmpty
                         ? CachedImageWidget(
                             url: imageUrl,
                             fit: BoxFit.cover,
-                            height: 100,
+                            height: 85, // Reduced from 100 to 85
                             width: double.infinity,
                             circle: false,
                           ).cornerRadiusWithClipRRectOnly(
                             topRight: 8, topLeft: 8)
                         : Container(
-                            height: 100,
+                            height: 85, // Reduced from 100 to 85
                             width: double.infinity,
                             decoration: BoxDecoration(
                               color: Colors.grey[300],
@@ -488,26 +495,27 @@ class CompactServiceCard extends StatelessWidget {
                             ),
                             child: Icon(
                               Icons.image_not_supported,
-                              size: 30, // Reduced from 40
+                              size: 25, // Reduced from 30 to 25
                               color: Colors.grey[600],
                             ),
                           ),
                   ),
                   // Price Tag
                   Positioned(
-                    bottom: 4,
-                    right: 4,
+                    bottom: 3, // Reduced from 4 to 3
+                    right: 3, // Reduced from 4 to 3
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2), // Reduced padding
+                          horizontal: 5, vertical: 1), // Reduced padding
                       decoration: BoxDecoration(
                         color: primaryColor,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius:
+                            BorderRadius.circular(10), // Reduced from 12 to 10
                       ),
                       child: Text(
                         '${service.price.validate()} ج.م',
                         style: boldTextStyle(
-                          size: 10, // Reduced from 12
+                          size: 9, // Reduced from 10 to 9
                           color: Colors.white,
                         ),
                       ),
@@ -519,7 +527,7 @@ class CompactServiceCard extends StatelessWidget {
             // Content Section
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(6), // Reduced padding
+                padding: EdgeInsets.all(4), // Reduced from 6 to 4
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -528,23 +536,24 @@ class CompactServiceCard extends StatelessWidget {
                     Row(
                       children: [
                         Icon(Icons.star,
-                            size: 12, color: Colors.amber), // Reduced from 14
-                        2.width,
+                            size: 10,
+                            color: Colors.amber), // Reduced from 12 to 10
+                        1.width, // Reduced from 2 to 1
                         Text(
                           service.totalRating.validate().toString(),
-                          style:
-                              secondaryTextStyle(size: 10), // Reduced from 11
+                          style: secondaryTextStyle(
+                              size: 9), // Reduced from 10 to 9
                         ),
                       ],
                     ),
-                    4.height, // Reduced spacing
+                    2.height, // Reduced from 4 to 2
                     // Service Name
                     Expanded(
                       child: Text(
-                        service.name.validate().length > 25
-                            ? service.name.validate().substring(0, 25) + '...'
+                        service.name.validate().length > 20
+                            ? service.name.validate().substring(0, 20) + '...'
                             : service.name.validate(),
-                        style: boldTextStyle(size: 11), // Reduced from 12
+                        style: boldTextStyle(size: 10), // Reduced from 11 to 10
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),

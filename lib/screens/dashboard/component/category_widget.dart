@@ -25,19 +25,19 @@ class CategoryWidget extends StatelessWidget {
     final bool isGridItem =
         isFromCategory == true || (width != null && width! < 100);
 
-    // Much larger image sizes for better visibility
+    // Optimized image sizes for compact layout
     final double imageSize = isGridItem
-        ? (categoryData.categoryImage.validate().endsWith('.svg') ? 75 : 78)
+        ? (categoryData.categoryImage.validate().endsWith('.svg') ? 60 : 62)
         : (categoryData.categoryImage.validate().endsWith('.svg') ? 130 : 140);
 
-    // Smaller background rectangle
-    final double rectangleHeight = isGridItem ? 44 : 80;
+    // Smaller background rectangle for compact design
+    final double rectangleHeight = isGridItem ? 36 : 80;
     final double rectangleWidth =
         isGridItem ? (width ?? 80) : (context.width() / 2 - 30);
 
     return Container(
       width: width,
-      height: isGridItem ? 120 : null, // Increased height for grid items
+      height: isGridItem ? 95 : null, // Reduced height for grid items
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -50,19 +50,21 @@ class CategoryWidget extends StatelessWidget {
               // Orange rectangle positioned below with more of the image showing above it
               Padding(
                 padding: EdgeInsets.only(
-                    top: imageSize * (isGridItem ? 0.35 : 0.38)),
+                    top: imageSize *
+                        (isGridItem ? 0.32 : 0.38)), // Reduced overlap
                 child: Container(
                   width: rectangleWidth,
                   height: rectangleHeight,
                   margin: EdgeInsets.symmetric(horizontal: isGridItem ? 2 : 4),
                   decoration: BoxDecoration(
                     color: orangeColor,
-                    borderRadius: radius(isGridItem ? 14 : 16),
+                    borderRadius:
+                        radius(isGridItem ? 12 : 16), // Smaller radius
                     boxShadow: [
                       BoxShadow(
                         color: orangeColor.withOpacity(0.25),
-                        blurRadius: isGridItem ? 6 : 12,
-                        offset: Offset(0, 3),
+                        blurRadius: isGridItem ? 4 : 12, // Reduced blur
+                        offset: Offset(0, 2), // Reduced offset
                         spreadRadius: 1,
                       ),
                     ],
@@ -98,15 +100,17 @@ class CategoryWidget extends StatelessWidget {
             ],
           ),
 
-          // Text below the orange rectangle
+          // Text below the orange rectangle with reduced spacing
           Container(
             width: isGridItem
                 ? width ?? context.width() / 4 - 4
                 : (context.width() / 2 - 40),
-            padding: EdgeInsets.only(top: isGridItem ? 6 : 12),
+            padding: EdgeInsets.only(
+                top: isGridItem ? 4 : 12), // Reduced top padding
             child: Text(
               '${categoryData.name.validate()}',
-              style: boldTextStyle(size: isGridItem ? 12 : 14),
+              style: boldTextStyle(
+                  size: isGridItem ? 11 : 14), // Slightly smaller font
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

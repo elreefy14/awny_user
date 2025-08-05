@@ -114,13 +114,13 @@ class _ModernCategoryServicesComponentState
             if (services.isEmpty) return SizedBox();
 
             return Container(
-              margin: EdgeInsets.only(bottom: 24), // Reduced from 32
+              margin: EdgeInsets.only(bottom: 16), // Reduced from 24 to 16
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Category Header - More Compact
                   Container(
-                    margin: EdgeInsets.only(bottom: 12), // Reduced from 16
+                    margin: EdgeInsets.only(bottom: 8), // Reduced from 12 to 8
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -130,15 +130,15 @@ class _ModernCategoryServicesComponentState
                               // Category Icon
                               if (category.categoryImage != null)
                                 Container(
-                                  width: 28, // Reduced from 32
-                                  height: 28, // Reduced from 32
+                                  width: 24, // Reduced from 28 to 24
+                                  height: 24, // Reduced from 28 to 24
                                   margin: EdgeInsets.only(
-                                      right: 10), // Reduced from 12
+                                      right: 8), // Reduced from 10 to 8
                                   child: CachedImageWidget(
                                     url: category.categoryImage!,
                                     fit: BoxFit.cover,
-                                    radius: 14, // Reduced from 16
-                                    height: 28, // Reduced from 32
+                                    radius: 12, // Reduced from 14 to 12
+                                    height: 24, // Reduced from 28 to 24
                                   ),
                                 ),
 
@@ -155,7 +155,7 @@ class _ModernCategoryServicesComponentState
                                               '...'
                                           : category.name.validate(),
                                       style: boldTextStyle(
-                                          size: 15), // Reduced from 16
+                                          size: 14), // Reduced from 15 to 14
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -168,7 +168,7 @@ class _ModernCategoryServicesComponentState
                                                 '...'
                                             : category.description!,
                                         style: secondaryTextStyle(
-                                            size: 10), // Reduced from 11
+                                            size: 9), // Reduced from 10 to 9
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -182,16 +182,16 @@ class _ModernCategoryServicesComponentState
                         // Service Count Badge
                         Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2), // Reduced padding
+                              horizontal: 5, vertical: 1), // Reduced padding
                           decoration: BoxDecoration(
                             color: primaryColor.withOpacity(0.1),
-                            borderRadius:
-                                BorderRadius.circular(10), // Reduced from 12
+                            borderRadius: BorderRadius.circular(
+                                8), // Reduced from 10 to 8
                           ),
                           child: Text(
                             '${services.length}',
                             style: secondaryTextStyle(
-                              size: 10, // Reduced from 12
+                              size: 9, // Reduced from 10 to 9
                               color: primaryColor,
                             ),
                           ),
@@ -199,7 +199,7 @@ class _ModernCategoryServicesComponentState
 
                         // View All Button
                         if (services.length > 3) ...[
-                          8.width, // Reduced from 12
+                          6.width, // Reduced from 8 to 6
                           TextButton.icon(
                             onPressed: () {
                               ViewAllServiceScreen(
@@ -234,7 +234,7 @@ class _ModernCategoryServicesComponentState
 
                   // Services Horizontal List - Redesigned
                   Container(
-                    height: 200, // Significantly reduced from 240
+                    height: 180, // Reduced from 200 to 180
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (scrollNotification) {
                         if (scrollNotification is ScrollUpdateNotification) {
@@ -270,9 +270,9 @@ class _ModernCategoryServicesComponentState
                               }
 
                               return Container(
-                                width: 140, // Significantly reduced from 160
+                                width: 130, // Reduced from 140 to 130
                                 margin: EdgeInsets.only(
-                                    right: 12), // Reduced from 16
+                                    right: 10), // Reduced from 12 to 10
                                 child: CompactServiceCard(
                                     service: service), // New compact card
                               );

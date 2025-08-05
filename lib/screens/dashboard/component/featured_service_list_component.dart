@@ -25,7 +25,7 @@ class FeaturedServiceListComponent extends StatelessWidget {
     final ScrollController scrollController = ScrollController();
 
     return Container(
-      padding: EdgeInsets.only(bottom: 24),
+      padding: EdgeInsets.only(bottom: 16), // Reduced from 24 to 16
       width: context.width(),
       decoration: BoxDecoration(
         color: appStore.isDarkMode
@@ -35,11 +35,12 @@ class FeaturedServiceListComponent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          24.height,
+          16.height, // Reduced from 24 to 16
 
           // Featured header with bold title and view all button
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(
+                horizontal: 16, vertical: 6), // Reduced from 8 to 6
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -79,23 +80,25 @@ class FeaturedServiceListComponent extends StatelessWidget {
             ),
           ),
 
-          16.height,
+          12.height, // Reduced from 16 to 12
 
           if (serviceList.isNotEmpty)
             Container(
-              height: 200, // Reduced height to match modern component
+              height: 180, // Reduced from 200 to 180
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
                   ListView.builder(
                     scrollDirection: Axis.horizontal,
                     controller: scrollController,
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 6), // Reduced from 8 to 6
                     itemCount: serviceList.length,
                     itemBuilder: (context, index) {
                       return Container(
-                        width: 140, // Reduced width to match modern component
-                        margin: EdgeInsets.only(right: 12),
+                        width: 130, // Reduced from 140 to 130
+                        margin:
+                            EdgeInsets.only(right: 10), // Reduced from 12 to 10
                         child: CompactServiceCard(
                           service: serviceList[index],
                         ),
