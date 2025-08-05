@@ -9,7 +9,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
-import 'dart:math';
 
 import '../../component/app_common_dialog.dart';
 import '../../component/base_scaffold_widget.dart';
@@ -283,7 +282,6 @@ class _UserWalletBalanceScreenState extends State<UserWalletBalanceScreen> {
       debugPrint('🚀 STARTING PAYMOB WALLET RECHARGE PROCESS 🚀');
 
       // Extract PayMob configuration
-      Map<String, dynamic> configRaw = {};
       String apiKey = '';
       List<String> integrationIds = [];
       String iframeId = '';

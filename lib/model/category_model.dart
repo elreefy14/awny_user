@@ -1,4 +1,5 @@
 import 'package:booking_system_flutter/model/pagination_model.dart';
+import 'package:booking_system_flutter/model/service_data_model.dart';
 
 class CategoryResponse {
   List<CategoryData>? categoryList;
@@ -8,8 +9,12 @@ class CategoryResponse {
 
   factory CategoryResponse.fromJson(Map<String, dynamic> json) {
     return CategoryResponse(
-      categoryList: json['data'] != null ? (json['data'] as List).map((i) => CategoryData.fromJson(i)).toList() : null,
-      pagination: json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null,
+      categoryList: json['data'] != null
+          ? (json['data'] as List).map((i) => CategoryData.fromJson(i)).toList()
+          : null,
+      pagination: json['pagination'] != null
+          ? Pagination.fromJson(json['pagination'])
+          : null,
     );
   }
 
@@ -35,8 +40,22 @@ class CategoryData {
   int? status;
   bool isSelected;
   int? services;
+  int? priority;
+  List<ServiceData>? totalServices;
 
-  CategoryData({this.categoryImage, this.color, this.description, this.id, this.isFeatured, this.name, this.status, this.isSelected = false, this.services});
+  CategoryData({
+    this.categoryImage,
+    this.color,
+    this.description,
+    this.id,
+    this.isFeatured,
+    this.name,
+    this.status,
+    this.isSelected = false,
+    this.services,
+    this.priority,
+    this.totalServices,
+  });
 
   factory CategoryData.fromJson(Map<String, dynamic> json) {
     return CategoryData(
@@ -48,6 +67,12 @@ class CategoryData {
       name: json['name'],
       status: json['status'],
       services: json['services'],
+      priority: json['priority'],
+      totalServices: json['total_services'] != null
+          ? (json['total_services'] as List)
+              .map((i) => ServiceData.fromJson(i))
+              .toList()
+          : null,
     );
   }
 
@@ -61,6 +86,11 @@ class CategoryData {
     data['name'] = this.name;
     data['status'] = this.status;
     data['services'] = this.services;
+    data['priority'] = this.priority;
+    if (this.totalServices != null) {
+      data['total_services'] =
+          this.totalServices!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }

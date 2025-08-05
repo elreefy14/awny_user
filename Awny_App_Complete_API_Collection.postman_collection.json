@@ -1,0 +1,570 @@
+{
+	"info": {
+		"_postman_id": "awny-app-complete-api-collection",
+		"name": "Awny App Complete API Collection",
+		"description": "Complete API collection for Awny App including Registration, Login, and Social Login endpoints with comprehensive testing scenarios",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "awny-app-api"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "User Registration",
+					"item": [
+						{
+							"name": "Register - Complete (Egypt)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200 or 201\", function () {",
+											"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+											"});",
+											"",
+											"pm.test(\"Response has required fields\", function () {",
+											"    const responseJson = pm.response.json();",
+											"    pm.expect(responseJson).to.have.property('status');",
+											"    pm.expect(responseJson).to.have.property('data');",
+											"    if (responseJson.status) {",
+											"        pm.expect(responseJson.data).to.have.property('user');",
+											"        pm.expect(responseJson.data).to.have.property('token');",
+											"    }",
+											"});",
+											"",
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set(\"auth_token\", responseJson.data.token);",
+											"        pm.environment.set(\"user_email\", responseJson.data.user.email);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "User-Agent",
+										"value": "PostmanRuntime/7.32.3",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"first_name\": \"{{$randomFirstName}}\",\n    \"last_name\": \"{{$randomLastName}}\",\n    \"username\": \"{{$randomUserName}}_{{$randomInt}}\",\n    \"email\": \"{{$randomEmail}}\",\n    \"password\": \"SecurePass123!\",\n    \"contact_number\": \"+20-1234567890\",\n    \"user_type\": \"user\",\n    \"login_type\": \"user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"register"
+									]
+								},
+								"description": "Complete user registration with Egyptian phone number using dynamic variables"
+							}
+						},
+						{
+							"name": "Register - Saudi Phone",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"first_name\": \"{{$randomFirstName}}\",\n    \"last_name\": \"{{$randomLastName}}\",\n    \"username\": \"{{$randomUserName}}_saudi_{{$randomInt}}\",\n    \"email\": \"{{$randomEmail}}\",\n    \"password\": \"MyPassword456!\",\n    \"contact_number\": \"+966-501234567\",\n    \"user_type\": \"user\",\n    \"login_type\": \"user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"register"
+									]
+								},
+								"description": "User registration with Saudi Arabian phone number (+966)"
+							}
+						},
+						{
+							"name": "Register - Missing Email (Error Test)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\",\n    \"username\": \"testuser_{{$randomInt}}\",\n    \"password\": \"TestPass123!\",\n    \"contact_number\": \"+20-1234567890\",\n    \"user_type\": \"user\",\n    \"login_type\": \"user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"register"
+									]
+								},
+								"description": "Test case for missing required field (email) to validate server-side validation"
+							}
+						}
+					],
+					"description": "User registration endpoints with various test scenarios"
+				},
+				{
+					"name": "User Login",
+					"item": [
+						{
+							"name": "Login - Valid Credentials",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Login successful\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    const responseJson = pm.response.json();",
+											"    pm.expect(responseJson.status).to.be.true;",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.expect(responseJson.data.token).to.not.be.empty;",
+											"    }",
+											"});",
+											"",
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set(\"auth_token\", responseJson.data.token);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"{{user_email}}\",\n    \"password\": \"SecurePass123!\",\n    \"login_type\": \"user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								},
+								"description": "Login with valid credentials using email from previous registration"
+							}
+						},
+						{
+							"name": "Login - Static Test User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"test.user@example.com\",\n    \"password\": \"SecurePass123!\",\n    \"login_type\": \"user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								},
+								"description": "Login with static test credentials"
+							}
+						},
+						{
+							"name": "Login - Invalid Credentials (Error Test)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"nonexistent@example.com\",\n    \"password\": \"WrongPassword123!\",\n    \"login_type\": \"user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"login"
+									]
+								},
+								"description": "Test case for invalid credentials to verify error handling"
+							}
+						}
+					],
+					"description": "User login endpoints with various test scenarios"
+				},
+				{
+					"name": "Social Login",
+					"item": [
+						{
+							"name": "Google Login - Complete",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Social login response\", function () {",
+											"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+											"    const responseJson = pm.response.json();",
+											"    pm.expect(responseJson).to.have.property('status');",
+											"});",
+											"",
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set(\"social_auth_token\", responseJson.data.token);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json; charset=utf-8",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json; charset=utf-8",
+										"type": "text"
+									},
+									{
+										"key": "Cache-Control",
+										"value": "no-cache",
+										"type": "text"
+									},
+									{
+										"key": "User-Agent",
+										"value": "PostmanRuntime/7.32.3",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"{{$randomEmail}}\",\n    \"login_type\": \"google\",\n    \"first_name\": \"{{$randomFirstName}}\",\n    \"last_name\": \"{{$randomLastName}}\",\n    \"username\": \"{{$randomUserName}}_google_{{$randomInt}}\",\n    \"user_type\": \"user\",\n    \"display_name\": \"{{$randomFirstName}} {{$randomLastName}}\",\n    \"uid\": \"google_firebase_uid_{{$randomInt}}\",\n    \"social_image\": \"https://lh3.googleusercontent.com/a/default-user\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/social-login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"social-login"
+									]
+								},
+								"description": "Complete Google social login with all user information using dynamic variables"
+							}
+						},
+						{
+							"name": "Google Login - With Phone",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json; charset=utf-8",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json; charset=utf-8",
+										"type": "text"
+									},
+									{
+										"key": "Cache-Control",
+										"value": "no-cache",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"{{$randomEmail}}\",\n    \"login_type\": \"google\",\n    \"first_name\": \"{{$randomFirstName}}\",\n    \"last_name\": \"{{$randomLastName}}\",\n    \"username\": \"{{$randomUserName}}_phone_{{$randomInt}}\",\n    \"user_type\": \"user\",\n    \"display_name\": \"{{$randomFirstName}} {{$randomLastName}}\",\n    \"uid\": \"google_firebase_uid_phone_{{$randomInt}}\",\n    \"social_image\": \"https://lh3.googleusercontent.com/a/phone-user\",\n    \"contact_number\": \"+201234567890\",\n    \"phone_verified\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/social-login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"social-login"
+									]
+								},
+								"description": "Google social login with phone number included"
+							}
+						},
+						{
+							"name": "Google Login - Minimal Fields",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json; charset=utf-8",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json; charset=utf-8",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"{{$randomEmail}}\",\n    \"login_type\": \"google\",\n    \"first_name\": \"{{$randomFirstName}}\",\n    \"last_name\": \"{{$randomLastName}}\",\n    \"username\": \"{{$randomUserName}}_minimal_{{$randomInt}}\",\n    \"user_type\": \"user\",\n    \"uid\": \"google_uid_minimal_{{$randomInt}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/social-login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"social-login"
+									]
+								},
+								"description": "Google social login with minimal required fields only"
+							}
+						},
+						{
+							"name": "Google Login - Missing Email (Error Test)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json; charset=utf-8",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json; charset=utf-8",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"login_type\": \"google\",\n    \"first_name\": \"No\",\n    \"last_name\": \"Email\",\n    \"username\": \"noemail_{{$randomInt}}\",\n    \"user_type\": \"user\",\n    \"uid\": \"google_uid_no_email_{{$randomInt}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/social-login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"social-login"
+									]
+								},
+								"description": "Test case for missing email field in social login"
+							}
+						}
+					],
+					"description": "Social login endpoints (Google OAuth) with various test scenarios"
+				}
+			],
+			"description": "Complete authentication endpoints including registration, login, and social login",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// Set timestamp for unique data",
+							"pm.environment.set('timestamp', Date.now());"
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global pre-request script",
+					"console.log('Testing Awny App API - ' + new Date().toISOString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"pm.test('Response time is less than 5000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"pm.test('Response has valid JSON', function () {",
+					"    pm.response.to.be.json;",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://awnyapp.com/api",
+			"type": "string"
+		},
+		{
+			"key": "content_type",
+			"value": "application/json",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_email",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "social_auth_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+} 

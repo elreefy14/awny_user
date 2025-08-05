@@ -14,6 +14,7 @@ import 'component/category_list_dashboard_component_2.dart';
 import 'component/confirm_dashboard_booking_component_2.dart';
 import 'component/custom_appbar_dashboard_component_2.dart';
 import 'component/job_request_dashboard_component_2.dart';
+import 'component/modern_category_services_component.dart';
 import 'component/service_list_dashboard_component_2.dart';
 import 'component/slider_dashboard_component_2.dart';
 
@@ -114,12 +115,11 @@ class _DashboardFragment2State extends State<DashboardFragment2> {
                     ConfirmDashboardBookingComponent2(
                         upcomingConfirmedBooking: snap.upcomingData),
                     16.height,
-                    CategoryListDashboardComponent2(
-                        categoryList: snap.category.validate()),
-                    20.height,
-                    ServiceListDashboardComponent2(
-                        serviceList: snap.service.validate(),
-                        serviceListTitle: language.service),
+                    // Modern Category Services Component (replaces separate category and service components)
+                    ModernCategoryServicesComponent(
+                      categoryList: snap.category.validate(),
+                      serviceList: snap.service.validate(),
+                    ),
                     16.height,
                     ServiceListDashboardComponent2(
                         serviceList: snap.featuredServices.validate(),

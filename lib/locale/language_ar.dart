@@ -1964,4 +1964,7 @@ class LanguageAr extends BaseLanguage {
 
   @override
   String get muchLongerText => "هذا نص أطول بكثير";
+
+  @override
+  String get linkDevice => 'ربط الجهاز';
 }

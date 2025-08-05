@@ -249,6 +249,105 @@ class PayMobService {
     }
   }
 
+  // Method to create payment URL with wallet support
+  Future<String> createPaymentUrlWithWallets({
+    required double amount,
+    required String currency,
+    required Map<String, dynamic> billingData,
+    required String primaryIframeId,
+    List<String>? integrationIds,
+  }) async {
+    try {
+      if (authToken == null) {
+        await _getAuthToken();
+      }
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken',
+      };
+
+      // Use provided integration IDs or fall back to config
+      final List<String> finalIntegrationIds =
+          integrationIds ?? config.allIntegrationIds ?? [config.integrationId];
+
+      debugPrint(
+          'Creating PayMob payment with integration IDs: $finalIntegrationIds');
+
+      // 1. Create Order
+      final orderRequestBody = {
+        'auth_token': authToken,
+        'delivery_needed': false,
+        'amount_cents': amount.toInt(),
+        'currency': currency,
+        'items': []
+      };
+
+      final orderResponse = await http.post(
+        Uri.parse('$_baseUrl/ecommerce/orders'),
+        headers: headers,
+        body: json.encode(orderRequestBody),
+      );
+
+      _logApiCall(
+          endpoint: 'ecommerce/orders',
+          response: orderResponse,
+          requestBody: orderRequestBody,
+          headers: headers);
+
+      if (orderResponse.statusCode != 200 && orderResponse.statusCode != 201) {
+        throw 'خطأ في إنشاء الطلب: [${orderResponse.statusCode}] ${orderResponse.body}';
+      }
+
+      final orderData = json.decode(orderResponse.body);
+      orderId = orderData['id'].toString();
+      debugPrint('PayMob Order ID created: $orderId');
+
+      // 2. Get Payment Key with multiple integration IDs
+      final paymentKeyRequestBody = {
+        'amount_cents': amount.toInt(),
+        'expiration': 3600,
+        'order_id': orderId,
+        'billing_data': billingData,
+        'currency': currency,
+        'integration_id': finalIntegrationIds.first, // Use first integration ID
+        'lock_order_when_paid': false
+      };
+
+      debugPrint('Requesting PayMob payment key for order ID: $orderId');
+
+      final paymentKeyResponse = await http.post(
+        Uri.parse('$_baseUrl/acceptance/payment_keys'),
+        headers: headers,
+        body: json.encode(paymentKeyRequestBody),
+      );
+
+      _logApiCall(
+          endpoint: 'acceptance/payment_keys',
+          response: paymentKeyResponse,
+          requestBody: paymentKeyRequestBody,
+          headers: headers);
+
+      if (paymentKeyResponse.statusCode != 200 &&
+          paymentKeyResponse.statusCode != 201) {
+        throw 'خطأ في إنشاء مفتاح الدفع: [${paymentKeyResponse.statusCode}] ${paymentKeyResponse.body}';
+      }
+
+      final paymentKeyData = json.decode(paymentKeyResponse.body);
+      final token = paymentKeyData['token'];
+      debugPrint('PayMob Payment key received: $token');
+
+      // 3. Create payment URL with primary iframe
+      final paymentUrl =
+          'https://accept.paymob.com/api/acceptance/iframes/$primaryIframeId?payment_token=$token';
+
+      debugPrint('PayMob payment URL created: $paymentUrl');
+      return paymentUrl;
+    } catch (e) {
+      throw 'خطأ في إنشاء رابط الدفع: $e';
+    }
+  }
+
   // Process PayMob callback data
   static Map<String, dynamic> processCallback(
       Map<String, dynamic> callbackData) {

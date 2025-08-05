@@ -88,8 +88,10 @@ const paypal_logo = 'assets/icons/paypal_logo.png';
 const phonepe_logo = 'assets/icons/phonepe_logo.png';
 const airtel_logo = 'assets/icons/airtel_logo.png';
 const paystack_logo = 'assets/icons/paystack_logo.png';
-const ic_diagonal_left_down_arrow = 'assets/icons/ic_diagonal_left_down_arrow.png';
-const ic_diagonal_right_up_arrow = 'assets/icons/ic_diagonal_right_up_arrow.png';
+const ic_diagonal_left_down_arrow =
+    'assets/icons/ic_diagonal_left_down_arrow.png';
+const ic_diagonal_right_up_arrow =
+    'assets/icons/ic_diagonal_right_up_arrow.png';
 const ic_pending = 'assets/icons/ic_pending.png';
 const ic_coupon_prefix = 'assets/icons/ic_discount_prefix.png';
 const ic_share = 'assets/icons/ic_share.png';
@@ -100,6 +102,8 @@ const indicator_2 = 'assets/images/indicator_2.png';
 const ic_add = 'assets/icons/ic_add.png';
 const ic_piggy_bank = 'assets/icons/ic_piggy_bank.png';
 const ic_scan = 'assets/icons/ic_scan.png';
+const ic_device =
+    'assets/icons/ic_setting.png'; // Using setting icon temporarily
 const ic_password = 'assets/icons/ic_password.png';
 const ic_down_arrow = 'assets/icons/ic_down_arrow.png';
 const ic_right = 'assets/icons/ic_right.png';

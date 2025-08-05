@@ -1,0 +1,368 @@
+{
+	"info": {
+		"_postman_id": "awny-app-api-collection",
+		"name": "Awny App API Collection",
+		"description": "Complete API collection for Awny App including Sign-Up and Social Login endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Sign Up - Complete Registration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "PostmanRuntime/7.32.3",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"username\": \"johndoe123\",\n    \"email\": \"john.doe.test@example.com\",\n    \"password\": \"SecurePassword123!\",\n    \"contact_number\": \"+20-1234567890\",\n    \"user_type\": \"user\",\n    \"login_type\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://awnyapp.com/api/register",
+							"protocol": "https",
+							"host": [
+								"awnyapp",
+								"com"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						},
+						"description": "Complete user registration with all required fields including Egyptian phone number"
+					}
+				},
+				{
+					"name": "Sign Up - Saudi Phone Number",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Ahmed\",\n    \"last_name\": \"Al-Rashid\",\n    \"username\": \"ahmed_rashid\",\n    \"email\": \"ahmed.rashid.test@example.com\",\n    \"password\": \"MyPassword456!\",\n    \"contact_number\": \"+966-501234567\",\n    \"user_type\": \"user\",\n    \"login_type\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://awnyapp.com/api/register",
+							"protocol": "https",
+							"host": [
+								"awnyapp",
+								"com"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						},
+						"description": "User registration with Saudi Arabian phone number (+966)"
+					}
+				},
+				{
+					"name": "Sign Up - Missing Email (Error Test)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\",\n    \"username\": \"testuser\",\n    \"password\": \"TestPass123!\",\n    \"contact_number\": \"+20-1234567890\",\n    \"user_type\": \"user\",\n    \"login_type\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://awnyapp.com/api/register",
+							"protocol": "https",
+							"host": [
+								"awnyapp",
+								"com"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						},
+						"description": "Test case for missing required field (email) to validate server-side validation"
+					}
+				},
+				{
+					"name": "Sign Up - Invalid Email Format",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Invalid\",\n    \"last_name\": \"Email\",\n    \"username\": \"invalidemail\",\n    \"email\": \"not-an-email\",\n    \"password\": \"ValidPass123!\",\n    \"contact_number\": \"+20-1234567890\",\n    \"user_type\": \"user\",\n    \"login_type\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://awnyapp.com/api/register",
+							"protocol": "https",
+							"host": [
+								"awnyapp",
+								"com"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						},
+						"description": "Test case for invalid email format validation"
+					}
+				},
+				{
+					"name": "Google Social Login - Complete",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "Cache-Control",
+								"value": "no-cache",
+								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "PostmanRuntime/7.32.3",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@gmail.com\",\n    \"login_type\": \"google\",\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\",\n    \"username\": \"testuser\",\n    \"user_type\": \"user\",\n    \"display_name\": \"Test User\",\n    \"uid\": \"google_firebase_uid_123456789\",\n    \"social_image\": \"https://lh3.googleusercontent.com/a/default-user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://awnyapp.com/api/social-login",
+							"protocol": "https",
+							"host": [
+								"awnyapp",
+								"com"
+							],
+							"path": [
+								"api",
+								"social-login"
+							]
+						},
+						"description": "Complete Google social login with all user information"
+					}
+				},
+				{
+					"name": "Google Social Login - With Phone",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "Cache-Control",
+								"value": "no-cache",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"phone.user@gmail.com\",\n    \"login_type\": \"google\",\n    \"first_name\": \"Phone\",\n    \"last_name\": \"User\",\n    \"username\": \"phoneuser\",\n    \"user_type\": \"user\",\n    \"display_name\": \"Phone User\",\n    \"uid\": \"google_firebase_uid_phone_123\",\n    \"social_image\": \"https://lh3.googleusercontent.com/a/phone-user\",\n    \"contact_number\": \"+201234567890\",\n    \"phone_verified\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://awnyapp.com/api/social-login",
+							"protocol": "https",
+							"host": [
+								"awnyapp",
+								"com"
+							],
+							"path": [
+								"api",
+								"social-login"
+							]
+						},
+						"description": "Google social login with phone number included"
+					}
+				},
+				{
+					"name": "Google Social Login - Minimal Fields",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json; charset=utf-8",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"minimal@gmail.com\",\n    \"login_type\": \"google\",\n    \"first_name\": \"Min\",\n    \"last_name\": \"User\",\n    \"username\": \"minuser\",\n    \"user_type\": \"user\",\n    \"uid\": \"google_uid_minimal\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://awnyapp.com/api/social-login",
+							"protocol": "https",
+							"host": [
+								"awnyapp",
+								"com"
+							],
+							"path": [
+								"api",
+								"social-login"
+							]
+						},
+						"description": "Google social login with minimal required fields only"
+					}
+				},
+				{
+					"name": "Google Social Login - Missing Email (Error Test)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json; charset=utf-8",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json; charset=utf-8",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"login_type\": \"google\",\n    \"first_name\": \"No\",\n    \"last_name\": \"Email\",\n    \"username\": \"noemail\",\n    \"user_type\": \"user\",\n    \"uid\": \"google_uid_no_email\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://awnyapp.com/api/social-login",
+							"protocol": "https",
+							"host": [
+								"awnyapp",
+								"com"
+							],
+							"path": [
+								"api",
+								"social-login"
+							]
+						},
+						"description": "Test case for missing email field in social login"
+					}
+				}
+			],
+			"description": "Authentication endpoints including user registration and social login"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://awnyapp.com/api",
+			"type": "string"
+		},
+		{
+			"key": "content_type",
+			"value": "application/json",
+			"type": "string"
+		}
+	]
+} 

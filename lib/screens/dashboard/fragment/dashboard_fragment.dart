@@ -1,10 +1,13 @@
 import 'package:booking_system_flutter/main.dart';
 import 'package:booking_system_flutter/model/dashboard_model.dart';
+import 'package:booking_system_flutter/model/service_data_model.dart';
+import 'package:booking_system_flutter/model/category_model.dart';
 import 'package:booking_system_flutter/network/rest_apis.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/category_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/category_service_list_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/featured_service_list_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/horizontal_categories_component.dart';
+import 'package:booking_system_flutter/screens/dashboard/component/modern_category_services_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/service_list_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/component/slider_and_location_component.dart';
 import 'package:booking_system_flutter/screens/dashboard/shimmer/dashboard_shimmer.dart';
@@ -54,6 +57,43 @@ class _DashboardFragmentState extends State<DashboardFragment> {
         long: getDoubleAsync(LONGITUDE));
   }
 
+  // Method to order categories by priority and add all services at the end
+  List<CategoryData> _getOrderedCategories(List<CategoryData> categories) {
+    List<CategoryData> orderedCategories = List.from(categories);
+
+    // Sort categories by priority (lower number = higher priority)
+    orderedCategories.sort((a, b) {
+      int priorityA = a.priority ?? 999;
+      int priorityB = b.priority ?? 999;
+      return priorityA.compareTo(priorityB);
+    });
+
+    // Create a special "All Services" category at the end
+    CategoryData allServicesCategory = CategoryData(
+      id: -1, // Special ID for all services
+      name: language.allServices,
+      description: "جميع الخدمات المتاحة",
+      categoryImage: null,
+      priority: 999, // Lowest priority to appear at the end
+      totalServices: [], // Will be populated with all services
+    );
+
+    // Add all services to the "All Services" category
+    List<ServiceData> allServices = [];
+    categories.forEach((category) {
+      if (category.totalServices != null &&
+          category.totalServices!.isNotEmpty) {
+        allServices.addAll(category.totalServices!);
+      }
+    });
+    allServicesCategory.totalServices = allServices;
+
+    // Add the "All Services" category at the end
+    orderedCategories.add(allServicesCategory);
+
+    return orderedCategories;
+  }
+
   @override
   void setState(fn) {
     if (mounted) super.setState(fn);
@@ -68,6 +108,7 @@ class _DashboardFragmentState extends State<DashboardFragment> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false, // منع إعادة الحجم عند ظهور لوحة المفاتيح
       body: Stack(
         children: [
           SnapHelperWidget<DashboardResponse>(
@@ -109,6 +150,7 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                   physics: AlwaysScrollableScrollPhysics(),
                   listAnimationType: ListAnimationType.FadeIn,
                   fadeInConfiguration: FadeInConfiguration(duration: 2.seconds),
+                  padding: EdgeInsets.zero, // إزالة جميع الهوامش
                   onSwipeRefresh: () async {
                     appStore.setLoading(true);
 
@@ -143,110 +185,14 @@ class _DashboardFragmentState extends State<DashboardFragment> {
 
                     16.height,
 
-                    // All Services section
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                child: Text(
-                                  language.allServices,
-                                  style: boldTextStyle(
-                                      size: 18, letterSpacing: 0.5),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: primaryColor.withOpacity(0.5),
-                                      width: 2.0,
-                                    ),
-                                  ),
-                                ),
-                                padding: EdgeInsets.only(bottom: 4),
-                              ),
-                              TextButton.icon(
-                                onPressed: () {
-                                  ViewAllServiceScreen(isFeatured: '')
-                                      .launch(context);
-                                },
-                                icon: Icon(Icons.arrow_forward,
-                                    size: 16, color: primaryColor),
-                                label: Text(
-                                  "View All",
-                                  style: boldTextStyle(
-                                      color: primaryColor, size: 14),
-                                ),
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 0),
-                                  minimumSize: Size(10, 30),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        12.height,
-                        Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            HorizontalList(
-                              itemCount: snap.service.validate().length,
-                              spacing: 16,
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              itemBuilder: (context, index) {
-                                return ServiceComponent(
-                                  serviceData: snap.service![index],
-                                  width: context.width() / 2 - 26,
-                                );
-                              },
-                            ),
-                            // Right scroll indicator (subtle arrow)
-                            if (snap.service.validate().length > 2)
-                              Positioned(
-                                right: 0,
-                                child: Container(
-                                  height: 40,
-                                  width: 40,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.centerRight,
-                                      end: Alignment.centerLeft,
-                                      colors: [
-                                        context.scaffoldBackgroundColor,
-                                        context.scaffoldBackgroundColor
-                                            .withOpacity(0.0),
-                                      ],
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 16,
-                                    color: Colors.grey.withOpacity(0.7),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-
-                    16.height,
-
                     // Categories with their services section
-                    CategoryServiceListComponent(
-                      categoryList: snap.category.validate(),
+                    ModernCategoryServicesComponent(
+                      categoryList:
+                          _getOrderedCategories(snap.category.validate()),
                       serviceList: snap.service.validate(),
                     ),
 
-                    16.height,
+                    24.height,
 
                     // Featured Services Section
                     if (snap.featuredServices.validate().isNotEmpty)
@@ -258,7 +204,7 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                     // Bottom Banner Slider
                     if (bottomSliders.isNotEmpty)
                       Container(
-                        margin: EdgeInsets.only(bottom: 16),
+                        margin: EdgeInsets.zero, // إزالة جميع الهوامش
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -286,7 +232,9 @@ class _DashboardFragmentState extends State<DashboardFragment> {
                             ),
                             16.height,
                             Container(
-                              height: 200, // Reduced height for bottom banner
+                              height: context.height() *
+                                  0.25, // جعل البانر السفلي يملأ 25% من ارتفاع الشاشة
+                              margin: EdgeInsets.zero, // إزالة الهوامش
                               child: SliderWidget(
                                 sliderList: bottomSliders,
                                 autoPlay: true,
@@ -368,105 +316,243 @@ class _SliderWidgetState extends State<SliderWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16),
+      margin: EdgeInsets.zero, // إزالة جميع الهوامش
       decoration: BoxDecoration(
-        borderRadius: radius(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: Offset(0, 3),
-          ),
-        ],
+        color: context.cardColor,
       ),
-      child: ClipRRect(
-        borderRadius: radius(10),
-        child: Stack(
-          children: [
-            // Page View for Slides
-            PageView.builder(
-              controller: sliderPageController,
-              itemCount: widget.sliderList.length,
-              itemBuilder: (context, index) {
-                SliderModel data = widget.sliderList[index];
-                return GestureDetector(
-                  onTap: () {
-                    if (data.type == SERVICE) {
-                      ServiceDetailScreen(
-                              serviceId: data.typeId.validate().toInt())
-                          .launch(context,
-                              pageRouteAnimation: PageRouteAnimation.Fade);
-                    }
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: context.cardColor,
-                    ),
-                    child: Stack(
-                      children: [
-                        // Image with specific display settings
-                        CachedImageWidget(
-                          url: data.sliderImage.validate(),
-                          fit: BoxFit.cover, // Cover for full screen
-                          width: context.width(),
-                          height: double.infinity,
+      child: Stack(
+        children: [
+          // Page View for Slides
+          PageView.builder(
+            controller: sliderPageController,
+            itemCount: widget.sliderList.length,
+            itemBuilder: (context, index) {
+              SliderModel data = widget.sliderList[index];
+              return GestureDetector(
+                onTap: () {
+                  if (data.type == SERVICE) {
+                    ServiceDetailScreen(
+                            serviceId: data.typeId.validate().toInt())
+                        .launch(context,
+                            pageRouteAnimation: PageRouteAnimation.Fade);
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: context.cardColor,
+                  ),
+                  child: Stack(
+                    children: [
+                      // Image with specific display settings
+                      CachedImageWidget(
+                        url: data.sliderImage.validate(),
+                        fit: BoxFit
+                            .cover, // استخدام BoxFit.cover لضمان ظهور الصورة كاملة
+                        width: context.width(),
+                        height: double.infinity,
+                      ),
+                      // إضافة تأثير التدرج اللوني
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.3),
+                            ],
+                          ),
                         ),
-                        // Optional caption overlay
-                        if (data.title.validate().isNotEmpty)
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 16),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.transparent,
-                                    Colors.black.withOpacity(0.7),
-                                  ],
-                                ),
-                              ),
-                              child: Text(
-                                data.title.validate(),
-                                style: boldTextStyle(color: Colors.white),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                      ),
+                      // Optional caption overlay
+                      if (data.title.validate().isNotEmpty)
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.7),
+                                ],
                               ),
                             ),
+                            child: Text(
+                              data.title.validate(),
+                              style: boldTextStyle(color: Colors.white),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
-                );
-              },
-            ),
-            // Slide Indicators
-            if (widget.sliderList.length > 1)
-              Positioned(
-                bottom: 8,
-                left: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    widget.sliderList.length,
-                    (index) => Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4),
-                      height: 8,
-                      width: _currentPage == index ? 16 : 8,
-                      decoration: BoxDecoration(
-                        color:
-                            _currentPage == index ? primaryColor : Colors.white,
-                        borderRadius: radius(4),
-                      ),
+                ),
+              );
+            },
+          ),
+          // Slide Indicators
+          if (widget.sliderList.length > 1)
+            Positioned(
+              bottom: 8,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  widget.sliderList.length,
+                  (index) => Container(
+                    margin: EdgeInsets.symmetric(horizontal: 4),
+                    height: 8,
+                    width: _currentPage == index ? 16 : 8,
+                    decoration: BoxDecoration(
+                      color:
+                          _currentPage == index ? primaryColor : Colors.white,
+                      borderRadius: radius(4),
                     ),
                   ),
                 ),
               ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// Compact Service Card Widget for Dashboard Fragment
+class CompactServiceCard extends StatelessWidget {
+  final ServiceData service;
+
+  const CompactServiceCard({Key? key, required this.service}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Get image URL
+    String imageUrl = service.attachments.validate().isNotEmpty
+        ? service.attachments!.first.validate()
+        : '';
+
+    return GestureDetector(
+      onTap: () {
+        hideKeyboard(context);
+        ServiceDetailScreen(
+          serviceId: service.id.validate(),
+        ).launch(context).then((value) {
+          setStatusBarColor(context.primaryColor);
+        });
+      },
+      child: Container(
+        decoration: boxDecorationWithRoundedCorners(
+          borderRadius: radius(8), // Reduced from default
+          backgroundColor: context.cardColor,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Image Section
+            Container(
+              height: 100, // Reduced height
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  // Service Image
+                  Container(
+                    height: 100,
+                    width: double.infinity,
+                    child: imageUrl.isNotEmpty
+                        ? CachedImageWidget(
+                            url: imageUrl,
+                            fit: BoxFit.cover,
+                            height: 100,
+                            width: double.infinity,
+                            circle: false,
+                          ).cornerRadiusWithClipRRectOnly(
+                            topRight: 8, topLeft: 8)
+                        : Container(
+                            height: 100,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(8),
+                                topRight: Radius.circular(8),
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.image_not_supported,
+                              size: 30, // Reduced from 40
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                  ),
+                  // Price Tag
+                  Positioned(
+                    bottom: 4,
+                    right: 4,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2), // Reduced padding
+                      decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${service.price.validate()} ج.م',
+                        style: boldTextStyle(
+                          size: 10, // Reduced from 12
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Content Section
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(6), // Reduced padding
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Rating
+                    Row(
+                      children: [
+                        Icon(Icons.star,
+                            size: 12, color: Colors.amber), // Reduced from 14
+                        2.width,
+                        Text(
+                          service.totalRating.validate().toString(),
+                          style:
+                              secondaryTextStyle(size: 10), // Reduced from 11
+                        ),
+                      ],
+                    ),
+                    4.height, // Reduced spacing
+                    // Service Name
+                    Expanded(
+                      child: Text(
+                        service.name.validate().length > 25
+                            ? service.name.validate().substring(0, 25) + '...'
+                            : service.name.validate(),
+                        style: boldTextStyle(size: 11), // Reduced from 12
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

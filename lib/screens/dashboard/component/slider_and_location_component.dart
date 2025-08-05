@@ -80,9 +80,10 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
   }
 
   Widget getSliderWidget() {
-    return SizedBox(
-      height: 325,
+    return Container(
+      height: context.height() * 0.4, // جعل البانر يملأ 40% من ارتفاع الشاشة
       width: context.width(),
+      margin: EdgeInsets.zero, // إزالة جميع الهوامش
       child: Stack(
         children: [
           widget.sliderList.isNotEmpty
@@ -93,20 +94,35 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
                     (index) {
                       SliderModel data = widget.sliderList[index];
                       return Container(
-                        height: 325,
+                        height: context.height() * 0.4,
                         width: context.width(),
+                        margin: EdgeInsets.zero, // إزالة الهوامش
                         decoration: BoxDecoration(
-                          borderRadius: radius(8),
                           color: context.cardColor,
                         ),
-                        child: ClipRRect(
-                          borderRadius: radius(8),
-                          child: CachedImageWidget(
-                            url: data.sliderImage.validate(),
-                            height: 325,
-                            width: context.width(),
-                            fit: BoxFit.cover,
-                          ),
+                        child: Stack(
+                          children: [
+                            CachedImageWidget(
+                              url: data.sliderImage.validate(),
+                              height: context.height() * 0.4,
+                              width: context.width(),
+                              fit: BoxFit
+                                  .cover, // استخدام BoxFit.cover لضمان ظهور الصورة كاملة
+                            ),
+                            // إضافة تأثير التدرج اللوني
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.3),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ).onTap(() {
                           if (data.type == SERVICE) {
                             ServiceDetailScreen(
@@ -122,7 +138,7 @@ class _SliderLocationComponentState extends State<SliderLocationComponent> {
                 )
               : CachedImageWidget(
                   url: '',
-                  height: 325,
+                  height: context.height() * 0.4,
                   width: context.width(),
                   fit: BoxFit.cover),
           if (widget.sliderList.length.validate() > 1)

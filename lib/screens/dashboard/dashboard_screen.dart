@@ -5,6 +5,7 @@ import 'package:booking_system_flutter/main.dart';
 import 'package:booking_system_flutter/screens/auth/sign_in_screen.dart';
 import 'package:booking_system_flutter/screens/category/category_screen.dart';
 import 'package:booking_system_flutter/screens/chat/chat_list_screen.dart';
+import 'package:booking_system_flutter/screens/device/link_device_screen.dart';
 import 'package:booking_system_flutter/screens/dashboard/fragment/booking_fragment.dart';
 import 'package:booking_system_flutter/screens/dashboard/fragment/dashboard_fragment.dart';
 import 'package:booking_system_flutter/screens/dashboard/fragment/profile_fragment.dart';
@@ -522,6 +523,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ? BookingFragment()
                         : SignInScreen(isFromDashboard: true)),
                 CategoryScreen(),
+                LinkDeviceScreen(),
                 Observer(
                     builder: (context) => appStore.isLoggedIn
                         ? ChatListScreen()
@@ -597,6 +599,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       color: appTextSecondaryColor.withOpacity(0.6)),
                   selectedIcon: ic_category.iconImage(color: primaryColor),
                   label: language.category,
+                ),
+                NavigationDestination(
+                  icon: ic_device.iconImage(
+                      color: appTextSecondaryColor.withOpacity(0.6)),
+                  selectedIcon: ic_device.iconImage(color: primaryColor),
+                  label: language.linkDevice,
                 ),
                 NavigationDestination(
                   icon: ic_chat.iconImage(

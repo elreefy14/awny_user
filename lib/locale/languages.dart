@@ -1305,4 +1305,5 @@ abstract class BaseLanguage {
   String get btnSave;
 
   String get fullNameOnBankAccount;
+  String get linkDevice => 'Link Device';
 }

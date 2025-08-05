@@ -2004,4 +2004,7 @@ class LanguageEn extends BaseLanguage {
 
   @override
   String get fullNameOnBankAccount => 'Full name on bank account';
+
+  @override
+  String get linkDevice => 'Link Device';
 }

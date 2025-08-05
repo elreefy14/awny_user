@@ -133,9 +133,11 @@ class ServiceData {
       isFeatured: json['is_featured'],
       providerName: json['provider_name'],
       categoryName: json['category_name'],
-      attachments: json['attchments'] != null
-          ? new List<String>.from(json['attchments'])
-          : null,
+      attachments: json['attachments'] != null
+          ? new List<String>.from(json['attachments'])
+          : json['attchments'] != null
+              ? new List<String>.from(json['attchments'])
+              : null,
       totalReview: json['total_review'],
       totalRating: json['total_rating'],
       isFavourite: json['is_favourite'],
@@ -151,9 +153,11 @@ class ServiceData {
           : null,
       createdAt: json['created_at'],
       customerName: json['customer_name'],
-      serviceAttachments: json['service_attchments'] != null
-          ? new List<String>.from(json['service_attchments'])
-          : null,
+      serviceAttachments: json['service_attachments'] != null
+          ? new List<String>.from(json['service_attachments'])
+          : json['service_attchments'] != null
+              ? new List<String>.from(json['service_attchments'])
+              : null,
       serviceId: json['service_id'],
       userId: json['user_id'],
       servicePackage: json['servicePackage'] != null
@@ -164,11 +168,15 @@ class ServiceData {
       isEnableAdvancePayment: json[AdvancePaymentKey.isEnableAdvancePayment],
       advancePaymentPercentage: json[AdvancePaymentKey.advancePaymentAmount],
       advancePaymentAmount: json['advance_payment_amount'],
-      attachmentsArray: json['attchments_array'] != null
-          ? (json['attchments_array'] as List)
+      attachmentsArray: json['attachments_array'] != null
+          ? (json['attachments_array'] as List)
               .map((i) => Attachments.fromJson(i))
               .toList()
-          : null,
+          : json['attchments_array'] != null
+              ? (json['attchments_array'] as List)
+                  .map((i) => Attachments.fromJson(i))
+                  .toList()
+              : null,
       visitType: json['visit_type'],
       country: json['country'] != null
           ? new List<String>.from(json['country'])

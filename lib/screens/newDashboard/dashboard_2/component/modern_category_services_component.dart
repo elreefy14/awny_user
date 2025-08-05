@@ -3,7 +3,6 @@ import 'package:booking_system_flutter/model/category_model.dart';
 import 'package:booking_system_flutter/model/service_data_model.dart';
 import 'package:booking_system_flutter/screens/service/component/service_component.dart';
 import 'package:booking_system_flutter/screens/service/view_all_service_screen.dart';
-import 'package:booking_system_flutter/screens/service/service_detail_screen.dart';
 import 'package:booking_system_flutter/utils/colors.dart';
 import 'package:booking_system_flutter/utils/constant.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +43,7 @@ class _ModernCategoryServicesComponentState
   void groupServicesByCategory() {
     categoryServiceMap.clear();
 
-    // Use total_services from each category
+    // Use total_services from each category instead of searching in serviceList
     widget.categoryList.forEach((category) {
       List<ServiceData> services = [];
 
@@ -52,26 +51,20 @@ class _ModernCategoryServicesComponentState
       if (category.totalServices != null &&
           category.totalServices!.isNotEmpty) {
         services = category.totalServices!;
-        log('✅ Category "${category.name}" (ID: ${category.id}) has ${services.length} services from total_services');
-
-        // Debug: Check if services have images
-        services.forEach((service) {
-          if (service.attachments != null && service.attachments!.isNotEmpty) {
-            log('  ✅ Service "${service.name}" has image: ${service.attachments!.first}');
-          } else {
-            log('  ❌ Service "${service.name}" has no images');
-          }
-        });
+        log('Category "${category.name}" (ID: ${category.id}) has ${services.length} services from total_services');
+      } else {
+        // Fallback: search in serviceList for this category
+        services = widget.serviceList
+            .where((service) => service.categoryId == category.id)
+            .toList();
+        log('Category "${category.name}" (ID: ${category.id}) has ${services.length} services from serviceList fallback');
       }
 
-      // Add services to map (even if empty)
       categoryServiceMap[category.id!] = services;
-      log('📋 Added ${services.length} services for category "${category.name}" (Priority: ${category.priority})');
     });
 
-    log('📊 ModernCategoryServices Summary:');
-    log('  - Total categories: ${widget.categoryList.length}');
-    log('  - Categories with services: ${categoryServiceMap.length}');
+    log('ModernCategoryServices: Total categories: ${widget.categoryList.length}');
+    log('ModernCategoryServices: Total services: ${widget.serviceList.length}');
   }
 
   void initializeScrollControllers() {
@@ -108,19 +101,41 @@ class _ModernCategoryServicesComponentState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Main Title
+          Container(
+            margin: EdgeInsets.only(bottom: 20),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                12.width,
+                Text(
+                  language.category,
+                  style: boldTextStyle(size: 20, color: context.primaryColor),
+                ),
+              ],
+            ),
+          ),
+
           // Display all categories with their services
           ...categoriesWithServices.map((category) {
             List<ServiceData> services = categoryServiceMap[category.id] ?? [];
             if (services.isEmpty) return SizedBox();
 
             return Container(
-              margin: EdgeInsets.only(bottom: 24), // Reduced from 32
+              margin: EdgeInsets.only(bottom: 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Category Header - More Compact
+                  // Category Header
                   Container(
-                    margin: EdgeInsets.only(bottom: 12), // Reduced from 16
+                    margin: EdgeInsets.only(bottom: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -130,15 +145,14 @@ class _ModernCategoryServicesComponentState
                               // Category Icon
                               if (category.categoryImage != null)
                                 Container(
-                                  width: 28, // Reduced from 32
-                                  height: 28, // Reduced from 32
-                                  margin: EdgeInsets.only(
-                                      right: 10), // Reduced from 12
+                                  width: 32,
+                                  height: 32,
+                                  margin: EdgeInsets.only(right: 12),
                                   child: CachedImageWidget(
                                     url: category.categoryImage!,
                                     fit: BoxFit.cover,
-                                    radius: 14, // Reduced from 16
-                                    height: 28, // Reduced from 32
+                                    radius: 16,
+                                    height: 32,
                                   ),
                                 ),
 
@@ -148,27 +162,14 @@ class _ModernCategoryServicesComponentState
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      category.name.validate().length > 20
-                                          ? category.name
-                                                  .validate()
-                                                  .substring(0, 20) +
-                                              '...'
-                                          : category.name.validate(),
-                                      style: boldTextStyle(
-                                          size: 15), // Reduced from 16
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                      category.name.validate(),
+                                      style: boldTextStyle(size: 18),
                                     ),
                                     if (category.description != null &&
                                         category.description!.isNotEmpty)
                                       Text(
-                                        category.description!.length > 40
-                                            ? category.description!
-                                                    .substring(0, 40) +
-                                                '...'
-                                            : category.description!,
-                                        style: secondaryTextStyle(
-                                            size: 10), // Reduced from 11
+                                        category.description!,
+                                        style: secondaryTextStyle(size: 12),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -181,17 +182,16 @@ class _ModernCategoryServicesComponentState
 
                         // Service Count Badge
                         Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2), // Reduced padding
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: primaryColor.withOpacity(0.1),
-                            borderRadius:
-                                BorderRadius.circular(10), // Reduced from 12
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             '${services.length}',
                             style: secondaryTextStyle(
-                              size: 10, // Reduced from 12
+                              size: 12,
                               color: primaryColor,
                             ),
                           ),
@@ -199,7 +199,7 @@ class _ModernCategoryServicesComponentState
 
                         // View All Button
                         if (services.length > 3) ...[
-                          8.width, // Reduced from 12
+                          12.width,
                           TextButton.icon(
                             onPressed: () {
                               ViewAllServiceScreen(
@@ -209,21 +209,17 @@ class _ModernCategoryServicesComponentState
                               ).launch(context);
                             },
                             icon: Icon(Icons.arrow_forward,
-                                size: 14,
-                                color: primaryColor), // Reduced from 16
+                                size: 16, color: primaryColor),
                             label: Text(
                               "View All",
-                              style: boldTextStyle(
-                                  color: primaryColor,
-                                  size: 12), // Reduced from 14
+                              style:
+                                  boldTextStyle(color: primaryColor, size: 14),
                             ),
                             style: TextButton.styleFrom(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4), // Reduced padding
+                                  horizontal: 12, vertical: 8),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    16), // Reduced from 20
+                                borderRadius: BorderRadius.circular(20),
                               ),
                             ),
                           ),
@@ -232,9 +228,9 @@ class _ModernCategoryServicesComponentState
                     ),
                   ),
 
-                  // Services Horizontal List - Redesigned
+                  // Services Horizontal List
                   Container(
-                    height: 200, // Significantly reduced from 240
+                    height: 280,
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (scrollNotification) {
                         if (scrollNotification is ScrollUpdateNotification) {
@@ -258,23 +254,13 @@ class _ModernCategoryServicesComponentState
                                     : 0),
                             itemCount: services.length,
                             itemBuilder: (context, index) {
-                              ServiceData service = services[index];
-
-                              // Debug log for this specific service
-                              log('🔄 Building service card for: ${service.name}');
-                              if (service.attachments != null &&
-                                  service.attachments!.isNotEmpty) {
-                                log('  📷 Service image URL: ${service.attachments!.first}');
-                              } else {
-                                log('  ❌ No image found for service: ${service.name}');
-                              }
-
                               return Container(
-                                width: 140, // Significantly reduced from 160
-                                margin: EdgeInsets.only(
-                                    right: 12), // Reduced from 16
-                                child: CompactServiceCard(
-                                    service: service), // New compact card
+                                width: 200,
+                                margin: EdgeInsets.only(right: 16),
+                                child: ServiceComponent(
+                                  serviceData: services[index],
+                                  width: 200,
+                                ),
                               );
                             },
                           ),
@@ -300,28 +286,28 @@ class _ModernCategoryServicesComponentState
                                 ),
                                 child: Center(
                                   child: Container(
-                                    width: 28, // Reduced from 32
-                                    height: 28, // Reduced from 32
+                                    width: 32,
+                                    height: 32,
                                     decoration: BoxDecoration(
                                       color: primaryColor,
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
                                           color: primaryColor.withOpacity(0.3),
-                                          blurRadius: 6, // Reduced from 8
+                                          blurRadius: 8,
                                           offset: Offset(0, 2),
                                         ),
                                       ],
                                     ),
                                     child: Icon(
                                       Icons.arrow_forward_ios,
-                                      size: 14, // Reduced from 16
+                                      size: 16,
                                       color: Colors.white,
                                     ),
                                   ).onTap(() {
                                     scrollControllers[category.id]?.animateTo(
                                       scrollControllers[category.id]!.offset +
-                                          180, // Reduced from 200
+                                          200,
                                       duration: Duration(milliseconds: 300),
                                       curve: Curves.easeInOut,
                                     );
@@ -338,140 +324,6 @@ class _ModernCategoryServicesComponentState
             );
           }).toList(),
         ],
-      ),
-    );
-  }
-}
-
-// New Compact Service Card Widget
-class CompactServiceCard extends StatelessWidget {
-  final ServiceData service;
-
-  const CompactServiceCard({Key? key, required this.service}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Get image URL
-    String imageUrl = service.attachments.validate().isNotEmpty
-        ? service.attachments!.first.validate()
-        : '';
-
-    return GestureDetector(
-      onTap: () {
-        hideKeyboard(context);
-        ServiceDetailScreen(
-          serviceId: service.id.validate(),
-        ).launch(context).then((value) {
-          setStatusBarColor(context.primaryColor);
-        });
-      },
-      child: Container(
-        decoration: boxDecorationWithRoundedCorners(
-          borderRadius: radius(8), // Reduced from default
-          backgroundColor: context.cardColor,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Image Section
-            Container(
-              height: 100, // Reduced height
-              width: double.infinity,
-              child: Stack(
-                children: [
-                  // Service Image
-                  Container(
-                    height: 100,
-                    width: double.infinity,
-                    child: imageUrl.isNotEmpty
-                        ? CachedImageWidget(
-                            url: imageUrl,
-                            fit: BoxFit.cover,
-                            height: 100,
-                            width: double.infinity,
-                            circle: false,
-                          ).cornerRadiusWithClipRRectOnly(
-                            topRight: 8, topLeft: 8)
-                        : Container(
-                            height: 100,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(8),
-                                topRight: Radius.circular(8),
-                              ),
-                            ),
-                            child: Icon(
-                              Icons.image_not_supported,
-                              size: 30, // Reduced from 40
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                  ),
-                  // Price Tag
-                  Positioned(
-                    bottom: 4,
-                    right: 4,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2), // Reduced padding
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${service.price.validate()} ج.م',
-                        style: boldTextStyle(
-                          size: 10, // Reduced from 12
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Content Section
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(6), // Reduced padding
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Rating
-                    Row(
-                      children: [
-                        Icon(Icons.star,
-                            size: 12, color: Colors.amber), // Reduced from 14
-                        2.width,
-                        Text(
-                          service.totalRating.validate().toString(),
-                          style:
-                              secondaryTextStyle(size: 10), // Reduced from 11
-                        ),
-                      ],
-                    ),
-                    4.height, // Reduced spacing
-                    // Service Name
-                    Expanded(
-                      child: Text(
-                        service.name.validate().length > 25
-                            ? service.name.validate().substring(0, 25) + '...'
-                            : service.name.validate(),
-                        style: boldTextStyle(size: 11), // Reduced from 12
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

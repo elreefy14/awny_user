@@ -57,13 +57,8 @@ android {
         applicationId "com.monyleekawnyuser.awnyuserapp3"
         minSdkVersion 25
         targetSdkVersion 34
-<<<<<<< Updated upstream
-        versionCode 90
-        versionName '11.7.2'
-=======
         versionCode 93
         versionName '12.7.3'
->>>>>>> Stashed changes
         multiDexEnabled true
     }
     

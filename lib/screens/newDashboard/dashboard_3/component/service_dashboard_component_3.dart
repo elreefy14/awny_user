@@ -80,11 +80,11 @@ class _ServiceDashboardComponent3State
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            Container(
               height: 180,
-              width: context.width(),
+              width: widget.width ?? context.width(),
               child: Stack(
-                clipBehavior: Clip.none,
+                clipBehavior: Clip.antiAlias,
                 children: [
                   CachedImageWidget(
                     url: widget.isFavouriteService
@@ -161,118 +161,149 @@ class _ServiceDashboardComponent3State
                 ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                16.height,
-                Text(
-                  "${widget.serviceData.subCategoryName.validate().isNotEmpty ? widget.serviceData.subCategoryName.validate() : widget.serviceData.categoryName.validate()}"
-                      .toUpperCase(),
-                  style: boldTextStyle(
-                      color: appStore.isDarkMode
-                          ? textSecondaryColorGlobal
-                          : primaryColor,
-                      size: 12),
-                ).paddingSymmetric(horizontal: 16),
-                16.height,
-                Text(
-                  widget.serviceData.name.validate(),
-                  style: boldTextStyle(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ).paddingSymmetric(horizontal: 16),
-                16.height,
-                Row(
-                  children: [
-                    Text(
-                      "${widget.serviceData.discount != 0 ? discountedAmount.toStringAsFixed(appConfigurationStore.priceDecimalPoint) : widget.serviceData.price.validate().toStringAsFixed(appConfigurationStore.priceDecimalPoint)}",
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  16.height,
+                  Container(
+                    width: double.infinity,
+                    child: Text(
+                      "${widget.serviceData.subCategoryName.validate().isNotEmpty ? widget.serviceData.subCategoryName.validate() : widget.serviceData.categoryName.validate()}"
+                          .toUpperCase(),
                       style: boldTextStyle(
-                          color: widget.serviceData.discount != 0
+                          color: appStore.isDarkMode
                               ? textSecondaryColorGlobal
                               : primaryColor,
-                          size: 18),
+                          size: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    if (widget.serviceData.discount != 0) 16.width,
-                    PriceWidget(
-                      price: widget.serviceData.price.validate(),
-                      isLineThroughEnabled:
-                          widget.serviceData.discount != 0 ? true : false,
-                      isHourlyService: widget.serviceData.isHourlyService,
-                      color: widget.serviceData.discount != 0
-                          ? textSecondaryColorGlobal
-                          : primaryColor,
-                      hourlyTextColor: widget.serviceData.discount != 0
-                          ? textSecondaryColorGlobal
-                          : primaryColor,
-                      size: widget.serviceData.discount != 0 ? 14 : 18,
-                      isFreeService: widget.serviceData.type.validate() ==
-                          SERVICE_TYPE_FREE,
-                    ),
-                  ],
-                ).flexible(flex: 2),
-                Spacer(),
-                if (widget.serviceData.totalRating.validate() > 0)
+                  ).paddingSymmetric(horizontal: 16),
+                  16.height,
                   Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: boxDecorationDefault(
-                      color: appStore.isDarkMode
-                          ? context.cardColor.withOpacity(0.2)
-                          : Colors.white,
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(ic_star_fill,
-                            height: 15,
-                            color: getRatingBarColor(widget
-                                .serviceData.totalRating
-                                .validate()
-                                .toInt())),
-                        4.width,
-                        Text(
-                            "${widget.serviceData.totalRating.validate().toStringAsFixed(1)}",
-                            style: boldTextStyle(size: 12)),
-                      ],
-                    ),
-                  ),
-              ],
-            ).paddingSymmetric(horizontal: 16),
-            12.height,
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                ImageBorder(
-                    src: widget.serviceData.providerImage.validate(),
-                    height: 30),
-                8.width,
-                if (widget.serviceData.providerName.validate().isNotEmpty)
-                  Expanded(
+                    width: double.infinity,
                     child: Text(
-                      widget.serviceData.providerName.validate(),
-                      style: secondaryTextStyle(
-                          size: 12,
-                          color: appStore.isDarkMode
-                              ? Colors.white
-                              : appTextSecondaryColor),
+                      widget.serviceData.name.validate(),
+                      style: boldTextStyle(),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  )
-              ],
-            ).onTap(() async {
-              if (widget.serviceData.providerId !=
-                  appStore.userId.validate()) {
-                await ProviderInfoScreen(
-                        providerId:
-                            widget.serviceData.providerId.validate())
-                    .launch(context);
-                setStatusBarColor(Colors.transparent);
-              }
-            }).paddingSymmetric(horizontal: 16),
-            16.height,
+                  ).paddingSymmetric(horizontal: 16),
+                  16.height,
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 3,
+                          child: Text(
+                            "${widget.serviceData.discount != 0 ? discountedAmount.toStringAsFixed(appConfigurationStore.priceDecimalPoint) : widget.serviceData.price.validate().toStringAsFixed(appConfigurationStore.priceDecimalPoint)}",
+                            style: boldTextStyle(
+                                color: widget.serviceData.discount != 0
+                                    ? textSecondaryColorGlobal
+                                    : primaryColor,
+                                size: 18),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (widget.serviceData.discount != 0) 8.width,
+                        if (widget.serviceData.discount != 0)
+                          Flexible(
+                            flex: 2,
+                            child: PriceWidget(
+                              price: widget.serviceData.price.validate(),
+                              isLineThroughEnabled:
+                                  widget.serviceData.discount != 0
+                                      ? true
+                                      : false,
+                              isHourlyService:
+                                  widget.serviceData.isHourlyService,
+                              color: widget.serviceData.discount != 0
+                                  ? textSecondaryColorGlobal
+                                  : primaryColor,
+                              hourlyTextColor: widget.serviceData.discount != 0
+                                  ? textSecondaryColorGlobal
+                                  : primaryColor,
+                              size: widget.serviceData.discount != 0 ? 14 : 18,
+                              isFreeService:
+                                  widget.serviceData.type.validate() ==
+                                      SERVICE_TYPE_FREE,
+                            ),
+                          ),
+                        Spacer(),
+                        if (widget.serviceData.totalRating.validate() > 0)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: boxDecorationDefault(
+                              color: appStore.isDarkMode
+                                  ? context.cardColor.withOpacity(0.2)
+                                  : Colors.white,
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(ic_star_fill,
+                                    height: 12,
+                                    color: getRatingBarColor(widget
+                                        .serviceData.totalRating
+                                        .validate()
+                                        .toInt())),
+                                2.width,
+                                Text(
+                                    "${widget.serviceData.totalRating.validate().toStringAsFixed(1)}",
+                                    style: boldTextStyle(size: 10)),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  12.height,
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        ImageBorder(
+                            src: widget.serviceData.providerImage.validate(),
+                            height: 24),
+                        8.width,
+                        if (widget.serviceData.providerName
+                            .validate()
+                            .isNotEmpty)
+                          Expanded(
+                            child: Text(
+                              widget.serviceData.providerName.validate(),
+                              style: secondaryTextStyle(
+                                  size: 11,
+                                  color: appStore.isDarkMode
+                                      ? Colors.white
+                                      : appTextSecondaryColor),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )
+                      ],
+                    ).onTap(() async {
+                      if (widget.serviceData.providerId !=
+                          appStore.userId.validate()) {
+                        await ProviderInfoScreen(
+                                providerId:
+                                    widget.serviceData.providerId.validate())
+                            .launch(context);
+                        setStatusBarColor(Colors.transparent);
+                      }
+                    }),
+                  ),
+                  16.height,
+                ],
+              ),
+            ),
           ],
         ),
       ),

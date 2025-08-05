@@ -140,8 +140,9 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
         return Stack(
           alignment: Alignment.center,
           children: [
-            AspectRatio(
-              aspectRatio: controller.value.aspectRatio,
+            Container(
+              width: context.width(),
+              height: 320, // Increased height for better display
               child: VideoPlayer(controller),
             ),
             if (!controller.value.isPlaying)
@@ -164,13 +165,17 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
         return Center(child: CircularProgressIndicator());
       }
     } else {
-      // Regular image slider
-      return CachedImageWidget(
-              url: data.sliderImage.validate(),
-              height: 250,
-              width: context.width(),
-              fit: BoxFit.cover)
-          .onTap(() {
+      // Regular image slider with proper aspect ratio and no cropping
+      return Container(
+        width: context.width(),
+        height: 320, // Increased height for better display
+        child: CachedImageWidget(
+          url: data.sliderImage.validate(),
+          height: 320,
+          width: context.width(),
+          fit: BoxFit.cover, // Changed back to cover for better appearance
+        ),
+      ).onTap(() {
         if (data.type == SERVICE) {
           ServiceDetailScreen(serviceId: data.typeId.validate().toInt())
               .launch(context, pageRouteAnimation: PageRouteAnimation.Fade);
@@ -199,8 +204,8 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
       topSliders =
           widget.sliderList; // If no direction specified, show all at top
 
-    return SizedBox(
-      height: 300,
+    return Container(
+      height: 320, // Fixed height to match media widget
       width: context.width(),
       child: Stack(
         children: [
@@ -211,14 +216,32 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
                     topSliders.length,
                     (index) {
                       SliderModel data = topSliders[index];
-                      return getMediaWidget(data);
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: context.cardColor,
+                          borderRadius: radius(12),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: radius(12),
+                          child: getMediaWidget(data),
+                        ),
+                      );
                     },
                   ),
                 )
-              : CachedImageWidget(url: '', height: 250, width: context.width()),
+              : Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: radius(12),
+                  ),
+                  child: Center(
+                    child: Text('No banners available',
+                        style: secondaryTextStyle()),
+                  ),
+                ),
           if (topSliders.length > 1)
             Positioned(
-              bottom: 25,
+              bottom: 16,
               left: 16,
               child: DotIndicator(
                 pageController: sliderPageController,
@@ -287,24 +310,39 @@ class _SliderDashboardComponent1State extends State<SliderDashboardComponent1> {
 
     PageController bottomSliderController = PageController(initialPage: 0);
 
-    return SizedBox(
-      height: 200, // Slightly smaller height for bottom sliders
+    return Container(
+      height: 200, // Consistent height for bottom sliders
       width: context.width(),
+      margin: EdgeInsets.symmetric(horizontal: 16),
       child: Stack(
         children: [
-          PageView(
-            controller: bottomSliderController,
-            children: List.generate(
-              bottomSliders.length,
-              (index) {
-                SliderModel data = bottomSliders[index];
-                return getMediaWidget(data);
-              },
+          ClipRRect(
+            borderRadius: radius(12),
+            child: PageView(
+              controller: bottomSliderController,
+              children: List.generate(
+                bottomSliders.length,
+                (index) {
+                  SliderModel data = bottomSliders[index];
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: context.cardColor,
+                      borderRadius: radius(12),
+                    ),
+                    child: CachedImageWidget(
+                      url: data.sliderImage.validate(),
+                      height: 200,
+                      width: context.width(),
+                      fit: BoxFit.contain,
+                    ),
+                  );
+                },
+              ),
             ),
           ),
           if (bottomSliders.length > 1)
             Positioned(
-              bottom: 25,
+              bottom: 16,
               left: 16,
               child: DotIndicator(
                 pageController: bottomSliderController,
