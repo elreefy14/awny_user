@@ -164,6 +164,22 @@ class CompactServiceCard extends StatelessWidget {
 
   const CompactServiceCard({Key? key, required this.service}) : super(key: key);
 
+  // Calculate price after discount
+  num getPriceAfterDiscount() {
+    num originalPrice = service.price.validate();
+    num discountPercentage = service.discount.validate();
+
+    if (discountPercentage > 0) {
+      num discountAmount = (originalPrice * discountPercentage) / 100;
+      return originalPrice - discountAmount;
+    }
+
+    return originalPrice;
+  }
+
+  // Check if service has discount
+  bool get hasDiscount => service.discount.validate() > 0;
+
   @override
   Widget build(BuildContext context) {
     // Get image URL
@@ -225,7 +241,7 @@ class CompactServiceCard extends StatelessWidget {
                             ),
                           ),
                   ),
-                  // Price Tag
+                  // Price Tag with Discount Support
                   Positioned(
                     bottom: 4,
                     right: 4,
@@ -236,15 +252,63 @@ class CompactServiceCard extends StatelessWidget {
                         color: primaryColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        '${service.price.validate()} ج.م',
-                        style: boldTextStyle(
-                          size: 10, // Reduced from 12
-                          color: Colors.white,
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Show discounted price if available
+                          if (hasDiscount) ...[
+                            Text(
+                              '${getPriceAfterDiscount().toStringAsFixed(0)} ج.م',
+                              style: boldTextStyle(
+                                size: 10, // Reduced from 12
+                                color: Colors.white,
+                              ),
+                            ),
+                            // Show original price with strikethrough
+                            Text(
+                              '${service.price.validate()} ج.م',
+                              style: TextStyle(
+                                fontSize: 8,
+                                color: Colors.white.withOpacity(0.8),
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          ] else ...[
+                            // Show original price only
+                            Text(
+                              '${service.price.validate()} ج.م',
+                              style: boldTextStyle(
+                                size: 10, // Reduced from 12
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   ),
+                  // Discount Badge
+                  if (hasDiscount)
+                    Positioned(
+                      top: 4,
+                      left: 4,
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '-${service.discount.validate()}%',
+                          style: TextStyle(
+                            fontSize: 8,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
