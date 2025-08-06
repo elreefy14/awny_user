@@ -27,6 +27,15 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
+  // Modern color scheme
+  final Color primaryOrange = Color(0xFFFF6B35);
+  final Color lightOrange = Color(0xFFFF8A65);
+  final Color backgroundColor = Color(0xFFF5F5F5);
+  final Color cardBackground = Colors.white;
+  final Color textPrimary = Color(0xFF2C3E50);
+  final Color textSecondary = Color(0xFF7F8C8D);
+  final Color accentBlue = Color(0xFF3498DB);
+
   @override
   void initState() {
     super.initState();
@@ -102,194 +111,131 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
   }
 
   Widget _buildModernSensorCard(
-      String title, dynamic value, String unit, IconData icon, Color color,
+      String title, dynamic value, String unit, IconData icon,
       {bool isStatus = false}) {
-    return TweenAnimationBuilder<double>(
-      duration: Duration(milliseconds: 600),
-      tween: Tween(begin: 0.0, end: 1.0),
-      builder: (context, scale, child) {
-        return Transform.scale(
-          scale: scale,
-          child: Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  color.withOpacity(0.1),
-                  color.withOpacity(0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: color.withOpacity(0.2),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withOpacity(0.1),
-                  blurRadius: 15,
-                  offset: Offset(0, 8),
-                  spreadRadius: 0,
-                ),
-                BoxShadow(
-                  color: modernCardShadowColor,
-                  blurRadius: 20,
-                  offset: Offset(0, 4),
-                  spreadRadius: 0,
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Icon with animated background
-                TweenAnimationBuilder<double>(
-                  duration: Duration(milliseconds: 800),
-                  tween: Tween(begin: 0.0, end: 1.0),
-                  builder: (context, opacity, child) {
-                    return Opacity(
-                      opacity: opacity,
-                      child: Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: color.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: color.withOpacity(0.2),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          icon,
-                          color: color,
-                          size: 28,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                16.height,
-
-                // Title with improved contrast
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color:
-                        Colors.white, // Changed to white for better visibility
-                    letterSpacing: 0.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                8.height,
-
-                // Value with animated appearance
-                TweenAnimationBuilder<double>(
-                  duration: Duration(milliseconds: 1000),
-                  tween: Tween(begin: 0.0, end: 1.0),
-                  builder: (context, opacity, child) {
-                    return Opacity(
-                      opacity: opacity,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            isStatus
-                                ? (value ?? 'N/A')
-                                : (value?.toString() ?? 'N/A'),
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors
-                                  .white, // Changed to white for better visibility
-                              height: 1.1,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          if (!isStatus && unit.isNotEmpty) ...[
-                            4.width,
-                            Text(
-                              unit,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color:
-                                    color.withOpacity(0.9), // Made more visible
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildModernStatusBanner() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 4),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            statusConnectedColor.withOpacity(0.15),
-            statusConnectedColor.withOpacity(0.05),
-          ],
-        ),
+        color: cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: statusConnectedColor.withOpacity(0.3),
-          width: 1.5,
-        ),
         boxShadow: [
           BoxShadow(
-            color: statusConnectedColor.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Animated status indicator with pulse effect
-          TweenAnimationBuilder<double>(
-            duration: Duration(seconds: 2),
-            tween: Tween(begin: 0.8, end: 1.0),
-            builder: (context, value, child) {
-              return Transform.scale(
-                scale: value,
-                child: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: statusConnectedColor,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: statusConnectedColor.withOpacity(0.4),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      ),
-                    ],
+          // Icon with modern styling
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [primaryOrange, lightOrange],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: primaryOrange.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          16.height,
+
+          // Title
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: textPrimary,
+              letterSpacing: 0.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          8.height,
+
+          // Value
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                isStatus ? (value ?? 'N/A') : (value?.toString() ?? 'N/A'),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: textPrimary,
+                  height: 1.1,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (!isStatus && unit.isNotEmpty) ...[
+                4.width,
+                Text(
+                  unit,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: textSecondary,
                   ),
                 ),
-              );
-            },
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusCard() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [primaryOrange, lightOrange],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: primaryOrange.withOpacity(0.3),
+            blurRadius: 15,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Status indicator
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.4),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
           ),
           16.width,
           Expanded(
@@ -298,14 +244,14 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.white, // Changed to white for better visibility
+                color: Colors.white,
                 letterSpacing: 0.5,
               ),
             ),
           ),
           Icon(
             Icons.wifi,
-            color: statusConnectedColor,
+            color: Colors.white,
             size: 20,
           ),
         ],
@@ -313,43 +259,36 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, IconData icon) {
     return Container(
       margin: EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
           Container(
-            width: 4,
-            height: 24,
+            padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  primaryColor,
-                  primaryColor.withOpacity(0.7),
-                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [primaryOrange, lightOrange],
               ),
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 16,
             ),
           ),
           12.width,
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white, // Changed to white for better visibility
-                letterSpacing: 0.5,
-              ),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: textPrimary,
+              letterSpacing: 0.5,
             ),
-          ),
-          // Add a subtle icon
-          Icon(
-            Icons.sensors,
-            color: primaryColor.withOpacity(0.8), // Made more visible
-            size: 20,
           ),
         ],
       ),
@@ -359,307 +298,245 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
   Widget _buildSettingsCard() {
     if (_deviceData?.settings == null) return SizedBox.shrink();
 
-    return TweenAnimationBuilder<double>(
-      duration: Duration(milliseconds: 800),
-      tween: Tween(begin: 0.0, end: 1.0),
-      builder: (context, opacity, child) {
-        return Opacity(
-          opacity: opacity,
-          child: Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  primaryColor.withOpacity(0.1),
-                  primaryColor.withOpacity(0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: primaryColor.withOpacity(0.2),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: primaryColor.withOpacity(0.1),
-                  blurRadius: 15,
-                  offset: Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.settings,
-                        color: primaryColor,
-                        size: 20,
-                      ),
-                    ),
-                    12.width,
-                    Text(
-                      'إعدادات الجهاز',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors
-                            .white, // Changed to white for better visibility
-                      ),
-                    ),
-                  ],
-                ),
-                20.height,
-                _buildSettingRow('الحد الأقصى للجهد',
-                    '${_deviceData!.settings.highVolt} V', Icons.flash_on),
-                _buildSettingRow('الحد الأدنى للجهد',
-                    '${_deviceData!.settings.lowVolt} V', Icons.flash_off),
-                _buildSettingRow(
-                    'الحد الأقصى للتيار',
-                    '${_deviceData!.settings.maxCurrent} A',
-                    Icons.electric_bolt),
-                _buildSettingRow(
-                    'وقت فتح الباب',
-                    '${_deviceData!.settings.doorOpenTime} ثانية',
-                    Icons.door_front_door),
-              ],
-            ),
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 4),
           ),
-        );
-      },
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: primaryOrange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.settings,
+                  color: primaryOrange,
+                  size: 20,
+                ),
+              ),
+              12.width,
+              Text(
+                'إعدادات الجهاز',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: textPrimary,
+                ),
+              ),
+            ],
+          ),
+          20.height,
+          _buildSettingRow('الحد الأقصى للجهد',
+              '${_deviceData!.settings.highVolt} V', Icons.flash_on),
+          _buildSettingRow('الحد الأدنى للجهد',
+              '${_deviceData!.settings.lowVolt} V', Icons.flash_off),
+          _buildSettingRow('الحد الأقصى للتيار',
+              '${_deviceData!.settings.maxCurrent} A', Icons.electric_bolt),
+          _buildSettingRow(
+              'وقت فتح الباب',
+              '${_deviceData!.settings.doorOpenTime} ثانية',
+              Icons.door_front_door),
+        ],
+      ),
     );
   }
 
   Widget _buildSettingRow(String label, String value, IconData icon) {
-    return TweenAnimationBuilder<double>(
-      duration: Duration(milliseconds: 600),
-      tween: Tween(begin: 0.0, end: 1.0),
-      builder: (context, opacity, child) {
-        return Opacity(
-          opacity: opacity,
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: primaryColor.withOpacity(0.7),
-                    size: 16,
-                  ),
-                ),
-                12.width,
-                Expanded(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white
-                          .withOpacity(0.9), // Changed to white with opacity
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: primaryColor,
-                    ),
-                  ),
-                ),
-              ],
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: primaryOrange.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              color: primaryOrange,
+              size: 16,
             ),
           ),
-        );
-      },
+          12.width,
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: textSecondary,
+              ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: primaryOrange.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: primaryOrange,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildStateCard() {
     if (_deviceData?.state == null) return SizedBox.shrink();
 
-    return TweenAnimationBuilder<double>(
-      duration: Duration(milliseconds: 1000),
-      tween: Tween(begin: 0.0, end: 1.0),
-      builder: (context, opacity, child) {
-        return Opacity(
-          opacity: opacity,
-          child: Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  statusInfoColor.withOpacity(0.1),
-                  statusInfoColor.withOpacity(0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: statusInfoColor.withOpacity(0.2),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: statusInfoColor.withOpacity(0.1),
-                  blurRadius: 15,
-                  offset: Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: statusInfoColor.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.info_outline,
-                        color: statusInfoColor,
-                        size: 20,
-                      ),
-                    ),
-                    12.width,
-                    Text(
-                      'حالة الجهاز',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors
-                            .white, // Changed to white for better visibility
-                      ),
-                    ),
-                  ],
-                ),
-                20.height,
-                if (_deviceData!.state.lowT1 != null)
-                  _buildStateRow(
-                      'T1 الأدنى', _deviceData!.state.lowT1!, Icons.thermostat),
-                if (_deviceData!.state.lowT2 != null)
-                  _buildStateRow('T2 الأدنى', '${_deviceData!.state.lowT2}°C',
-                      Icons.thermostat),
-                if (_deviceData!.state.lowT3 != null)
-                  _buildStateRow('T3 الأدنى', '${_deviceData!.state.lowT3}°C',
-                      Icons.thermostat),
-              ],
-            ),
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 4),
           ),
-        );
-      },
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: accentBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.info_outline,
+                  color: accentBlue,
+                  size: 20,
+                ),
+              ),
+              12.width,
+              Text(
+                'حالة الجهاز',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: textPrimary,
+                ),
+              ),
+            ],
+          ),
+          20.height,
+          if (_deviceData!.state.lowT1 != null)
+            _buildStateRow(
+                'T1 الأدنى', _deviceData!.state.lowT1!, Icons.thermostat),
+          if (_deviceData!.state.lowT2 != null)
+            _buildStateRow(
+                'T2 الأدنى', '${_deviceData!.state.lowT2}°C', Icons.thermostat),
+          if (_deviceData!.state.lowT3 != null)
+            _buildStateRow(
+                'T3 الأدنى', '${_deviceData!.state.lowT3}°C', Icons.thermostat),
+        ],
+      ),
     );
   }
 
   Widget _buildStateRow(String label, String value, IconData icon) {
-    return TweenAnimationBuilder<double>(
-      duration: Duration(milliseconds: 800),
-      tween: Tween(begin: 0.0, end: 1.0),
-      builder: (context, opacity, child) {
-        return Opacity(
-          opacity: opacity,
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: statusInfoColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: statusInfoColor.withOpacity(0.7),
-                    size: 16,
-                  ),
-                ),
-                12.width,
-                Expanded(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white
-                          .withOpacity(0.9), // Changed to white with opacity
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusInfoColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: statusInfoColor,
-                    ),
-                  ),
-                ),
-              ],
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: accentBlue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              color: accentBlue,
+              size: 16,
             ),
           ),
-        );
-      },
+          12.width,
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: textSecondary,
+              ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: accentBlue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: accentBlue,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: Text(
           'جهاز ${widget.deviceId}',
           style: TextStyle(
             fontWeight: FontWeight.bold,
+            color: textPrimary,
             letterSpacing: 0.5,
           ),
         ),
-        backgroundColor: context.scaffoldBackgroundColor,
+        backgroundColor: cardBackground,
         elevation: 0,
+        iconTheme: IconThemeData(color: textPrimary),
         actions: [
           Container(
             margin: EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
+              color: primaryOrange.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
               icon: Icon(
                 Icons.refresh,
-                color: primaryColor,
+                color: primaryOrange,
               ),
               onPressed: () {
-                // Add haptic feedback
                 HapticFeedback.lightImpact();
                 _loadDeviceData();
               },
@@ -672,38 +549,18 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TweenAnimationBuilder<double>(
-                    duration: Duration(milliseconds: 1500),
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    builder: (context, value, child) {
-                      return Transform.scale(
-                        scale: value,
-                        child: CircularProgressIndicator(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(primaryColor),
-                          strokeWidth: 3,
-                        ),
-                      );
-                    },
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(primaryOrange),
+                    strokeWidth: 3,
                   ),
                   16.height,
-                  TweenAnimationBuilder<double>(
-                    duration: Duration(milliseconds: 1000),
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    builder: (context, opacity, child) {
-                      return Opacity(
-                        opacity: opacity,
-                        child: Text(
-                          'جاري تحميل بيانات الجهاز...',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors
-                                .white, // Changed to white for better visibility
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      );
-                    },
+                  Text(
+                    'جاري تحميل بيانات الجهاز...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: textSecondary,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ],
               ),
@@ -713,75 +570,47 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TweenAnimationBuilder<double>(
-                        duration: Duration(milliseconds: 800),
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        builder: (context, scale, child) {
-                          return Transform.scale(
-                            scale: scale,
-                            child: Container(
-                              padding: EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.error_outline,
-                                size: 64,
-                                color: Colors.red,
-                              ),
-                            ),
-                          );
-                        },
+                      Container(
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red,
+                        ),
                       ),
                       16.height,
-                      TweenAnimationBuilder<double>(
-                        duration: Duration(milliseconds: 1000),
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        builder: (context, opacity, child) {
-                          return Opacity(
-                            opacity: opacity,
-                            child: Text(
-                              _error!,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.red.shade300, // Made more visible
-                                letterSpacing: 0.5,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          );
-                        },
+                      Text(
+                        _error!,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red,
+                          letterSpacing: 0.5,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                       24.height,
-                      TweenAnimationBuilder<double>(
-                        duration: Duration(milliseconds: 1200),
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        builder: (context, opacity, child) {
-                          return Opacity(
-                            opacity: opacity,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                HapticFeedback.lightImpact();
-                                _loadDeviceData();
-                              },
-                              icon: Icon(Icons.refresh),
-                              label: Text('إعادة المحاولة'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryColor,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 4,
-                                shadowColor: primaryColor.withOpacity(0.3),
-                              ),
-                            ),
-                          );
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          _loadDeviceData();
                         },
+                        icon: Icon(Icons.refresh),
+                        label: Text('إعادة المحاولة'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryOrange,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
                       ),
                     ],
                   ),
@@ -791,95 +620,56 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          TweenAnimationBuilder<double>(
-                            duration: Duration(milliseconds: 800),
-                            tween: Tween(begin: 0.0, end: 1.0),
-                            builder: (context, scale, child) {
-                              return Transform.scale(
-                                scale: scale,
-                                child: Container(
-                                  padding: EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.withOpacity(0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.device_unknown,
-                                    size: 64,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              );
-                            },
+                          Container(
+                            padding: EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: textSecondary.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.device_unknown,
+                              size: 64,
+                              color: textSecondary,
+                            ),
                           ),
                           16.height,
-                          TweenAnimationBuilder<double>(
-                            duration: Duration(milliseconds: 1000),
-                            tween: Tween(begin: 0.0, end: 1.0),
-                            builder: (context, opacity, child) {
-                              return Opacity(
-                                opacity: opacity,
-                                child: Text(
-                                  'لا توجد بيانات للجهاز',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors
-                                        .white, // Changed to white for better visibility
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              );
-                            },
+                          Text(
+                            'لا توجد بيانات للجهاز',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: textPrimary,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                           8.height,
-                          TweenAnimationBuilder<double>(
-                            duration: Duration(milliseconds: 1200),
-                            tween: Tween(begin: 0.0, end: 1.0),
-                            builder: (context, opacity, child) {
-                              return Opacity(
-                                opacity: opacity,
-                                child: Text(
-                                  'تأكد من أن معرف الجهاز صحيح وأن الجهاز متصل',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white.withOpacity(
-                                        0.8), // Changed to white with opacity
-                                    letterSpacing: 0.3,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              );
-                            },
+                          Text(
+                            'تأكد من أن معرف الجهاز صحيح وأن الجهاز متصل',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: textSecondary,
+                              letterSpacing: 0.3,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                           24.height,
-                          TweenAnimationBuilder<double>(
-                            duration: Duration(milliseconds: 1400),
-                            tween: Tween(begin: 0.0, end: 1.0),
-                            builder: (context, opacity, child) {
-                              return Opacity(
-                                opacity: opacity,
-                                child: ElevatedButton.icon(
-                                  onPressed: () {
-                                    HapticFeedback.lightImpact();
-                                    _loadDeviceData();
-                                  },
-                                  icon: Icon(Icons.refresh),
-                                  label: Text('إعادة المحاولة'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: primaryColor,
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 4,
-                                    shadowColor: primaryColor.withOpacity(0.3),
-                                  ),
-                                ),
-                              );
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              _loadDeviceData();
                             },
+                            icon: Icon(Icons.refresh),
+                            label: Text('إعادة المحاولة'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryOrange,
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
                           ),
                         ],
                       ),
@@ -893,12 +683,13 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // Modern Status Banner
-                              _buildModernStatusBanner(),
+                              // Status Card
+                              _buildStatusCard(),
                               24.height,
 
                               // Sensors Section
-                              _buildSectionHeader('قراءات المستشعرات'),
+                              _buildSectionHeader(
+                                  'قراءات المستشعرات', Icons.sensors),
                               GridView.count(
                                 shrinkWrap: true,
                                 physics: NeverScrollableScrollPhysics(),
@@ -913,7 +704,6 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
                                         .toStringAsFixed(1),
                                     'A',
                                     Icons.electric_bolt,
-                                    sensorCurrentColor,
                                   ),
                                   _buildModernSensorCard(
                                     'الجهد',
@@ -921,14 +711,12 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
                                         .toStringAsFixed(0),
                                     'V',
                                     Icons.power,
-                                    sensorVoltageColor,
                                   ),
                                   _buildModernSensorCard(
                                     'الرطوبة',
                                     _deviceData!.sensors.humidity.toString(),
                                     '%',
                                     Icons.water_drop,
-                                    sensorHumidityColor,
                                   ),
                                   _buildModernSensorCard(
                                     'الباب',
@@ -937,9 +725,6 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
                                         : 'مغلق',
                                     '',
                                     Icons.door_front_door,
-                                    _deviceData!.sensors.door == 1
-                                        ? sensorDoorOpenColor
-                                        : sensorDoorClosedColor,
                                     isStatus: true,
                                   ),
                                   _buildModernSensorCard(
@@ -949,7 +734,6 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
                                         'N/A',
                                     '°C',
                                     Icons.thermostat,
-                                    sensorTemp2Color,
                                   ),
                                   _buildModernSensorCard(
                                     'T3',
@@ -958,7 +742,6 @@ class _DeviceTelemetryScreenState extends State<DeviceTelemetryScreen>
                                         'N/A',
                                     '°C',
                                     Icons.thermostat,
-                                    sensorTemp3Color,
                                   ),
                                 ],
                               ),
